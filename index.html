@@ -10,36 +10,39 @@
 <title>Party Sheets</title>
 <style>
 :root{
-  --bg:#eef1ee; --panel:#fbfcfb; --ink:#1d2a27; --muted:#5d6e69; --line:#cdd7d3;
-  --accent:#1f6f66; --accent-ink:#ffffff; --brass:#9a6b1a;
-  --hp-ok:#2e8b57; --hp-mid:#c98a14; --hp-low:#b83a32; --chip:#e3ebe8; --field:#ffffff;
+  --bg:#eef1ee; --panel:#fbfcfb; --ink:#17231f; --muted:#4f625c; --line:#c5d1cc;
+  --accent:#17665d; --accent-ink:#ffffff; --brass:#8f6212;
+  --hp-ok:#23804d; --hp-mid:#b87a0c; --hp-low:#b3312a; --chip:#e1eae6; --field:#ffffff;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#121917; --panel:#1a2421; --ink:#e4ece9; --muted:#97aaa4; --line:#2d3b37;
-    --accent:#4fb3a6; --accent-ink:#0b1412; --brass:#d9a441;
-    --hp-ok:#4cc27f; --hp-mid:#e0a63a; --hp-low:#e0675e; --chip:#25322e; --field:#141c19;
+    --bg:#101614; --panel:#19231f; --ink:#e8f0ed; --muted:#a3b5af; --line:#2f3e39;
+    --accent:#52bdb0; --accent-ink:#071210; --brass:#e0aa4a;
+    --hp-ok:#52cc87; --hp-mid:#e6ad45; --hp-low:#ee7068; --chip:#243029; --field:#121a17;
   }
 }
+html{font-size:100%;-webkit-text-size-adjust:100%}
+@media (min-width:701px) and (max-width:1100px){html{font-size:106.25%}}
+@media (max-width:700px){html{font-size:112.5%}}
 *,*::before,*::after{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 "Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 calc(76px + env(safe-area-inset-bottom,0))}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 "Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 calc(5.2rem + env(safe-area-inset-bottom,0))}
 body.nonav{padding-bottom:env(safe-area-inset-bottom,0)}
 h1,h2,h3{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;margin:0;font-weight:700;letter-spacing:.01em}
 button,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
 [hidden]{display:none!important}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.wrap{max-width:1100px;margin:0 auto;padding:16px}
-header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:8px 0 14px;border-bottom:2px solid var(--brass);margin-bottom:16px}
-header.top h1{font-size:1.8rem}
+.wrap{max-width:1180px;margin:0 auto;padding:1rem}
+header.top{display:flex;flex-wrap:wrap;gap:.4rem .8rem;align-items:center;justify-content:space-between;padding:.2rem 0 .6rem;border-bottom:3px solid var(--brass);margin-bottom:.8rem}
+header.top>div:first-child{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+header.top h1{font-size:1.5rem}
 .sub{color:var(--muted);font-size:.9rem}
-.badge{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--chip);font-size:.78rem;font-weight:600}
+.badge{display:inline-block;padding:.1rem .65rem;border-radius:99px;background:var(--chip);font-size:.8rem;font-weight:700}
 .badge.dm{background:var(--brass);color:#fff}
 .badge.ok{background:var(--accent);color:var(--accent-ink)}
-.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600;min-height:40px}
+.btn{border:2px solid var(--line);background:var(--panel);padding:.5rem .95rem;border-radius:.7rem;font-weight:700;min-height:2.75rem}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn.small{padding:4px 10px;font-size:.88rem;min-height:36px}
+.btn.small{padding:.3rem .7rem;font-size:.9rem;min-height:2.5rem}
 .btn.danger{color:var(--hp-low)}
 .btn.dmg{color:var(--hp-low);border-color:var(--hp-low)}
 .btn.heal{color:var(--hp-ok);border-color:var(--hp-ok)}
@@ -47,146 +50,186 @@ header.top h1{font-size:1.8rem}
 .btn:disabled{opacity:.5;cursor:default}
 .status{font-size:.85rem;color:var(--muted)}
 .status.err,.sub.err{color:var(--hp-low)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-.card h3{font-size:1.15rem;line-height:1.2}
-.card .who{color:var(--muted);font-size:.85rem}
-.hpbar{height:12px;border-radius:6px;background:var(--chip);overflow:hidden;border:1px solid var(--line)}
+
+/* ---------- DM party cards ---------- */
+.ptools{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem;align-items:center}
+.ptools .btn{flex:1}
+.ptools .grow{display:none}
+.manage{background:var(--panel);border:1px solid var(--line);border-radius:.8rem;margin-bottom:.9rem}
+.manage>summary{min-height:2.9rem;display:flex;align-items:center;padding:0 1rem;font-weight:700;cursor:pointer}
+.manage .inner{padding:0 1rem 1rem;display:flex;flex-wrap:wrap;gap:.5rem}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(21rem,1fr));gap:1rem}
+@media (max-width:700px){.pgrid{grid-template-columns:1fr}}
+.pcard{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--accent);border-radius:1rem;padding:.9rem 1rem 1rem;display:flex;flex-direction:column;gap:.7rem}
+.pcard.low{border-top-color:var(--hp-low)}
+.pcard.mid{border-top-color:var(--hp-mid)}
+.pc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;background:none;border:0;padding:0;text-align:left;width:100%}
+.pc-name{font-family:Georgia,serif;font-size:1.65rem;font-weight:700;line-height:1.1}
+.pc-sub{color:var(--muted);font-size:.95rem;margin-top:.15rem}
+.pc-open{font-size:.85rem;font-weight:700;color:var(--accent);white-space:nowrap;padding-top:.3rem}
+.pc-hp{display:flex;flex-direction:column;gap:.45rem}
+.pc-hprow{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.pc-hpnum{font-family:Georgia,serif;font-weight:700;font-size:2.8rem;line-height:1;font-variant-numeric:tabular-nums}
+.pc-hpnum span{font-size:1.4rem;color:var(--muted);font-weight:600}
+.pc-hpnum small{font-size:.95rem;color:var(--accent);font-family:inherit;margin-left:.3rem}
+.pc-hpbtns{display:flex;gap:.4rem}
+.pc-hpbtns .btn{min-width:3.1rem;font-size:1.05rem;padding:.3rem .5rem;min-height:2.9rem}
+.hpbar{height:.9rem;border-radius:.5rem;background:var(--chip);overflow:hidden;border:1px solid var(--line)}
 .hpbar>i{display:block;height:100%}
-.hprow{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-wrap:wrap}
-.hpnum{font-weight:700;font-variant-numeric:tabular-nums}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
-.stat,.tile{background:var(--chip);border-radius:10px;padding:6px 4px;text-align:center}
-.stat b,.tile b{display:block;font-size:1.1rem;font-variant-numeric:tabular-nums}
-.stat span,.tile span{font-size:.72rem;color:var(--muted)}
-.tile b{font-size:1.4rem;font-family:Georgia,serif}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-bottom:14px}
-.tile .ctl{display:flex;gap:4px;justify-content:center;margin-top:2px}
-.conds{font-size:.85rem;color:var(--hp-low)}
-.empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:12px;color:var(--muted)}
-.row{display:grid;gap:10px}
-.cols4{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
-.cols2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-label.f{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--muted);font-weight:600}
-input[type=text],input[type=number],input[type=search],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
-textarea{min-height:72px;resize:vertical}
-.sheet{margin-top:0}
-.sbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border:1px solid var(--line);border-bottom:2px solid var(--brass);border-radius:12px;margin-bottom:12px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
-.sbar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 140px}
-.sbar-title strong{font-family:Georgia,serif;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hpctl{display:flex;gap:6px;align-items:center;flex:1 1 100%}
-.hpctl input{width:84px;text-align:center}
-.hpctl .btn{flex:1}
-.pane{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
-.pane>h3{font-size:1.05rem;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
-.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;align-items:start}
-.ident{margin-bottom:12px;font-size:1.05rem}
-.hp-big{font-family:Georgia,serif;font-size:2.2rem;font-weight:700;line-height:1.1}
-.hp-big small{font-size:1.1rem;color:var(--muted)}
-.hp-big .tmp{font-size:.95rem;color:var(--accent);font-family:inherit}
-.abil{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
-.ab{background:var(--chip);border-radius:10px;padding:8px 4px;text-align:center}
-.ab .nm{font-size:.75rem;color:var(--muted);font-weight:700}
-.ab .md{font-size:1.5rem;font-weight:700;font-family:Georgia,serif}
-.ab .sc{font-size:.8rem;color:var(--muted)}
-.ab input{width:64px;text-align:center;margin:0 auto;padding:4px}
-.prof{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.95rem;border-bottom:1px dashed var(--line);min-height:36px}
-.prof .val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
-.dot{width:14px;text-align:center;color:var(--brass);font-weight:700}
-.pip{width:26px;height:26px;border-radius:50%;border:2px solid var(--accent);background:transparent;padding:0}
+.pc-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;text-align:center}
+.pc-stats div{background:var(--chip);border-radius:.6rem;padding:.35rem .1rem}
+.pc-stats b{display:block;font-family:Georgia,serif;font-size:1.35rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.pc-stats span{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.pc-flags{display:flex;flex-wrap:wrap;gap:.4rem}
+.flag{background:var(--chip);border-radius:.5rem;padding:.15rem .6rem;font-size:.9rem;font-weight:700}
+.flag.bad{background:var(--hp-low);color:#fff}
+.flag.good{background:var(--brass);color:#fff}
+.pc-res{display:flex;flex-direction:column;gap:.35rem;border-top:1px dashed var(--line);padding-top:.6rem}
+.slotline{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.slotline .lbl{min-width:3rem;font-size:.85rem;font-weight:700;color:var(--muted)}
+.dots{display:inline-flex;gap:.3rem}
+.dots i{width:1rem;height:1rem;border-radius:50%;border:2px solid var(--accent);display:block}
+.dots i.on{background:var(--accent)}
+.chiprow{display:flex;flex-wrap:wrap;gap:.4rem}
+.rchip{border:1px solid var(--line);background:var(--field);border-radius:.5rem;padding:.2rem .6rem;font-size:.9rem}
+.rchip b{font-variant-numeric:tabular-nums}
+.rchip.empty{opacity:.55}
+.pc-upd{font-size:.8rem;color:var(--muted)}
+.empty{padding:1.6rem;text-align:center;border:2px dashed var(--line);border-radius:1rem;color:var(--muted)}
+.row{display:grid;gap:.7rem}
+.cols4{grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+label.f{display:flex;flex-direction:column;gap:.2rem;font-size:.85rem;color:var(--muted);font-weight:700}
+input[type=text],input[type=number],input[type=search],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:2px solid var(--line);border-radius:.6rem;padding:.55rem .7rem;min-height:2.75rem}
+textarea{min-height:5rem;resize:vertical}
+input[type=checkbox]{width:1.4rem;height:1.4rem;accent-color:var(--accent)}
+
+/* ---------- sheet ---------- */
+.sbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border:1px solid var(--line);border-bottom:3px solid var(--brass);border-radius:.9rem;margin-bottom:.8rem;padding:.4rem .6rem;display:flex;gap:.5rem;align-items:center;flex-wrap:nowrap}
+.sbar .btn{white-space:nowrap;flex:0 0 auto}
+.sbar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
+.sbar-title .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbar-title strong{font-family:Georgia,serif;font-size:1.3rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:1rem;margin-bottom:.9rem}
+.pane>h3{font-size:1.15rem;margin-bottom:.7rem;padding-bottom:.4rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(21rem,1fr));gap:.9rem;align-items:start}
+@media (max-width:700px){.split{grid-template-columns:1fr}}
+.ident{margin-bottom:.8rem;font-size:1.05rem;line-height:1.35}
+.hero{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--accent);border-radius:1rem;padding:1rem;margin-bottom:.9rem}
+.hero.low{border-top-color:var(--hp-low)}
+.hero.mid{border-top-color:var(--hp-mid)}
+.hero .hp-big{font-family:Georgia,serif;font-size:3.4rem;font-weight:700;line-height:1}
+.hero .hp-big small{font-size:1.5rem;color:var(--muted)}
+.hero .hp-big .tmp{font-size:1.05rem;color:var(--accent);font-family:inherit;font-weight:700}
+.hero .hpbar{margin:.6rem 0;height:1.1rem}
+.hpctl{display:grid;grid-template-columns:5.5rem 1fr 1fr;gap:.5rem;margin-top:.4rem}
+.hpctl input{text-align:center;font-size:1.3rem;font-weight:700;min-height:3.2rem}
+.hpctl .btn{min-height:3.2rem;font-size:1.1rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.6rem,1fr));gap:.55rem;margin-bottom:.9rem}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:.9rem;padding:.55rem .3rem;text-align:center}
+.tile b{display:block;font-family:Georgia,serif;font-size:1.9rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.tile .ctl{display:flex;gap:.3rem;justify-content:center;margin-top:.2rem}
+.tile .ctl .btn{min-width:2.5rem;padding:0}
+.conds{color:var(--hp-low);font-weight:700}
+.abil{display:grid;grid-template-columns:repeat(auto-fit,minmax(6.2rem,1fr));gap:.55rem}
+.ab{background:var(--chip);border-radius:.9rem;padding:.5rem .3rem;text-align:center}
+.ab .nm{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.ab .md{font-size:2rem;font-weight:700;font-family:Georgia,serif;line-height:1.1}
+.ab .sc{font-size:.95rem;color:var(--muted)}
+.ab input{width:4.5rem;text-align:center;margin:0 auto;padding:.2rem;min-height:2.4rem}
+.prof{display:flex;align-items:center;gap:.6rem;padding:.35rem 0;font-size:1.02rem;border-bottom:1px dashed var(--line);min-height:2.75rem}
+.prof .val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;font-size:1.15rem}
+.dot{width:1.1rem;text-align:center;color:var(--brass);font-weight:700}
+.pip{width:2.1rem;height:2.1rem;border-radius:50%;border:3px solid var(--accent);background:transparent;padding:0}
 .pip.used{background:var(--accent)}
-.pips{display:flex;gap:8px;flex-wrap:wrap}
-.slotrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
-.slotrow .lv{min-width:64px;font-weight:700}
-.res{padding:8px 0;border-bottom:1px dashed var(--line)}
-.res-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
-.res-h b{font-weight:700}
-.counter{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.counter b{min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
-.atk-card{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
-.atk-card .hit{font-weight:700;font-size:1.15rem;font-family:Georgia,serif;text-align:right}
+.pips{display:flex;gap:.6rem;flex-wrap:wrap}
+.slotrow{display:flex;align-items:center;gap:.7rem;padding:.45rem 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.slotrow .lv{min-width:4.6rem;font-weight:700}
+.res{padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.res-h{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;margin-bottom:.4rem}
+.res-h b{font-weight:700;font-size:1.05rem}
+.counter{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.counter b{min-width:5rem;text-align:center;font-variant-numeric:tabular-nums;font-size:1.2rem}
+.atk-card{display:grid;grid-template-columns:1fr auto;gap:.1rem .8rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.atk-card b{font-size:1.1rem}
+.atk-card .hit{font-weight:700;font-size:1.6rem;font-family:Georgia,serif;text-align:right;line-height:1}
 .atk-card .dm2{grid-column:1/-1}
-.atkedit{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:6px;margin-bottom:10px}
+.atkedit{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:.4rem;margin-bottom:.7rem}
 .atkedit>:nth-child(5){grid-column:1/-1}
-details.entry,details.spell{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--field)}
-details.entry>summary,details.spell>summary{list-style:none;cursor:pointer;padding:10px 12px;min-height:44px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
+details.entry,details.spell{border:1px solid var(--line);border-radius:.8rem;margin-bottom:.5rem;background:var(--field)}
+details.entry>summary,details.spell>summary{list-style:none;cursor:pointer;padding:.6rem .9rem;min-height:3rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-weight:700;font-size:1.05rem}
 details.entry>summary::-webkit-details-marker,details.spell>summary::-webkit-details-marker{display:none}
 details.entry>summary::before,details.spell>summary::before{content:"▸";color:var(--brass);transition:transform .15s}
 details[open].entry>summary::before,details[open].spell>summary::before{transform:rotate(90deg)}
-details.entry>.body,details.spell>.spell-body{padding:0 12px 12px}
+details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .prose{white-space:pre-wrap;overflow-wrap:anywhere}
-.entry-edit{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:10px;background:var(--field)}
-.entry-edit .h{display:flex;gap:6px;margin-bottom:6px}
+.entry-edit{border:1px solid var(--line);border-radius:.8rem;padding:.55rem;margin-bottom:.7rem;background:var(--field)}
+.entry-edit .h{display:flex;gap:.4rem;margin-bottom:.4rem}
 .entry-edit input{font-weight:700}
-.lvl{background:var(--chip);border:2px solid var(--brass);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
-.lvl h3{font-size:1.1rem}
-.hist{font-size:.9rem;padding:4px 0;border-bottom:1px solid var(--line)}
-.note{background:var(--chip);padding:10px 14px;border-radius:8px;font-size:.9rem;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.dmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-.codes{margin:16px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 14px}
-.codes>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700}
-.coderow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
-.coderow .nm{flex:1 1 140px;min-width:0}
-.coderow code{font-size:1rem;background:var(--chip);padding:4px 8px;border-radius:6px;user-select:all}
-.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:10px}
-.gatecard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px}
-.gatecard h2{font-size:1.25rem}
-.msg{font-size:.9rem;min-height:1.2em}
+.lvl{background:var(--chip);border:3px solid var(--brass);border-radius:1rem;padding:1rem;margin-bottom:.9rem;display:flex;flex-direction:column;gap:.7rem}
+.lvl h3{font-size:1.2rem}
+.hist{font-size:.95rem;padding:.3rem 0;border-bottom:1px solid var(--line)}
+.note{background:var(--chip);padding:.7rem 1rem;border-radius:.7rem;font-size:.95rem;margin-bottom:.8rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.codes{margin:1rem 0;background:var(--panel);border:1px solid var(--line);border-radius:.8rem;padding:0 1rem}
+.codes>summary{min-height:2.9rem;display:flex;align-items:center;cursor:pointer;font-weight:700}
+.coderow{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;padding:.55rem 0;border-top:1px solid var(--line)}
+.coderow .nm{flex:1 1 9rem;min-width:0}
+.coderow code{font-size:1.05rem;background:var(--chip);padding:.2rem .6rem;border-radius:.4rem;user-select:all}
+.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem;margin-top:.6rem}
+.gatecard{background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:1.2rem;display:flex;flex-direction:column;gap:.8rem}
+.gatecard h2{font-size:1.35rem}
+.msg{font-size:.95rem;min-height:1.2em}
 .msg.err{color:var(--hp-low)}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:2px solid var(--brass);display:flex;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom,0);scrollbar-width:none}
+
+/* ---------- bottom nav ---------- */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:3px solid var(--brass);display:flex;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom,0);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .bnav::-webkit-scrollbar{display:none}
-.bnav button{flex:1 0 66px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:0;border-top:3px solid transparent;font-size:.72rem;color:var(--muted);position:relative}
-.bnav button.on{color:var(--accent);font-weight:700;border-top-color:var(--accent)}
-.bnav .ico{font-size:1.25rem;line-height:1}
-.bnav .n{position:absolute;top:4px;left:calc(50% + 6px);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.66rem;min-width:18px;padding:0 5px;line-height:18px}
-.lk-bar{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:thin}
-.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 12px;font-size:.88rem;min-height:36px}
+.bnav.fade{-webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}
+.bnav button{flex:1 0 4.3rem;min-height:4.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:none;border:0;border-right:1px solid var(--line);font-size:.82rem;font-weight:700;color:var(--muted);position:relative;padding:.3rem .2rem}
+.bnav button:last-child{border-right:0}
+.bnav button.on{color:var(--accent-ink);background:var(--accent)}
+.bnav .ico{font-size:1.7rem;line-height:1.1}
+.bnav .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
+.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;gap:.5rem;overflow-x:auto;padding:.4rem 0 .6rem;margin-bottom:.4rem;background:var(--bg);scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav .chip{flex:0 0 auto}
+.lk-bar{display:grid;grid-template-columns:1fr;gap:.5rem;margin-bottom:.5rem}
+.chips{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.4rem;margin-bottom:.4rem;scrollbar-width:thin}
+.chip{flex:0 0 auto;border:2px solid var(--line);background:var(--panel);border-radius:99px;padding:.35rem .95rem;font-size:.95rem;font-weight:700;min-height:2.6rem}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.lk-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:8px}
-.sd-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 12px;margin-bottom:8px}
-.sd-meta span{display:block;font-size:.72rem;color:var(--muted);font-weight:700}
+.lk-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.5rem;margin-bottom:.6rem}
+.sd-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.4rem .8rem;margin-bottom:.6rem}
+.sd-meta span{display:block;font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase}
 .spell>summary .sub{font-weight:400}
-.thread{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow-y:auto;padding:4px 2px;margin-bottom:10px}
-.bub{max-width:86%;padding:8px 12px;border-radius:14px;background:var(--chip);align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}
+.thread{display:flex;flex-direction:column;gap:.5rem;max-height:56vh;overflow-y:auto;padding:.2rem;margin-bottom:.7rem}
+.bub{max-width:88%;padding:.55rem .85rem;border-radius:1rem;background:var(--chip);align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere;font-size:1.05rem}
 .bub.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
-.bub .t{font-size:.72rem;opacity:.75;margin-top:2px}
-.composer{display:flex;gap:8px;align-items:flex-end}
-.composer textarea{min-height:48px}
-.comp{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--brass);border-radius:12px;padding:12px;margin-bottom:12px}
-.comp-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:4px}
-.mini{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;text-align:center;margin:8px 0}
-.mini div{background:var(--chip);border-radius:8px;padding:4px 0;font-size:.8rem}
-.mini b{display:block}
-.camp-bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
-#campFrame{width:100%;height:calc(100vh - 190px);min-height:480px;border:1px solid var(--line);border-radius:10px;background:#fff}
-.legal{font-size:.75rem;color:var(--muted);margin-top:14px}
+.bub .t{font-size:.75rem;opacity:.8;margin-top:.1rem}
+.composer{display:flex;gap:.5rem;align-items:flex-end}
+.composer textarea{min-height:3.2rem}
+.comp{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--brass);border-radius:1rem;padding:.9rem;margin-bottom:.9rem}
+.comp-h{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:.2rem}
+.comp-h h3{font-size:1.35rem}
+.mini{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;text-align:center;margin:.6rem 0}
+.mini div{background:var(--chip);border-radius:.6rem;padding:.3rem 0;font-size:.82rem}
+.mini b{display:block;font-size:1.05rem}
+.tome-bar{display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin:.2rem 0 .6rem}
+#tome{min-height:50vh}
+#tome[data-view="combat"] .meta,#tome[data-view="rules"] .meta,#tome[data-view="combat"] .actbar,#tome[data-view="rules"] .actbar{display:none!important}
+.legal{font-size:.8rem;color:var(--muted);margin-top:1rem}
 @media (max-width:700px){
-  .wrap{padding:10px}
-  header.top{padding:4px 0 10px;margin-bottom:10px;gap:8px}
-  header.top h1{font-size:1.45rem}
+  .wrap{padding:.7rem}
+  header.top h1{font-size:1.3rem}
   body.compact header.top{display:none}
-  .btn{min-height:44px}
-  .btn.small{min-height:40px;min-width:40px}
-  input[type=text],input[type=number],input[type=search],textarea,select{font-size:16px;padding:10px}
-  .grid{grid-template-columns:1fr}
-  .stats{gap:4px}
-  .cols4{grid-template-columns:repeat(2,1fr)}
-  .pip{width:32px;height:32px}
-  .prof{min-height:44px}
+  .pc-stats{gap:.3rem}
   .atkedit{grid-template-columns:1fr 2fr auto}
   .atkedit>:nth-child(1){grid-column:1/3;grid-row:1}
   .atkedit>:nth-child(4){grid-column:3;grid-row:1}
   .atkedit>:nth-child(2){grid-column:1;grid-row:2}
   .atkedit>:nth-child(3){grid-column:2/4;grid-row:2}
   .atkedit>:nth-child(5){grid-column:1/-1;grid-row:3}
-  #campFrame{height:calc(100vh - 150px)}
-  .split{grid-template-columns:1fr}
-}
-@media (min-width:701px) and (max-width:1100px){
-  .wrap{padding:14px 18px}
-  .btn.small{min-height:40px}
-  .pip{width:30px;height:30px}
+  .cols4{grid-template-columns:repeat(2,1fr)}
 }
 @media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
 </style>
@@ -198,9 +241,9 @@ details.entry>.body,details.spell>.spell-body{padding:0 12px 12px}
       <h1>Party Sheets</h1>
       <div class="sub" id="who">Loading…</div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
       <span class="status" id="status"></span>
-      <button class="btn" data-act="signout" id="outBtn" hidden>Sign out</button>
+      <button class="btn small" data-act="signout" id="outBtn" hidden>Sign out</button>
     </div>
   </header>
 
@@ -222,10 +265,11 @@ details.entry>.body,details.spell>.spell-body{padding:0 12px 12px}
 
   <main id="app" hidden>
     <div id="notice"></div>
+    <div id="subnav" class="subnav" hidden></div>
     <section id="viewParty" hidden></section>
     <section id="viewMsgs" hidden></section>
     <section id="viewLookup" hidden></section>
-    <section id="viewCampaign" hidden></section>
+    <section id="viewTome" hidden><div id="tome"></div></section>
     <section id="viewSheet" hidden aria-live="polite"></section>
   </main>
 </div>
@@ -459,63 +503,62 @@ function entryList(list,arr,label,attrs){
     '<button class="btn small" data-act="addentry" data-list="'+list+'">'+E(label)+'</button>';
 }
 
-/* ================= spells database ================= */
-const lk={q:"",lv:"any",cls:"any",sch:"any",ver:"2014",conc:false,rit:false,limit:40,csOpen:false};
-const spellDB={}, spellIdx={}, spellLoad={};
+/* ================= spells database (2024 rules, SRD 5.2) ================= */
+const lk={q:"",lv:"any",cls:"any",sch:"any",conc:false,rit:false,limit:40,csOpen:false};
+let spellDB=null, spellIdx=null, spellLoad=null;
 const ALIAS={"melf's acid arrow":"acid arrow"};
-function loadSpells(ver){
-  if(spellDB[ver])return Promise.resolve();
-  if(!spellLoad[ver])spellLoad[ver]=fetch("spells-"+ver+".json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{
-    spellDB[ver]=a;spellIdx[ver]=new Map(a.map(s=>[s.n.toLowerCase(),s]));
-  }).catch(e=>{spellLoad[ver]=null;throw e});
-  return spellLoad[ver];
+function loadSpells(){
+  if(spellDB)return Promise.resolve();
+  if(!spellLoad)spellLoad=fetch("spells-2024.json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{
+    spellDB=a;spellIdx=new Map(a.map(s=>[s.n.toLowerCase(),s]));
+  }).catch(e=>{spellLoad=null;throw e});
+  return spellLoad;
 }
 function findSpell(name){
-  let n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
+  const n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
   const c=customSpells.filter(x=>String(x.n).toLowerCase()===n)[0];
   if(c)return Object.assign({},c,{u:2});
-  const idx=spellIdx[lk.ver];if(!idx)return null;
-  return idx.get(n)||idx.get(ALIAS[n]||"")||null;
+  if(!spellIdx)return null;
+  return spellIdx.get(n)||spellIdx.get(ALIAS[n]||"")||null;
 }
 function spellDetail(sp){
   const meta=[["Casting time",sp.t],["Range",sp.r],["Components",sp.c],["Duration",sp.d]].filter(x=>x[1]);
   let h='<div class="sd-meta">'+meta.map(x=>'<div><span>'+x[0]+'</span>'+E(x[1])+'</div>').join("")+'</div>';
   h+='<div class="prose">'+E(sp.x)+'</div>';
-  if(sp.h)h+='<div class="prose" style="margin-top:8px"><b>At higher levels.</b> '+E(sp.h)+'</div>';
+  if(sp.h)h+='<div class="prose" style="margin-top:.5rem"><b>At higher levels.</b> '+E(sp.h)+'</div>';
   const notes=[];
   if(sp.cl&&sp.cl.length)notes.push("Classes: "+sp.cl.join(", ")+".");
   if(sp.u===1)notes.push("Short summary only. Check your book for the full text.");
   if(sp.u===2)notes.push("Custom spell from your DM.");
-  if(notes.length)h+='<div class="sub" style="margin-top:8px">'+E(notes.join(" "))+'</div>';
+  if(notes.length)h+='<div class="sub" style="margin-top:.5rem">'+E(notes.join(" "))+'</div>';
   return h;
 }
 async function fillSpell(el){
   const body=el.querySelector(".spell-body");
   if(!body||body.dataset.done)return;
   body.innerHTML='<div class="sub">Loading…</div>';
-  try{await loadSpells(lk.ver)}catch(e){body.innerHTML='<div class="sub err">Could not load the spell list. Check your connection.</div>';return}
+  try{await loadSpells()}catch(e){body.innerHTML='<div class="sub err">Could not load the spell list. Check your connection.</div>';return}
   const name=el.dataset.n;
   const own=(el.dataset.ci&&chars[el.dataset.ci])?chars[el.dataset.ci].spells[Number(el.dataset.si)]:null;
   const sp=findSpell(name);
   let h=sp?spellDetail(sp):'<div class="sub">Not in the rules database.</div>';
-  if(own&&own.desc)h=(sp?h+'<div class="prose" style="margin-top:8px"><b>Character note.</b> '+E(own.desc)+'</div>':'<div class="prose">'+E(own.desc)+'</div>'+h);
+  if(own&&own.desc)h=(sp?h+'<div class="prose" style="margin-top:.5rem"><b>Character note.</b> '+E(own.desc)+'</div>':'<div class="prose">'+E(own.desc)+'</div>'+h);
   if(el.dataset.lk&&role==="player"&&chars[charId]&&sp&&!chars[charId].spells.some(s=>s.name.toLowerCase()===sp.n.toLowerCase()))
-    h+='<div style="margin-top:10px"><button class="btn small" data-act="addspell" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add to my spells</button></div>';
-  if(el.dataset.lk&&isDM()&&sp&&sp.u===2)h+='<div style="margin-top:10px"><button class="btn small danger" data-act="delcs" data-n="'+E(sp.n)+'">Delete custom spell</button></div>';
+    h+='<div style="margin-top:.7rem"><button class="btn small" data-act="addspell" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add to my spells</button></div>';
+  if(el.dataset.lk&&isDM()&&sp&&sp.u===2)h+='<div style="margin-top:.7rem"><button class="btn small danger" data-act="delcs" data-n="'+E(sp.n)+'">Delete custom spell</button></div>';
   body.innerHTML=h;body.dataset.done=1;
 }
 document.addEventListener("toggle",e=>{
   const d=e.target;
   if(d&&d.classList&&d.classList.contains("spell")&&d.open)fillSpell(d);
   if(d&&d.id==="codesBox")codesOpen=d.open;
-  if(d&&d.dataset&&d.dataset.sec&&d.open)d.querySelectorAll("textarea").forEach(autosize);
   if(d&&d.classList&&d.classList.contains("entry")&&d.open)d.querySelectorAll("textarea").forEach(autosize);
 },true);
 function lvLabel(l){return l===0?"Cantrip":l>0?"Level "+l:"Other"}
 function lookupResults(){
-  const base=(spellDB[lk.ver]||[]).concat(customSpells.map(c=>Object.assign({},c,{u:2})));
+  const base=(spellDB||[]).concat(customSpells.map(c=>Object.assign({},c,{u:2})));
   const q=lk.q.trim().toLowerCase();
-  let res=base.filter(s=>{
+  const res=base.filter(s=>{
     if(lk.lv!=="any"&&s.l!==Number(lk.lv))return false;
     if(lk.cls!=="any"&&!(s.cl||[]).some(c=>c===lk.cls))return false;
     if(lk.sch!=="any"&&s.s!==lk.sch)return false;
@@ -532,7 +575,7 @@ function lookupResults(){
 }
 function renderLookupResults(){
   const box=$("lkResults");if(!box)return;
-  if(!spellDB[lk.ver]){box.innerHTML='<div class="sub">Loading spells…</div>';return}
+  if(!spellDB){box.innerHTML='<div class="sub">Loading spells…</div>';return}
   const res=lookupResults(),shown=res.slice(0,lk.limit);
   $("lkCount").textContent=res.length+" spell"+(res.length===1?"":"s");
   box.innerHTML=shown.map(s=>'<details class="spell" data-n="'+E(s.n)+'" data-lk="1"><summary>'+E(s.n)+' <span class="sub">'+lvLabel(s.l)+' · '+E(s.s||"")+(s.k?" · Concentration":"")+(s.i?" · Ritual":"")+(s.u===2?" · Custom":"")+'</span></summary><div class="spell-body"></div></details>').join("")+
@@ -540,58 +583,83 @@ function renderLookupResults(){
     (!res.length?'<div class="empty">No spells match. Try fewer filters.</div>':"");
 }
 function renderLookup(host){
-  const all=(spellDB[lk.ver]||[]).concat(customSpells);
+  const all=(spellDB||[]).concat(customSpells);
   const classes=Array.from(new Set(all.flatMap(s=>s.cl||[]))).sort();
   const schools=["Abjuration","Conjuration","Divination","Enchantment","Evocation","Illusion","Necromancy","Transmutation"];
-  let h='<div class="pane"><h3>Spell lookup</h3>';
-  h+='<div class="lk-bar"><input type="search" id="lkQ" placeholder="Search by name or text, e.g. moonbeam or &quot;prone&quot;" value="'+E(lk.q)+'" aria-label="Search spells"><select id="lkVer" aria-label="Rules version"><option value="2014"'+(lk.ver==="2014"?" selected":"")+'>2014 rules</option><option value="2024"'+(lk.ver==="2024"?" selected":"")+'>2024 rules</option></select></div>';
+  let h='<div class="pane"><h3>Spell lookup <span class="sub">2024 rules</span></h3>';
+  h+='<div class="lk-bar"><input type="search" id="lkQ" placeholder="Search by name or text, e.g. moonbeam or &quot;prone&quot;" value="'+E(lk.q)+'" aria-label="Search spells"></div>';
   h+='<div class="chips" role="group" aria-label="Spell level">'+["any",0,1,2,3,4,5,6,7,8,9].map(l=>'<button class="chip'+(String(lk.lv)===String(l)?" on":"")+'" data-act="lklv" data-v="'+l+'">'+(l==="any"?"All":l===0?"Cantrips":"Level "+l)+'</button>').join("")+'</div>';
   h+='<div class="lk-filters"><select id="lkCls" aria-label="Class"><option value="any">All classes</option>'+classes.map(c=>'<option'+(lk.cls===c?" selected":"")+'>'+E(c)+'</option>').join("")+'</select>'+
      '<select id="lkSch" aria-label="School"><option value="any">All schools</option>'+schools.map(c=>'<option'+(lk.sch===c?" selected":"")+'>'+c+'</option>').join("")+'</select>'+
      '<button class="chip'+(lk.conc?" on":"")+'" data-act="lkconc">Concentration</button><button class="chip'+(lk.rit?" on":"")+'" data-act="lkrit">Ritual</button></div>';
-  h+='<div class="sub" id="lkCount" style="margin-bottom:8px"></div><div id="lkResults"></div>';
-  h+='<div class="legal">Spell text: System Reference Document 5.1 and 5.2 © Wizards of the Coast LLC, licensed CC BY 4.0. Entries marked “short summary” are not in the SRD. Not every spell in your books is here: your DM can add custom ones.</div>';
+  h+='<div class="sub" id="lkCount" style="margin-bottom:.6rem"></div><div id="lkResults"></div>';
+  h+='<div class="legal">Spell text: System Reference Document 5.2 © Wizards of the Coast LLC, licensed CC BY 4.0. Entries marked “short summary” are not in the SRD. Not every spell in your books is here: your DM can add custom ones.</div>';
   h+='</div>';
   if(isDM())h+=csForm();
   host.innerHTML=h;
-  loadSpells(lk.ver).then(()=>{if($("lkResults")){renderLookupResults()}}).catch(()=>{if($("lkResults"))$("lkResults").innerHTML='<div class="sub err">Could not load the spell list. Check your connection and try again.</div>'});
+  loadSpells().then(()=>{if($("lkResults")){renderLookupResults()}}).catch(()=>{if($("lkResults"))$("lkResults").innerHTML='<div class="sub err">Could not load the spell list. Check your connection and try again.</div>'});
   renderLookupResults();
 }
 function csForm(){
-  return '<details class="pane" style="padding:0" '+(lk.csOpen?"open":"")+' id="csBox"><summary style="padding:14px;cursor:pointer;font-weight:700;min-height:44px">Add a custom spell (DM)</summary><div style="padding:0 14px 14px;display:grid;gap:8px">'+
+  return '<details class="pane" style="padding:0" '+(lk.csOpen?"open":"")+' id="csBox"><summary style="padding:1rem;cursor:pointer;font-weight:700;min-height:3rem">Add a custom spell (DM)</summary><div style="padding:0 1rem 1rem;display:grid;gap:.6rem">'+
    '<div class="row cols4"><label class="f">Name<input type="text" id="csName"></label><label class="f">Level<select id="csLevel">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'">'+(l===0?"Cantrip":l)+'</option>').join("")+'</select></label><label class="f">School<input type="text" id="csSchool"></label>'+
-   '<label class="f">Casting time<input type="text" id="csTime" placeholder="1 action"></label><label class="f">Range<input type="text" id="csRange"></label><label class="f">Components<input type="text" id="csComp" placeholder="V, S"></label><label class="f">Duration<input type="text" id="csDur"></label><label class="f">Classes (comma separated)<input type="text" id="csCls"></label></div>'+
-   '<div style="display:flex;gap:16px;flex-wrap:wrap"><label class="prof"><input type="checkbox" id="csConc"> Concentration</label><label class="prof"><input type="checkbox" id="csRit"> Ritual</label></div>'+
-   '<label class="f">Description<textarea id="csText"></textarea></label><label class="f">At higher levels (optional)<textarea id="csHigh" style="min-height:48px"></textarea></label>'+
+   '<label class="f">Casting time<input type="text" id="csTime" placeholder="Action"></label><label class="f">Range<input type="text" id="csRange"></label><label class="f">Components<input type="text" id="csComp" placeholder="V, S"></label><label class="f">Duration<input type="text" id="csDur"></label><label class="f">Classes (comma separated)<input type="text" id="csCls"></label></div>'+
+   '<div style="display:flex;gap:1rem;flex-wrap:wrap"><label class="prof"><input type="checkbox" id="csConc"> Concentration</label><label class="prof"><input type="checkbox" id="csRit"> Ritual</label></div>'+
+   '<label class="f">Description<textarea id="csText"></textarea></label><label class="f">At higher levels (optional)<textarea id="csHigh" style="min-height:3.5rem"></textarea></label>'+
    '<div><button class="btn primary" data-act="savecs">Save custom spell</button> <span class="sub">Saving with the same name replaces it. Everyone can see custom spells.</span></div></div></details>';
 }
 function hasSpells(c){return c.spells.length>0||!!c.spellAbility||Object.keys(c.slots).some(k=>c.slots[k].max>0)}
 
 /* ================= DM: party ================= */
 function hpColor(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r>.5?"var(--hp-ok)":r>.25?"var(--hp-mid)":"var(--hp-low)"}
+function hpClass(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r<=.25?"low":r<=.5?"mid":""}
 function unreadFrom(cid,who){return (messages[cid]||[]).filter(m=>m.from===who&&!(who==="player"?m.readByDM:m.readByPlayer)).length}
+const ord=n=>n+(n===1?"st":n===2?"nd":n===3?"rd":"th");
+const shortRes=n=>String(n||"").replace(/\s*\(.*\)\s*$/,"").trim();
+function slotLines(c){
+  const lv=Object.keys(c.slots).map(Number).filter(l=>c.slots[l].max>0).sort((a,b)=>a-b);
+  return lv.map(l=>{const t=c.slots[l];let d="";for(let i=0;i<t.max;i++)d+='<i class="'+(i<t.max-t.used?"on":"")+'"></i>';
+    return '<div class="slotline"><span class="lbl">'+ord(l)+'</span><span class="dots" role="img" aria-label="'+(t.max-t.used)+' of '+t.max+' level '+l+' slots left">'+d+'</span></div>'}).join("");
+}
+function resChips(c){
+  return c.resources.map(r=>{const left=Math.max(0,r.max-r.used);return '<span class="rchip'+(left?"":" empty")+'">'+E(shortRes(r.name))+' <b>'+left+'/'+r.max+'</b></span>'}).join("");
+}
+function pcard(id){
+  const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c),un=unreadFrom(id,"player");
+  const first=(c.name||"Unnamed").split(" ")[0];
+  const who=c.npc?"NPC":(c.player||"");
+  const sub=[c.race,(c.cls||"")+(c.level?" "+c.level:"")].filter(Boolean).join(" · ")+(who?" · "+who:"");
+  let flags="";
+  if(c.hp===0&&!c.npc)flags+='<span class="flag bad">Down · saves ✓'+c.deathS+' ✗'+c.deathF+'</span>';
+  if(c.conditions)flags+='<span class="flag bad">'+E(c.conditions)+'</span>';
+  if(c.inspiration)flags+='<span class="flag good">★ Inspiration'+(c.inspiration>1?" ×"+c.inspiration:"")+'</span>';
+  const slots=slotLines(c),chips=resChips(c);
+  return '<article class="pcard '+hpClass(c)+'" data-id="'+E(id)+'">'+
+    '<button class="pc-head" data-act="open" aria-label="Open '+E(first)+'’s sheet"><div><div class="pc-name">'+E(first)+(un?' <span class="badge ok">'+un+' new</span>':'')+'</div><div class="pc-sub">'+E(sub||"No class yet")+'</div></div><span class="pc-open">Open ›</span></button>'+
+    '<div class="pc-hp"><div class="pc-hprow"><div class="pc-hpnum">'+c.hp+'<span> / '+c.hpMax+'</span>'+(c.hpTemp?'<small>+'+c.hpTemp+' temp</small>':'')+'</div>'+
+    '<div class="pc-hpbtns"><button class="btn" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button><button class="btn" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button><button class="btn" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button><button class="btn" data-act="hp" data-d="5" aria-label="Gain 5 HP">+5</button></div></div>'+
+    '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div></div>'+
+    '<div class="pc-stats"><div><b>'+c.ac+'</b><span>AC</span></div><div><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init</span></div><div><b>'+passive(c)+'</b><span>Passive</span></div><div><b>'+(st?st.dc:"–")+'</b><span>DC</span></div><div><b>'+c.speed+'</b><span>Speed</span></div></div>'+
+    (flags?'<div class="pc-flags">'+flags+'</div>':'')+
+    ((slots||chips)?'<div class="pc-res">'+slots+(chips?'<div class="chiprow">'+chips+'</div>':'')+'</div>':'')+
+    (c.updated?'<div class="pc-upd">Updated '+E(timeStr(c.updated))+'</div>':'')+
+    '</article>';
+}
 function renderParty(){
   const host=$("viewParty");
   const ids=Object.keys(chars).sort((a,b)=>(chars[a].npc?1:0)-(chars[b].npc?1:0)||String(chars[a].name||"").localeCompare(String(chars[b].name||"")));
-  let h='<div class="dmbar"><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div><div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
-  h+='<div class="grid">'+(ids.length?ids.map(id=>{
-    const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c);
-    const who=c.npc?"NPC":(c.player||""),un=unreadFrom(id,"player");
-    return '<article class="card" data-id="'+E(id)+'"><div><h3>'+E((c.name||"Unnamed").split(" ")[0])+(un?' <span class="badge ok">'+un+' new</span>':'')+'</h3><div class="who">'+E([c.race,c.cls,c.level?("Lv "+c.level):""].filter(Boolean).join(" ")||"No class yet")+(who?' · '+E(who):'')+'</div></div>'+
-      '<div class="hprow"><span class="hpnum">'+c.hp+' / '+c.hpMax+(c.hpTemp?(' (+'+c.hpTemp+')'):'')+' HP</span><span><button class="btn small" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button> <button class="btn small" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button> <button class="btn small" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button></span></div>'+
-      '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>'+
-      '<div class="stats"><div class="stat"><b>'+c.ac+'</b><span>AC</span></div><div class="stat"><b>'+passive(c)+'</b><span>Passive Perc.</span></div><div class="stat"><b>'+(st?st.dc:"–")+'</b><span>Spell DC</span></div><div class="stat"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init.</span></div></div>'+
-      '<div class="conds">'+E(c.conditions||"")+(c.inspiration?" ★ Inspiration ×"+c.inspiration:"")+'</div>'+
-      (c.updated?'<div class="sub">Updated '+E(timeStr(c.updated))+'</div>':'')+
-      '<button class="btn small" data-act="open">Open sheet</button></article>';
-  }).join(""):'<div class="empty" style="grid-column:1/-1">No characters yet. Use “Import characters (JSON)”.</div>')+'</div>';
-  const cids=ids.filter(id=>!chars[id].npc);
-  h+='<details class="codes" id="codesBox"'+(codesOpen?" open":"")+'><summary>Player names (login codes)</summary><div style="padding:6px 0"><div class="sub" style="margin-bottom:6px">Each player types their name on the sign-in screen. Change a code any time to lock out old devices.</div>'+
+  const pcs=ids.filter(id=>!chars[id].npc);
+  let h='<div class="ptools"><span class="sub" style="width:100%;font-weight:700">Whole party</span><button class="btn" data-act="restall" data-k="short">☕ Short rest</button><button class="btn" data-act="restall" data-k="long">🌙 Long rest</button></div>';
+  h+='<details class="manage"><summary>Manage party (import, NPCs)</summary><div class="inner"><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
+  h+='<div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
+  h+='<div class="pgrid">'+(ids.length?ids.map(pcard).join(""):'<div class="empty" style="grid-column:1/-1">No characters yet. Open “Manage party” and import your character files.</div>')+'</div>';
+  const cids=pcs;
+  h+='<details class="codes" id="codesBox"'+(codesOpen?" open":"")+'><summary>Player names (login codes)</summary><div style="padding:.4rem 0 .8rem"><div class="sub" style="margin-bottom:.5rem">Each player types their name on the sign-in screen. Change a code any time to lock out old devices.</div>'+
     (cids.length?cids.map(id=>{const c=chars[id],code=claimByChar[id];
       return '<div class="coderow"><div class="nm"><b>'+E((c.name||"").split(" ")[0])+'</b> <span class="sub">'+E(c.player||"no player name")+'</span></div>'+
        (code?'<code>'+E(code)+'</code><button class="btn small" data-act="copy" data-code="'+E(code)+'">Copy</button>':'<span class="sub">no code</span>')+
        '<button class="btn small" data-act="setcode" data-id="'+E(id)+'">Change</button></div>'}).join("")+
-      '<div style="margin-top:8px"><button class="btn small" data-act="namecodes">Set every code to the player’s name</button></div>':'<div class="sub">Import characters first.</div>')+'</div></details>';
+      '<div style="margin-top:.6rem"><button class="btn small" data-act="namecodes">Set every code to the player’s name</button></div>':'<div class="sub">Import characters first.</div>')+'</div></details>';
   host.innerHTML=h;
 }
 
@@ -631,23 +699,33 @@ function resEdit(r,i){
   return '<div class="entry-edit"><div class="h"><input type="text" aria-label="Resource name" data-path="resources.'+i+'.name" value="'+E(r.name)+'"><button class="btn small danger" data-act="delres" data-r="'+i+'" aria-label="Remove">✕</button></div>'+
     '<div class="row cols4"><label class="f">Uses<input type="number" min="1" data-path="resources.'+i+'.max" value="'+r.max+'"></label><label class="f">Resets<select data-path="resources.'+i+'.reset">'+Object.keys(RESET_LABEL).map(k=>'<option value="'+k+'"'+(r.reset===k?" selected":"")+'>'+RESET_LABEL[k]+'</option>').join("")+'</select></label></div></div>';
 }
+function slotRows(c,e){
+  const lvls=[1,2,3,4,5,6,7,8,9].filter(l=>e||(c.slots[l]&&c.slots[l].max>0));
+  const pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact";
+  return lvls.map(l=>{const t=c.slots[l]||{max:0,used:0};return '<div class="slotrow"><span class="lv">Level '+l+(pact?" pact":"")+'</span>'+(t.max>0?pips(t.max,t.used,"spip",'data-l="'+l+'"',"Level "+l+" slot"):'<span class="sub">none</span>')+(e?'<input type="number" min="0" max="9" style="width:5rem" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+t.max+'">':'<span class="sub">'+(t.max-t.used)+" left</span>")+'</div>'}).join("");
+}
 function tabPlay(id){
   const c=chars[id],pb=prof(c.level),st=spellStats(c),can=canEditChar(id);
-  let h='<div class="ident">'+E([c.race,c.cls+(c.subclass?" ("+c.subclass+")":""),c.level?"Level "+c.level:""].filter(Boolean).join(" · "))+'<br><span class="sub">'+E([c.background,c.alignment,c.player?"played by "+c.player:""].filter(Boolean).join(" · "))+'</span></div>';
+  const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
+  let h='';
   if(lvlUp&&can)h+=lvlPanel(c);
   if(ed())h+=basicsForm(c);
-  h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>Armor class</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile"><b>'+c.speed+'</b><span>Speed (ft)</span></div><div class="tile"><b>'+sgn(pb)+'</b><span>Proficiency</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive Perception</span></div>'+
-    (st?'<div class="tile"><b>'+st.dc+'</b><span>Spell save DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell attack</span></div>':'')+
-    '<div class="tile"><b>'+c.inspiration+'</b><span>Inspiration</span>'+(can?'<div class="ctl"><button class="btn small" data-act="insp" data-d="-1" aria-label="Use inspiration">−</button><button class="btn small" data-act="insp" data-d="1" aria-label="Gain inspiration">+</button></div>':'')+'</div></div>';
-  const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
-  h+='<div class="split"><div>';
-  h+='<div class="pane"><h3>Hit points</h3><div class="hp-big">'+c.hp+'<small> / '+c.hpMax+'</small>'+(c.hpTemp?' <span class="tmp">+'+c.hpTemp+' temp</span>':'')+'</div><div class="hpbar" style="margin:8px 0" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>';
-  if(c.hp===0)h+='<div class="res"><div class="res-h"><b>Death saves</b></div><div style="display:flex;gap:18px;flex-wrap:wrap"><div><div class="sub">Successes</div>'+pips(3,c.deathS,"death",'data-k="S"',"Death save success")+'</div><div><div class="sub">Failures</div>'+pips(3,c.deathF,"death",'data-k="F"',"Death save failure")+'</div></div></div>';
-  if(c.conditions)h+='<div class="conds" style="margin-top:6px">Conditions: '+E(c.conditions)+'</div>';
-  if(c.hitDice)h+='<div class="sub" style="margin-top:6px">Hit dice: '+E(c.hitDice)+'</div>';
+  h+='<div class="ident">'+E([c.race,c.cls+(c.subclass?" ("+c.subclass+")":""),c.level?"Level "+c.level:""].filter(Boolean).join(" · "))+'<br><span class="sub">'+E([c.background,c.alignment,c.player?"played by "+c.player:""].filter(Boolean).join(" · "))+'</span></div>';
+  h+='<div class="hero '+hpClass(c)+'"><div class="hp-big">'+c.hp+'<small> / '+c.hpMax+' HP</small>'+(c.hpTemp?' <span class="tmp">+'+c.hpTemp+' temp</span>':'')+'</div>'+
+    '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>';
+  if(c.hp===0)h+='<div class="res"><div class="res-h"><b>Death saves</b></div><div style="display:flex;gap:1.4rem;flex-wrap:wrap"><div><div class="sub">Successes</div>'+pips(3,c.deathS,"death",'data-k="S"',"Death save success")+'</div><div><div class="sub">Failures</div>'+pips(3,c.deathF,"death",'data-k="F"',"Death save failure")+'</div></div></div>';
+  if(c.conditions)h+='<div class="conds">Conditions: '+E(c.conditions)+'</div>';
+  if(can)h+='<div class="hpctl"><input type="number" id="hpAmt" min="0" inputmode="numeric" aria-label="Amount of damage or healing" value="'+E(hpAmtVal)+'"><button class="btn dmg" data-act="dmg">Damage</button><button class="btn heal" data-act="heal">Heal</button></div>';
   h+='</div>';
-  h+='<div class="pane"><h3>Resources &amp; rests</h3>'+(c.resources.length?c.resources.map((r,i)=>ed()?resEdit(r,i):resView(r,i)).join(""):'<div class="sub">No limited-use features tracked yet.</div>')+(ed()?'<button class="btn small" data-act="addres" style="margin-top:8px">Add resource</button>':'');
-  if(can)h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" data-act="rest" data-k="short">Short rest</button><button class="btn" data-act="rest" data-k="long">Long rest</button>'+(c.level<20?'<button class="btn primary" data-act="lvlopen">Level up</button>':'')+'</div>';
+  h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>AC</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile"><b>'+c.speed+'</b><span>Speed</span></div><div class="tile"><b>'+sgn(pb)+'</b><span>Prof.</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive</span></div>'+
+    (st?'<div class="tile"><b>'+st.dc+'</b><span>Spell DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell atk</span></div>':'')+
+    '<div class="tile"><b>'+c.inspiration+'</b><span>Inspiration</span>'+(can?'<div class="ctl"><button class="btn small" data-act="insp" data-d="-1" aria-label="Use inspiration">−</button><button class="btn small" data-act="insp" data-d="1" aria-label="Gain inspiration">+</button></div>':'')+'</div></div>';
+  h+='<div class="split"><div>';
+  const rows=slotRows(c,false);
+  if(rows)h+='<div class="pane"><h3>Spell slots</h3>'+rows+'</div>';
+  h+='<div class="pane"><h3>Resources</h3>'+(c.resources.length?c.resources.map((r,i)=>ed()?resEdit(r,i):resView(r,i)).join(""):'<div class="sub">No limited-use features tracked yet.</div>')+(ed()?'<button class="btn small" data-act="addres" style="margin-top:.6rem">Add resource</button>':'');
+  if(c.hitDice&&!c.resources.some(r=>r.reset==="hitdice"))h+='<div class="sub" style="margin-top:.5rem">Hit dice: '+E(c.hitDice)+'</div>';
+  if(can)h+='<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.9rem"><button class="btn" data-act="rest" data-k="short">Short rest</button><button class="btn" data-act="rest" data-k="long">Long rest</button>'+(c.level<20?'<button class="btn primary" data-act="lvlopen">Level up</button>':'')+'</div>';
   h+='</div></div><div>';
   h+='<div class="pane"><h3>Attacks</h3>';
   if(ed())h+=c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Notes (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button>';
@@ -668,8 +746,8 @@ function tabSpells(id){
   h+='<div class="pane"><h3>Spellcasting</h3>';
   if(e)h+='<div class="row cols4"><label class="f">Spellcasting ability<select data-path="spellAbility"><option value="">None</option>'+ABIL.map(k=>'<option value="'+k+'"'+(c.spellAbility===k?" selected":"")+'>'+ABN[k]+'</option>').join("")+'</select></label></div>';
   if(st)h+='<div class="tiles" style="margin-top:8px"><div class="tile"><b>'+st.dc+'</b><span>Spell save DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell attack</span></div><div class="tile"><b>'+ABN[c.spellAbility].slice(0,3).toUpperCase()+'</b><span>Ability</span></div></div>';
-  const lvls=[1,2,3,4,5,6,7,8,9].filter(l=>e||(c.slots[l]&&c.slots[l].max>0));
-  if(lvls.length)h+=lvls.map(l=>{const s=c.slots[l]||{max:0,used:0};return '<div class="slotrow"><span class="lv">Level '+l+'</span>'+(s.max>0?pips(s.max,s.used,"spip",'data-l="'+l+'"',"Level "+l+" slot"):'<span class="sub">none</span>')+(e?'<input type="number" min="0" max="9" style="width:64px" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+s.max+'">':'<span class="sub">'+(s.max-s.used)+" left</span>")+'</div>'}).join("");
+  const sr=slotRows(c,e);
+  if(sr)h+=sr;
   else if(!st)h+='<div class="sub">No spell slots.</div>';
   if(c.spellInfo.length)h+='<div style="margin-top:10px">'+entryList("spellInfo",c.spellInfo,"Add note")+'</div>';
   h+='</div>';
@@ -681,12 +759,12 @@ function tabSpells(id){
   order.forEach(lv=>{
     h+='<div class="sub" style="margin:10px 0 6px;font-weight:700">'+(lv===0?"Cantrips":lv>0?"Level "+lv:"Other")+'</div>';
     groups[lv].sort((a,b)=>a.s.name.localeCompare(b.s.name)).forEach(o=>{
-      if(e)h+='<div class="entry-edit"><div class="h"><input type="text" aria-label="Spell name" data-path="spells.'+o.i+'.name" value="'+E(o.s.name)+'"><select aria-label="Spell level" data-path="spells.'+o.i+'.level" style="width:110px">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'"'+(o.s.level===l?" selected":"")+'>'+(l===0?"Cantrip":"Lvl "+l)+'</option>').join("")+'</select><button class="btn small danger" data-act="delspell" data-i="'+o.i+'" aria-label="Remove spell">✕</button></div><textarea aria-label="Note" placeholder="Your note (optional)" data-path="spells.'+o.i+'.desc" style="min-height:48px">'+E(o.s.desc||"")+'</textarea></div>';
+      if(e)h+='<div class="entry-edit"><div class="h"><input type="text" aria-label="Spell name" data-path="spells.'+o.i+'.name" value="'+E(o.s.name)+'"><select aria-label="Spell level" data-path="spells.'+o.i+'.level" style="width:8rem">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'"'+(o.s.level===l?" selected":"")+'>'+(l===0?"Cantrip":"Lvl "+l)+'</option>').join("")+'</select><button class="btn small danger" data-act="delspell" data-i="'+o.i+'" aria-label="Remove spell">✕</button></div><textarea aria-label="Note" placeholder="Your note (optional)" data-path="spells.'+o.i+'.desc" style="min-height:48px">'+E(o.s.desc||"")+'</textarea></div>';
       else h+='<details class="spell" data-n="'+E(o.s.name)+'" data-ci="'+E(id)+'" data-si="'+o.i+'"><summary>'+E(o.s.name)+'</summary><div class="spell-body"></div></details>';
     });
   });
   if(e)h+='<div class="row cols2" style="margin-top:10px"><label class="f">Add a spell by name<input type="text" id="newSpell" placeholder="e.g. Shield"></label><label class="f">Level<select id="newSpellLv">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'">'+(l===0?"Cantrip":l)+'</option>').join("")+'</select></label></div><button class="btn small" data-act="addspellman" style="margin-top:8px">Add spell</button>';
-  h+='<div class="legal">Rules text shown is the '+lk.ver+' version. Switch versions in the Lookup tab.</div></div>';
+  h+='<div class="legal">Rules text shown is the 2024 version (SRD 5.2).</div></div>';
   return h;
 }
 function tabFeatures(id){
@@ -725,30 +803,27 @@ function normComp(d){
   o.traits=Array.isArray(d.traits)?d.traits:[];o.actions=Array.isArray(d.actions)?d.actions:[];
   o.visible=!!d.visible;return o;
 }
-function splitTop(s){
-  const out=[];let depth=0,cur="";
-  for(const ch of String(s||"")){
-    if(ch==="(")depth++;if(ch===")")depth=Math.max(0,depth-1);
-    if(ch===","&&depth===0){out.push(cur.trim());cur=""}else cur+=ch;
-  }
-  if(cur.trim())out.push(cur.trim());
-  return out;
-}
-function listToEntries(s){
-  return splitTop(s).map(t=>{const m=/^([^(]+?)\s*\((.*)\)\s*$/.exec(t);return m?{name:m[1].trim(),desc:m[2].trim()}:{name:t,desc:""}});
-}
 function fromMonster(m){
   const c=blankComp();
-  c.name=m.name;c.type=m.type||"";c.cr=String(m.cr||"");c.ac=m.ac;c.hp=m.hp;c.hpMax=m.hp;c.speed=m.speed||"";
+  c.name=m.n;c.size=m.sz||"";c.type=m.t||"";c.cr=String(m.cr||"");c.ac=m.ac;c.hp=m.hp;c.hpMax=m.hp;c.speed=m.sp||"";
   ABIL.forEach(k=>{c.abilities[k]=m[k]!=null?m[k]:10});
-  c.saves=m.saves||"";c.skills=m.skills||"";c.senses=m.senses||"";
-  c.traits=listToEntries(m.traits);c.actions=listToEntries(m.actions);
+  c.saves=m.sv||"";c.skills=m.sk||"";c.senses=m.se||"";c.languages=m.ln||"";
+  const mk=(arr,suffix)=>(arr||[]).map(a=>({name:a[0]+(suffix||""),desc:a[1]}));
+  c.traits=mk(m.tr);
+  c.actions=mk(m.act).concat(mk(m.bon," (Bonus Action)"),mk(m.rea," (Reaction)"),mk(m.leg," (Legendary)"));
   return c;
 }
 let monsterList=null;
 function loadMonsters(){
   if(monsterList)return Promise.resolve(monsterList);
-  return fetch("monsters.json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{monsterList=a;return a});
+  return fetch("monsters-2024.json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{monsterList=a;return a});
+}
+function fillTemplates(){
+  const sel=$("cTemplate");if(!sel||!monsterList)return;
+  const q=($("cFilter")?$("cFilter").value:"").trim().toLowerCase();
+  const opts=[];
+  monsterList.forEach((m,i)=>{if(!q||m.n.toLowerCase().indexOf(q)>=0||String(m.t).toLowerCase().indexOf(q)>=0)opts.push('<option value="'+i+'">'+E(m.n)+' (CR '+E(m.cr)+')</option>')});
+  sel.innerHTML=(opts.length?'':'<option value="">No match</option>')+opts.join("");
 }
 function compHtml(cid,pid,c){
   const dm=isDM(),key=cid+"|"+pid,edit=dm&&compEdit[key],ctl='data-ch="'+E(cid)+'" data-pid="'+E(pid)+'"';
@@ -781,8 +856,8 @@ function tabPets(id){
   const list=compsFor(id);
   let h='';
   if(isDM()){
-    h+='<div class="pane"><h3>Add a creature for '+E((chars[id].name||"").split(" ")[0])+'</h3><div class="sub" style="margin-bottom:8px">Create it here, tweak the stat block, then press “Show to player”. Until then only you can see it.</div><div class="row cols2"><label class="f">Start from a monster<select id="cTemplate"><option value="">Loading list…</option></select></label><label class="f">Kind<select id="cKind">'+Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join("")+'</select></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="cadd" data-from="tpl">Add from monster</button><button class="btn" data-act="cadd" data-from="blank">Add blank creature</button></div></div>';
-    loadMonsters().then(a=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Choose…</option>'+a.map((m,i)=>'<option value="'+i+'">'+E(m.name)+' (CR '+E(m.cr)+')</option>').join("")}).catch(()=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Could not load monsters.json</option>'});
+    h+='<div class="pane"><h3>Add a creature for '+E((chars[id].name||"").split(" ")[0])+'</h3><div class="sub" style="margin-bottom:8px">Create it here, tweak the stat block, then press “Show to player”. Until then only you can see it.</div><div class="row cols2"><label class="f">Find a monster (2024 SRD)<input type="search" id="cFilter" placeholder="e.g. bear, wolf, ape"></label><label class="f">Pick one<select id="cTemplate"><option value="">Loading list…</option></select></label></div><div class="row cols2" style="margin-top:.5rem"><label class="f">Kind<select id="cKind">'+Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join("")+'</select></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="cadd" data-from="tpl">Add from monster</button><button class="btn" data-act="cadd" data-from="blank">Add blank creature</button></div></div>';
+    loadMonsters().then(()=>fillTemplates()).catch(()=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Could not load monsters-2024.json</option>'});
   }
   h+=list.length?list.map(x=>compHtml(id,x[0],x[1])).join(""):'<div class="empty">No creatures yet.'+(isDM()?"":" Your DM can give you a pet or a Wild Shape form.")+'</div>';
   return h;
@@ -849,34 +924,36 @@ function renderSheet(){
   else if(tab==="msgs")body=msgPanel(openId);
   else if(tab==="lookup")body='<div id="lkHost"></div>';
   else if(tab==="dm"&&isDM())body=tabDM(openId);
-  let h='<div class="sheet"><div class="sbar">'+(isDM()?'<button class="btn small" data-act="close" aria-label="Back to party">‹ Back</button>':'')+
+  const h='<div class="sheet"><div class="sbar">'+(isDM()?'<button class="btn small" data-act="close" aria-label="Back to party">‹ Party</button>':'')+
     '<div class="sbar-title"><strong>'+E((c.name||"Unnamed").split(" ")[0])+'</strong><span class="sub" id="sbarStat">'+E(sbarStat(c))+'</span></div>'+
-    (can&&["play","stats","spells","features","gear"].indexOf(tab)>=0?'<button class="btn small'+(editMode?" on":"")+'" data-act="edit" aria-pressed="'+editMode+'">'+(editMode?"✓ Done editing":"✎ Edit")+'</button>':'')+
-    (can&&tab==="play"?'<div class="hpctl"><input type="number" id="hpAmt" min="0" inputmode="numeric" aria-label="Amount of damage or healing" value="'+E(hpAmtVal)+'"><button class="btn dmg" data-act="dmg">Damage</button><button class="btn heal" data-act="heal">Heal</button></div>':'')+
+    (can&&["play","stats","spells","features","gear"].indexOf(tab)>=0?'<button class="btn small'+(editMode?" on":"")+'" data-act="edit" aria-pressed="'+editMode+'">'+(editMode?"✓ Done":"✎ Edit")+'</button>':'')+
     '</div>'+body+'</div>';
   host.innerHTML=h;
   host.querySelectorAll("textarea").forEach(autosize);
   if(tab==="lookup")renderLookup($("lkHost"));
   if(tab==="msgs"){const t=$("thread");if(t){t.scrollTop=t.scrollHeight;markRead(openId)}}
 }
-function sbarStat(c){return "HP "+c.hp+" / "+c.hpMax+(c.hpTemp?" (+"+c.hpTemp+")":"")+" · AC "+c.ac+" · Level "+c.level}
+function sbarStat(c){return "HP "+c.hp+"/"+c.hpMax+(c.hpTemp?" (+"+c.hpTemp+")":"")+" · AC "+c.ac+" · Lv "+c.level}
 function sheetFocused(){const a=document.activeElement;return !!(a&&$("app").contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
 
 /* ================= nav & top-level render ================= */
+const SESSION_CHIPS=[["run","▶ Run"],["s1","Hooks"],["s2","Strong start"],["s3","Scenes"],["s4","Secrets"],["s5","Places"],["s6","NPCs"],["s7","Monsters"],["s8","Treasure"],["camp","Campaign"],["web","Web"],["post","After"],["hist","History"]];
+const RULES_CHIPS=[["spells","Spells"],["mdb","Monsters"],["cond","Conditions"],["gen","Generators"]];
+let subSession="run", subRules="spells";
 function navItems(){
   const inSheet=!!(openId&&chars[openId]);
   if(inSheet){
-    const c=chars[openId],items=[["play","🛡","Play"],["stats","📊","Stats"]];
+    const c=chars[openId],items=[["play","⚔️","Play"],["stats","📊","Stats"]];
     if(hasSpells(c)||editMode)items.push(["spells","✨","Spells"]);
     items.push(["features","📖","Features"],["gear","🎒","Gear"]);
     if(compsFor(openId).length||isDM())items.push(["pets","🐾","Pets"]);
-    items.push(["msgs","✉️","Msgs"],["lookup","🔎","Lookup"]);
+    items.push(["msgs","✉️","Messages"],["lookup","🔎","Lookup"]);
     if(isDM())items.push(["dm","🔒","DM"]);
     return {items:items,active:sheetTab,badge:{msgs:unreadFrom(openId,isDM()?"player":"dm")}};
   }
   if(isDM()){
     let un=0;Object.keys(chars).forEach(id=>{un+=unreadFrom(id,"player")});
-    return {items:[["party","🏰","Party"],["msgs","✉️","Messages"],["lookup","🔎","Spells"],["campaign","📜","Campaign"]],active:dmTab,badge:{msgs:un}};
+    return {items:[["party","🏰","Party"],["combat","⚔️","Combat"],["session","📜","Session"],["rules","📚","Rules"],["msgs","✉️","Messages"]],active:dmTab,badge:{msgs:un}};
   }
   return {items:[],active:""};
 }
@@ -892,13 +969,29 @@ function renderNav(){
     const l=on.offsetLeft,r=l+on.offsetWidth;
     if(l<nav.scrollLeft||r>nav.scrollLeft+nav.clientWidth)nav.scrollLeft=Math.max(0,l-(nav.clientWidth-on.offsetWidth)/2);
   }
+  navFade();
+}
+function navFade(){const nav=$("bnav");if(nav)nav.classList.toggle("fade",nav.scrollWidth>nav.clientWidth+4&&nav.scrollLeft+nav.clientWidth<nav.scrollWidth-4)}
+function renderSubnav(){
+  const el=$("subnav"),top=isDM()&&!(openId&&chars[openId]);
+  let chips=null,active=null,group=null;
+  if(top&&dmTab==="session"){chips=SESSION_CHIPS;active=subSession;group="session"}
+  else if(top&&dmTab==="rules"){chips=RULES_CHIPS;active=subRules;group="rules"}
+  if(!chips){el.hidden=true;return}
+  const prev=el.scrollLeft;
+  el.hidden=false;
+  el.innerHTML=chips.map(c=>'<button class="chip'+(active===c[0]?" on":"")+'" data-act="sub" data-g="'+group+'" data-p="'+c[0]+'">'+c[1]+'</button>').join("");
+  el.scrollLeft=prev;
+  const on=el.querySelector(".on");
+  if(on&&el.scrollWidth>el.clientWidth){const l=on.offsetLeft,r=l+on.offsetWidth;if(l<el.scrollLeft||r>el.scrollLeft+el.clientWidth)el.scrollLeft=Math.max(0,l-20)}
 }
 function renderApp(){
   if(!role)return;
-  const inSheet=!!(openId&&chars[openId]),dm=isDM();
-  const show={party:dm&&!inSheet&&dmTab==="party",msgs:dm&&!inSheet&&dmTab==="msgs",lookup:dm&&!inSheet&&dmTab==="lookup",camp:dm&&!inSheet&&dmTab==="campaign",sheet:inSheet||(!dm)};
-  $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewCampaign").hidden=!show.camp;$("viewSheet").hidden=!show.sheet;
-  document.body.classList.toggle("compact",show.sheet||show.camp);
+  const inSheet=!!(openId&&chars[openId]),dm=isDM(),top=dm&&!inSheet;
+  const tomeTab=top&&(dmTab==="combat"||dmTab==="session"||(dmTab==="rules"&&subRules!=="spells"));
+  const show={party:top&&dmTab==="party",msgs:top&&dmTab==="msgs",lookup:top&&dmTab==="rules"&&subRules==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
+  $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewTome").hidden=!show.tome;$("viewSheet").hidden=!show.sheet;
+  document.body.classList.toggle("compact",show.sheet||show.tome);
   if(!show.party)$("viewParty").innerHTML="";
   if(!show.msgs)$("viewMsgs").innerHTML="";
   if(!show.lookup)$("viewLookup").innerHTML="";
@@ -907,12 +1000,14 @@ function renderApp(){
   if(show.party&&(!focused||!$("viewParty").firstChild))renderParty();
   if(show.msgs){if(dmMsgChar&&$("thread"))updateThread();else if(!focused||!$("viewMsgs").firstChild)renderDMMsgs()}
   if(show.lookup&&!$("viewLookup").firstChild)renderLookup($("viewLookup"));
-  if(show.camp)ensureCampaign();
+  if(show.tome)ensureTome();
   if(show.sheet){
     if(!focused||!$("viewSheet").firstChild)renderSheet();
     else{const t=$("thread");if(t&&sheetTab==="msgs")updateThread();const sb=$("sbarStat");if(sb&&chars[openId])sb.textContent=sbarStat(chars[openId])}
   }
+  renderSubnav();
   renderNav();
+  if(dm)tomeSheetsSoon();
 }
 
 /* ================= events ================= */
@@ -925,6 +1020,7 @@ document.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="hpAmt"){hpAmtVal=t.value;return}
   if(t.id==="lkQ"){lk.q=t.value;lk.limit=40;renderLookupResults();return}
+  if(t.id==="cFilter"){fillTemplates();return}
   if(t.dataset&&t.dataset.dm==="notes"&&isDM()&&openId){dmNotes[openId]=t.value;autosize(t);queueNote(openId);return}
   const path=t.getAttribute&&t.getAttribute("data-path");
   if(!path)return;
@@ -946,7 +1042,6 @@ document.addEventListener("input",e=>{
 });
 document.addEventListener("change",e=>{
   const t=e.target;
-  if(t.id==="lkVer"){lk.ver=t.value;lk.limit=40;loadSpells(lk.ver).then(()=>renderLookupResults()).catch(()=>{});renderLookupResults();return}
   if(t.id==="lkCls"){lk.cls=t.value;lk.limit=40;renderLookupResults();return}
   if(t.id==="lkSch"){lk.sch=t.value;lk.limit=40;renderLookupResults();return}
   const path=t.getAttribute&&t.getAttribute("data-path");
@@ -964,8 +1059,8 @@ document.addEventListener("click",async e=>{
       return}
     case "signout":return doSignOut();
     case "close":openId=null;lvlUp=null;sheetTab="play";editMode=false;renderApp();window.scrollTo(0,0);return;
-    case "open":{const card=b.closest(".card");openId=card.dataset.id;sheetTab="play";lvlUp=null;editMode=false;renderApp();window.scrollTo(0,0);return}
-    case "hp":{const card=b.closest(".card"),id=card.dataset.id,x=chars[id];x.hp=Math.max(0,Math.min(x.hpMax,x.hp+Number(b.dataset.d)));saveChar(id,["hp"]);renderParty();return}
+    case "open":{const card=b.closest(".pcard");openId=card.dataset.id;sheetTab="play";lvlUp=null;editMode=false;renderApp();window.scrollTo(0,0);return}
+    case "hp":{const card=b.closest(".pcard"),id=card.dataset.id,x=chars[id];x.hp=Math.max(0,Math.min(x.hpMax,x.hp+Number(b.dataset.d)));saveChar(id,["hp"]);renderParty();return}
     case "edit":editMode=!editMode;renderSheet();renderNav();return;
     case "import":$("importIn").click();return;
     case "addnpc":return addNpc();
@@ -984,7 +1079,9 @@ document.addEventListener("click",async e=>{
     case "savecs":return saveCustomSpell();
     case "delcs":{if(confirm("Delete the custom spell “"+b.dataset.n+"”?"))deleteDoc(doc(db,"customSpells",slugId(b.dataset.n))).catch(()=>setStatus("Could not delete",true));return}
     case "addspell":{const ch=chars[charId];if(!ch)return;ch.spells.push({name:b.dataset.n,level:Number(b.dataset.l),desc:""});saveChar(charId,["spells"]);b.outerHTML='<span class="sub">Added to your spells.</span>';return}
-    case "campParty":return sendParty(true);
+    case "sub":{if(b.dataset.g==="session")subSession=b.dataset.p;else subRules=b.dataset.p;renderApp();window.scrollTo(0,0);return}
+    case "restall":return restAll(b.dataset.k);
+    case "tomeretry":tomeState="idle";ensureTome();return;
     case "cadd":return addComp(b);
     case "cvis":{const x=companions[b.dataset.ch][b.dataset.pid];x.visible=!x.visible;saveComp(b.dataset.ch,b.dataset.pid,["visible"]);renderSheet();return}
     case "cedit":{const k=b.dataset.ch+"|"+b.dataset.pid;compEdit[k]=!compEdit[k];renderSheet();return}
@@ -1022,14 +1119,13 @@ document.addEventListener("click",async e=>{
     case "delsheet":return delSheet();
   }
 });
+document.addEventListener("scroll",e=>{if(e.target&&e.target.id==="bnav")navFade()},true);
 document.addEventListener("keydown",e=>{
   if(e.target.id==="codeIn"&&e.key==="Enter")$("joinBtn").click();
   if(e.target.id==="msgIn"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){const b=document.querySelector('[data-act="send"]');if(b)b.click()}
 });
-function doRest(kind){
-  const c=chars[openId],info=classInfo(c.cls),pact=info&&info.caster==="pact";
-  const msg=kind==="long"?"Take a long rest? This restores your HP, spell slots and all limited-use features.":"Take a short rest? This restores short-rest features"+(pact?" and your pact slots":"")+".";
-  if(!confirm(msg))return;
+function applyRest(id,kind){
+  const c=chars[id],info=classInfo(c.cls),pact=info&&info.caster==="pact";
   const keys=["resources"];
   c.resources.forEach(r=>{
     if(kind==="long"){if(r.reset==="hitdice")r.used=Math.max(0,r.used-Math.ceil(r.max/2));else if(r.reset!=="manual")r.used=0}
@@ -1037,7 +1133,20 @@ function doRest(kind){
   });
   if(kind==="long"){c.hp=c.hpMax;c.hpTemp=0;c.deathS=0;c.deathF=0;Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("hp","hpTemp","deathS","deathF","slots")}
   else if(pact){Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("slots")}
-  saveChar(openId,keys);renderSheet();setStatus(kind==="long"?"Long rest taken":"Short rest taken");
+  saveChar(id,keys);
+}
+function doRest(kind){
+  const c=chars[openId],pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact";
+  const msg=kind==="long"?"Take a long rest? This restores your HP, spell slots and all limited-use features.":"Take a short rest? This restores short-rest features"+(pact?" and your pact slots":"")+".";
+  if(!confirm(msg))return;
+  applyRest(openId,kind);renderSheet();setStatus(kind==="long"?"Long rest taken":"Short rest taken");
+}
+function restAll(kind){
+  const ids=Object.keys(chars).filter(id=>!chars[id].npc);
+  if(!ids.length)return;
+  if(!confirm(kind==="long"?"Long rest for the whole party? This restores everyone’s HP, spell slots and limited-use features.":"Short rest for the whole party? This restores short-rest features and pact slots."))return;
+  ids.forEach(id=>applyRest(id,kind));
+  renderApp();setStatus(kind==="long"?"Party long rest taken":"Party short rest taken");
 }
 function confirmLevelUp(c){
   const gain=Math.max(0,Math.floor(Number($("lvGain").value)||0));
@@ -1115,10 +1224,10 @@ async function addComp(b){
 document.addEventListener("change",async e=>{
   if(e.target.id!=="importIn")return;
   const files=Array.from(e.target.files||[]);e.target.value="";
-  const setMsg=t=>{importMsg=t;const m=$("importMsg");if(m){m.hidden=!t;m.textContent=t}};
+  let msgT;const setMsg=t=>{importMsg=t;const m=$("importMsg");if(m){m.hidden=!t;m.textContent=t}clearTimeout(msgT);if(t&&t!=="Importing…")msgT=setTimeout(()=>{importMsg="";const m2=$("importMsg");if(m2)m2.hidden=true},12000)};
   setMsg("Importing…");
-  try{await loadSpells("2014")}catch(err){}
-  const levelOf=n=>{const s=findSpellIn("2014",n);return s?s.l:null};
+  try{await loadSpells()}catch(err){}
+  const levelOf=n=>{const s=findSpellIn(n);return s?s.l:null};
   const done=[],skipped=[];
   for(const f of files){
     try{
@@ -1139,14 +1248,14 @@ document.addEventListener("change",async e=>{
   setMsg((done.length?"Imported: "+done.join(", ")+". Login names are under “Player names”. ":"")+(skipped.length?"Skipped: "+skipped.join(", ")+".":""));
   if(done.length){codesOpen=true;const cb=$("codesBox");if(cb)cb.open=true}
 });
-function findSpellIn(ver,name){
-  const idx=spellIdx[ver];if(!idx)return null;
+function findSpellIn(name){
+  if(!spellIdx)return null;
   const n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
-  return idx.get(n)||idx.get(ALIAS[n]||"")||null;
+  return spellIdx.get(n)||spellIdx.get(ALIAS[n]||"")||null;
 }
 
-/* ================= campaign tool (DM only) ================= */
-let campInit=false, campSent="";
+/* ================= campaign tools, built into this page (DM only) ================= */
+let tomeState="idle", tomeSent="", tomeTimer=null;
 const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
 async function pack(str){
   if(typeof CompressionStream==="undefined")return {enc:"raw",data:str};
@@ -1161,7 +1270,7 @@ async function unpack(enc,data){
   w.write(buf);w.close();return await new Response(ds.readable).text();
 }
 const campMeta=()=>{try{return JSON.parse(localStorage.getItem("lazy-dm-sync")||"{}")}catch(e){return {}}};
-function campStatus(t,err){const s=$("campStatus");if(s){s.textContent=t;s.className="sub"+(err?" err":"")}}
+function campStatus(t,err){setStatus(t,err)}
 async function pushCampaign(){
   const v3=localStorage.getItem("lazy-dm-v3")||"",web=localStorage.getItem("lazy-dm-web")||"";
   const a=await pack(v3),b=await pack(web);
@@ -1169,7 +1278,7 @@ async function pushCampaign(){
   const updated=Date.now();
   await setDoc(doc(db,"dmdata","lazydm"),{enc:a.enc,v3:a.data,web:b.data,updated:updated});
   localStorage.setItem("lazy-dm-sync",JSON.stringify({updated:updated,v3:hash(v3),web:hash(web)}));
-  campStatus("Campaign saved to the cloud "+new Date(updated).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}));
+  campStatus("Campaign saved to the cloud");
 }
 async function pullCampaign(){
   try{
@@ -1185,20 +1294,18 @@ async function pullCampaign(){
         localStorage.setItem("lazy-dm-sync",JSON.stringify({updated:d.updated,v3:hash(a||""),web:hash(b||"")}));
         campStatus("Loaded your campaign from the cloud");
       }else if(localDirty)await pushCampaign();
-      else campStatus("Campaign is up to date");
     }else if(v3||web)await pushCampaign();
-    else campStatus("New campaign. It saves to the cloud automatically.");
   }catch(e){campStatus("Could not reach the cloud copy ("+(e&&e.code||"error")+"). Changes stay on this device.",true)}
 }
 async function syncCampaignTick(){
-  if(!isDM()||!campInit)return;
+  if(!isDM()||tomeState!=="ready")return;
   const v3=localStorage.getItem("lazy-dm-v3")||"",web=localStorage.getItem("lazy-dm-web")||"",m=campMeta();
   if(hash(v3)!==m.v3||hash(web)!==m.web){try{await pushCampaign()}catch(e){campStatus("Could not save to the cloud ("+(e&&e.code||"error")+")",true)}}
 }
 function toLegacy(id){
   const c=chars[id],st=spellStats(c),pb=prof(c.level);
   const spellNames=c.spells.map(s=>s.name+(s.level===0?" (cantrip)":""));
-  const out={name:c.name,player:c.player,size:c.size,race:c.race,type:"humanoid",class:c.cls,subclass:c.subclass,alignment:c.alignment,level:c.level,
+  return {name:c.name,player:c.player,size:c.size,race:c.race,type:"humanoid",class:c.cls,subclass:c.subclass,alignment:c.alignment,level:c.level,
     ac:c.ac,hp:c.hpMax,hp_max:c.hpMax,hp_current:c.hp,hp_temp:c.hpTemp,hit_dice:c.hitDice,speed:c.speed+" ft.",stats:ABIL.map(k=>c.abilities[k]),
     saves:ABIL.filter(k=>c.saveProf[k]).map(k=>k[0].toUpperCase()+k.slice(1)+" "+sgn(mod(c.abilities[k])+pb)),
     skills:SKILLS.filter(s=>c.skillProf[s[0]]||c.skillExtra[s[0]]).map(s=>s[0]+" "+sgn(skillTotal(c,s))),
@@ -1207,27 +1314,81 @@ function toLegacy(id){
     spellcasting:(st?[{name:"Spellcasting",desc:"Spell save DC "+st.dc+"; spell attack "+sgn(st.atk)+"."}]:[]).concat(c.spellInfo),
     actions:c.attacks.map(a=>({name:a.name,desc:"Weapon Attack: "+a.bonus+" to hit. Hit: "+a.dmg+"."+(a.notes?" "+a.notes:"")})).concat(c.actions),
     class_features:c.features,traits:c.traits,goals:String(c.goals||"").split("\n").filter(Boolean),backstory:c.backstory,notes:dmNotes[id]||""};
-  return out;
 }
-function sendParty(force){
-  const f=$("campFrame");if(!f||!f.contentWindow)return;
+function sendParty(){
+  if(tomeState!=="ready"||typeof window.__tomeParty!=="function")return;
   const sheets=Object.keys(chars).filter(id=>!chars[id].npc).map(toLegacy);
   const json=JSON.stringify(sheets);
-  if(!force&&json===campSent)return;
-  campSent=json;f.contentWindow.postMessage({type:"party",sheets:sheets},location.origin);
-  campStatus("Party sheets sent to the campaign tool");
+  if(json===tomeSent){window.__tomeSheetsChanged&&window.__tomeSheetsChanged();return}
+  tomeSent=json;window.__tomeParty(sheets);
 }
-async function ensureCampaign(){
-  const host=$("viewCampaign");
-  if(campInit){sendParty(false);return}
-  campInit=true;
-  host.innerHTML='<div class="camp-bar"><span id="campStatus" class="sub">Loading your campaign…</span><button class="btn small" data-act="campParty">Refresh party sheets</button></div><iframe id="campFrame" title="Campaign tool"></iframe>';
-  await pullCampaign();
-  const f=$("campFrame");
-  f.addEventListener("load",()=>setTimeout(()=>sendParty(true),500));
-  f.src="campaign.html";
-  setInterval(syncCampaignTick,5000);
-  window.addEventListener("pagehide",()=>{syncCampaignTick()});
+function tomeSheetsSoon(){
+  if(tomeState!=="ready")return;
+  clearTimeout(tomeTimer);tomeTimer=setTimeout(sendParty,250);
+}
+/* Live link between the tome's tools and the sheets */
+const shortOf=n=>String(n||"").split(" ")[0];
+const bid=short=>Object.keys(chars).filter(id=>!chars[id].npc&&shortOf(chars[id].name)===short)[0];
+function slotKey(key){const m=/^slot(\d)$/.exec(key);return m?m[1]:null}
+window.PartyBridge={
+  pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF}},
+  setHP(short,hp){const id=bid(short);if(!id)return;const c=chars[id];hp=Math.max(0,Math.min(c.hpMax,Math.round(Number(hp)||0)));if(c.hp===hp)return;
+    if(hp>0&&c.hp===0){c.deathS=0;c.deathF=0}c.hp=hp;saveChar(id,["hp","deathS","deathF"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
+  setDeath(short,s,f){const id=bid(short);if(!id)return;const c=chars[id];c.deathS=Math.max(0,Math.min(3,s));c.deathF=Math.max(0,Math.min(3,f));saveChar(id,["deathS","deathF"])},
+  trackers(short){
+    const id=bid(short);if(!id)return [];const c=chars[id],pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact",t=[];
+    Object.keys(c.slots).map(Number).sort((a,b)=>a-b).forEach(l=>{const s=c.slots[l];if(s.max>0)t.push({key:"slot"+l,label:pact?"Pact slots (level "+l+")":"Level "+l+" slots",max:s.max,reset:pact?"short":"long",kind:"pips"})});
+    c.resources.forEach((r,i)=>{if(r.reset==="hitdice"||r.max<=0)return;t.push({key:"r"+i,label:shortRes(r.name),max:r.max,reset:r.reset==="combat"?"combat":r.reset==="short"?"short":"long",kind:r.max>8?"pool":"pips"})});
+    return t;
+  },
+  used(short,key){const id=bid(short);if(!id)return 0;const c=chars[id],sl=slotKey(key);
+    if(sl)return (c.slots[sl]&&c.slots[sl].used)||0;
+    const m=/^r(\d+)$/.exec(key);return m&&c.resources[Number(m[1])]?c.resources[Number(m[1])].used||0:0},
+  setUsed(short,key,val){const id=bid(short);if(!id)return;const c=chars[id],sl=slotKey(key);val=Math.max(0,Math.round(Number(val)||0));
+    if(sl&&c.slots[sl]){c.slots[sl].used=Math.min(val,c.slots[sl].max);saveChar(id,["slots"])}
+    else{const m=/^r(\d+)$/.exec(key);if(m&&c.resources[Number(m[1])]){const r=c.resources[Number(m[1])];r.used=Math.min(val,r.max);saveChar(id,["resources"])}}
+    tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
+  rest(short,kind){const id=bid(short);if(!id)return;applyRest(id,kind);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()}
+};
+const fetchText=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u+" HTTP "+r.status);return r.text()});
+async function ensureTome(){
+  if(tomeState==="ready"){tomeShow();return}
+  if(tomeState==="loading")return;
+  tomeState="loading";
+  const host=$("tome");
+  host.innerHTML='<div class="empty">Loading your campaign tools…</div>';
+  try{
+    await pullCampaign();
+    const [css,html,js]=await Promise.all([fetchText("tome.css"),fetchText("tome.html"),fetchText("tome.js"),loadSpells(),loadMonsters()]);
+    if(!document.getElementById("tome-css")){const st=document.createElement("style");st.id="tome-css";st.textContent=css;document.head.appendChild(st)}
+    host.innerHTML=html;
+    if(!document.getElementById("print-sheet")){const p=document.createElement("div");p.id="print-sheet";p.setAttribute("aria-hidden","true");document.body.appendChild(p)}
+    const sc=document.createElement("script");sc.textContent=js;document.body.appendChild(sc);
+    if(typeof window.__tomeSetData!=="function")throw new Error("tome.js did not start");
+    window.__tomeSetData(spellDB,monsterList);
+    window.__tomeOnPane=name=>{
+      let g=dmTab,ss=subSession,sr=subRules;
+      if(name==="init")g="combat";
+      else if(name==="mdb"||name==="cond"||name==="gen"){g="rules";sr=name}
+      else{g="session";ss=name}
+      if(g!==dmTab||ss!==subSession||sr!==subRules){dmTab=g;subSession=ss;subRules=sr;openId=null;renderApp()}
+    };
+    document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
+    tomeState="ready";tomeSent="";
+    sendParty();
+    setInterval(syncCampaignTick,5000);
+    window.addEventListener("pagehide",()=>{syncCampaignTick()});
+    tomeShow();
+  }catch(e){
+    tomeState="error";
+    host.innerHTML='<div class="empty">Could not load the campaign tools ('+E(e&&e.message||"error")+'). Make sure tome.css, tome.html, tome.js, spells-2024.json and monsters-2024.json are in the same folder as index.html.<br><br><button class="btn" data-act="tomeretry">Try again</button></div>';
+  }
+}
+function tomeShow(){
+  const root=$("tome");if(!root||tomeState!=="ready")return;
+  root.dataset.view=dmTab;
+  const pane=dmTab==="combat"?"init":dmTab==="session"?subSession:subRules;
+  if(window.__tome&&window.__tome.sw)window.__tome.sw(pane);
 }
 
 /* ================= live data ================= */
@@ -1251,7 +1412,7 @@ function startApp(){
   $("outBtn").hidden=false;
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
-    openId=null;dmTab="party";sheetTab="play";
+    openId=null;dmTab="party";subSession="run";subRules="spells";sheetTab="play";
     unsubs.push(onSnapshot(collection(db,"characters"),snap=>{
       const next={};snap.docs.forEach(d=>{next[d.id]=keepLocal("c:",d.id,normalize(d.data()||{}),chars[d.id])});
       chars=next;if(openId&&!chars[openId])openId=null;

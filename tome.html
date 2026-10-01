@@ -1,0 +1,823 @@
+<div id="tome-fragment">
+
+
+
+
+
+
+<!-- META -->
+<div class="meta">
+  <div><label>Campaign</label><input type="text" id="campaign-name" placeholder="e.g. Curse of Strahd"></div>
+  <div><label>Session #</label><input type="text" id="session-num" placeholder="Session 7"></div>
+  <div><label>Date</label><input type="text" id="session-date" placeholder="14 June 2025"></div>
+  <div><label>Party Level</label><input type="text" id="party-level" placeholder="5"></div>
+</div>
+
+<!-- TABS -->
+<div class="tab-groups" id="tab-groups">
+  <div class="tab-group">
+    <div class="tab-group-label">Prep Steps</div>
+    <div class="tab-group-row">
+      <button class="tb active" data-ac="tab-s1">① Characters</button>
+      <button class="tb" data-ac="tab-s2">② Strong Start</button>
+      <button class="tb" data-ac="tab-s3">③ Scenes</button>
+      <button class="tb" data-ac="tab-s4">④ Secrets</button>
+      <button class="tb" data-ac="tab-s5">⑤ Locations</button>
+      <button class="tb" data-ac="tab-s6">⑥ NPCs</button>
+      <button class="tb" data-ac="tab-s7">⑦ Monsters</button>
+      <button class="tb" data-ac="tab-s8">⑧ Treasure</button>
+    </div>
+  </div>
+  <div class="tab-group">
+    <div class="tab-group-label">At The Table</div>
+    <div class="tab-group-row">
+      <button class="tb tb-run" data-ac="tab-run">▶ Run Session</button>
+      <button class="tb" data-ac="tab-init">⚔ Initiative</button>
+      <button class="tb" data-ac="tab-mdb">👾 Monsters</button>
+      <button class="tb" data-ac="tab-cond">🩹 Conditions</button>
+      <button class="tb" data-ac="tab-gen">🎲 Generators</button>
+    </div>
+  </div>
+  <div class="tab-group">
+    <div class="tab-group-label">Campaign</div>
+    <div class="tab-group-row">
+      <button class="tb" data-ac="tab-camp">📜 Campaign</button>
+      <button class="tb" data-ac="tab-web">🕸 Relationships</button>
+      <button class="tb" data-ac="tab-post">✦ Post-Session</button>
+      <button class="tb" data-ac="tab-hist">📚 History</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S1: CHARACTERS ══ -->
+<div id="tab-s1" class="pane active">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 1</span>Review the Party</div>
+    <p class="shint">Wire the characters into your mind before anything else. What do they want? What hook connects each one to this session?</p>
+
+    <div class="live-note"><b>Live party.</b> These cards come straight from your players' character sheets and update as they play. HP, spell slots and limited-use features are shared with the sheets and the Initiative tracker.</div>
+<div class="cs-bulk"><button class="run-link" data-ac="fn-csOpenAll">Open all</button><button class="run-link" data-ac="fn-csCloseAll">Close all</button></div>
+    <div id="char-sheets"></div>
+
+    <div class="stitle" style="margin-top:calc(1.4*var(--tr))"><span class="sbadge">Hooks</span>Session Hooks Per Character</div>
+    <div class="cl" id="hook-list"></div>
+    <button class="abtn" data-ac="fn-addHook">+ Add Hook</button>
+  </div>
+</div>
+
+<!-- ══ S2: STRONG START ══ -->
+<div id="tab-s2" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 2</span>Create a Strong Start</div>
+    <p class="shint">"Something happens." Begin in the middle of the action. What's the first thing the players experience?</p>
+    <div style="margin-bottom:calc(1*var(--tr))"><label>Last session recap</label><textarea id="prev-recap" rows="2" placeholder="Filled in automatically when you start a new session from the last one."></textarea></div>
+    <div class="ssbox"><textarea id="strong-start" class="tall" placeholder="e.g. The party wakes to find the inn ablaze. A hooded figure flees the back window clutching a leather satchel — the barmaid who served them last night…"></textarea></div>
+    <div style="margin-top:calc(.9*var(--tr))"><label>Hook to Pull Into the Adventure</label><textarea id="adv-hook" placeholder="How does the strong start thread into the session?"></textarea></div>
+  </div>
+</div>
+
+<!-- ══ S3: SCENES ══ -->
+<div id="tab-s3" class="pane">
+
+  <!-- ADVENTURE HOOK -->
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Hook</span>Adventure Hook</div>
+    <p class="shint">What draws the characters into this session's adventure? One clear hook that flows from the strong start.</p>
+    <textarea id="scene-hook" placeholder="e.g. The courier who was carrying Albus's last known address was found dead at the city gate — Warryn recognises the ink on the letter as the same used in his wife's last note…"></textarea>
+  </div>
+
+  <div class="div">· · · ✦ · · ·</div>
+
+  <!-- FORKS & OPTIONS -->
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Forks</span>Paths &amp; Player Options</div>
+    <p class="shint">What meaningful choices might the players face? Prepare 2–4 forks — directions the session could go. Don't railroad; these are possibilities, not a script.</p>
+    <div class="cl" id="forks-list"></div>
+    <button class="abtn" data-ac="fn-addFork">+ Add Fork</button>
+  </div>
+
+  <div class="div">· · · ✦ · · ·</div>
+
+  <!-- POTENTIAL SCENES -->
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 3</span>Potential Scenes</div>
+    <p class="shint">~1 scene per 45 min of play. Keep each to a few words — be ready to throw these away entirely. One to two sentences maximum per scene.</p>
+    <div class="cl" id="scenes-list"></div>
+    <button class="abtn" data-ac="fn-addScene">+ Add Scene</button>
+  </div>
+
+  <div class="div">· · · ✦ · · ·</div>
+
+  <!-- ENCOUNTERS -->
+  <div class="sec">
+    <div class="stitle">Encounters &amp; Situations</div>
+    <p class="shint">Combat, social, and exploration encounters that might arise. Keep them flexible — drop them in based on pacing.</p>
+    <div id="enc-list"></div>
+    <button class="abtn" data-ac="fn-addEnc">+ Add Encounter</button>
+  </div>
+</div>
+
+<!-- ══ S4: SECRETS ══ -->
+<div id="tab-s4" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 4</span>Define Secrets &amp; Clues</div>
+    <p class="shint">The heart of the eight steps. Short, relevant, <strong>not tied to a location or discovery method</strong>. Write up to ten. How they are discovered is decided at the table — not here.</p>
+
+    <!-- CARRY FORWARD PANEL -->
+    <div id="carry-forward-panel" style="display:none;margin-bottom:calc(1*var(--tr));background:color-mix(in srgb,var(--gold) 8%,transparent);border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:2px;padding:calc(.9*var(--tr)) calc(1.1*var(--tr))">
+      <div style="font-family:var(--hfont);font-size:calc(max(.72,.8)*var(--tu));letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:calc(.5*var(--tr));font-weight:600">⇲ Undiscovered Secrets from Last Session</div>
+      <p style="font-family:var(--bfont);font-style:italic;font-size:calc(.82*var(--tu));color:var(--ink-light);margin-bottom:calc(.7*var(--tr))">These secrets were not discovered in the previous session. Click any to carry it forward into this session.</p>
+      <div id="carry-forward-list" style="display:flex;flex-direction:column;gap:calc(.4*var(--tr))"></div>
+    </div>
+
+    <!-- LOAD FROM HISTORY -->
+    <div style="display:flex;gap:calc(.6*var(--tr));align-items:end;margin-bottom:calc(.9*var(--tr));flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <label>Load previous session JSON to carry forward secrets</label>
+        <input type="text" id="cf-url" placeholder="https://raw.githubusercontent.com/Lachiee/DnD_Lucia/main/sessions/session-06.json">
+      </div>
+      <button class="btns" data-ac="fn-loadCarryForward" style="white-space:nowrap">⇲ Load &amp; Compare</button>
+      <div style="font-family:var(--bfont);font-style:italic">or</div>
+      <div>
+        <label>Upload session JSON file</label>
+        <input type="file" id="cf-file" accept=".json" style="font-family:var(--bfont);font-size:calc(.88*var(--tu))" id="cf-file-input">
+      </div>
+    </div>
+    <div class="gh-status" id="cf-status" style="margin-bottom:calc(.7*var(--tr))"></div>
+
+    <!-- SECRET COUNTER -->
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:calc(.4*var(--tr))">
+      <div style="font-family:var(--hfont);font-size:calc(max(.68,.8)*var(--tu));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light)">Current Session Secrets</div>
+      <div id="secret-counter" style="font-family:var(--hfont);font-size:calc(max(.72,.8)*var(--tu));color:var(--gold)">0 / 10</div>
+    </div>
+
+    <div class="cl" id="secrets-list"></div>
+    <button class="abtn" data-ac="fn-addSecret">+ Add Secret</button>
+  </div>
+</div>
+
+<!-- ══ S5: LOCATIONS ══ -->
+<div id="tab-s5" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 5</span>Develop Fantastic Locations</div>
+    <p class="shint">A name and 1–3 evocative aspects is often enough. For set-piece battles add interactive features.</p>
+    <div class="cl" id="loc-list"></div>
+    <button class="abtn" data-ac="fn-addLoc">+ Add Location</button>
+  </div>
+</div>
+
+<!-- ══ S6: NPCS ══ -->
+<div id="tab-s6" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 6</span>Outline Important NPCs</div>
+    <p class="shint">Name, one distinguishing trait, what they want. Base on a fiction character for instant mannerisms.</p>
+    <div class="cl" id="npc-list"></div>
+    <button class="abtn" data-ac="fn-addNPC">+ Add NPC</button>
+  </div>
+</div>
+
+<!-- ══ S7: MONSTERS ══ -->
+<div id="tab-s7" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 7</span>Choose Relevant Monsters</div>
+    <p class="shint">List separately from encounters so you can drop them anywhere based on pacing. Note the lazy encounter benchmark.</p>
+    <div class="bench-calculator">
+      <div class="bench-top">
+        <div class="stitle" style="margin-bottom:calc(.4*var(--tr))">Lazy Encounter Benchmark</div>
+        <p class="shint" style="margin-bottom:calc(.8*var(--tr))">An encounter may be deadly if total monster CR exceeds the benchmark. <strong>Levels 1–4:</strong> sum of character levels ÷ 4. <strong>Levels 5–10:</strong> ÷ 2. <strong>Levels 11–16:</strong> × ¾. <strong>Level 17+:</strong> = full sum of levels.</p>
+        <div class="bench-inputs">
+          <div>
+            <label>Number of Characters</label>
+            <input type="number" id="bench-count" value="4" min="1" max="10" style="width:70px">
+          </div>
+          <div>
+            <label>Average Level</label>
+            <input type="number" id="bench-level" value="4" min="1" max="20" style="width:70px">
+          </div>
+          <div style="align-self:end">
+            <button class="abtn" data-ac="fn-benchFromSheets" style="border-color:var(--blue);color:var(--blue)">Use party from sheets</button>
+          </div>
+        </div>
+        <div id="bench-source" class="bench-source"></div>
+        <div id="bench-result" class="bench-result"></div>
+      </div>
+      <div class="enc-tester">
+        <label>Test an encounter</label>
+        <p class="shint" style="margin:calc(.1*var(--tr)) 0 calc(.5*var(--tr))">Set how many of each monster from your list below would be in one fight.</p>
+        <div id="enc-tester-rows"></div>
+        <div id="enc-tester-result" class="enc-tester-result"></div>
+      </div>
+      <div style="margin-top:calc(.8*var(--tr))">
+        <label>Notes</label>
+        <input type="text" id="enc-bench" placeholder="e.g. 4 × level 4 party → benchmark CR 4 total before deadly">
+      </div>
+    </div>
+    <details class="qm-details"><summary>Build a monster from just a CR</summary><div class="qm-card" id="qm-s7"></div></details>
+    <div style="margin-top:calc(.8*var(--tr))" class="cl" id="mon-list"></div>
+    <button class="abtn" data-ac="fn-addMon">+ Add Monster</button>
+  </div>
+</div>
+
+<!-- ══ S8: TREASURE ══ -->
+<div id="tab-s8" class="pane">
+  <div class="sec">
+    <div class="stitle"><span class="sbadge">Step 8</span>Select Treasure &amp; Magic Items</div>
+    <p class="shint">Choose items that fit specific characters OR roll randomly — mix both. Players love loot.</p>
+    <div class="cl" id="treas-list"></div>
+    <button class="abtn" data-ac="fn-addTreas">+ Add Reward</button>
+  </div>
+</div>
+
+<!-- ══ INITIATIVE ══ -->
+<div id="tab-init" class="pane">
+  <div class="sec">
+    <div class="stitle">⚔ Initiative Tracker</div>
+    <p class="shint">Add combatants, roll initiative, track HP and conditions. Click a row to make it the active turn.</p>
+
+    <div class="init-tracker">
+      <div class="init-header">
+        <span class="init-title">Combat</span>
+        <div class="init-controls">
+          <span class="turn-indicator" id="turn-label">Ready</span>
+          <span class="round-badge" id="round-label">Round 1</span>
+          <button class="btns" data-ac="fn-nextTurn" style="padding:calc(.3*var(--tr)) calc(.7*var(--tr));font-size:calc(max(.62,.8)*var(--tu))">Next Turn ▶</button>
+          <button class="btns" data-ac="fn-resetCombat" style="padding:calc(.3*var(--tr)) calc(.7*var(--tr));font-size:calc(max(.62,.8)*var(--tu));color:var(--red)">Reset ✕</button>
+        </div>
+      </div>
+
+      <div id="combat-alerts" aria-live="polite"></div>
+      <!-- combatant rows -->
+      <div class="init-list" id="init-list">
+        <div style="padding:calc(1*var(--tr));text-align:center;font-family:var(--bfont);font-style:italic;color:var(--ink-light);font-size:calc(.9*var(--tu))">Add combatants below and click Roll All Initiative</div>
+      </div>
+
+      <!-- damage / heal bar -->
+      <div class="dmg-bar">
+        <div>
+          <div class="dmg-bar-title">Quick Damage / Heal</div>
+          <div style="display:flex;gap:calc(.4*var(--tr));align-items:end">
+            <div><label>Target</label>
+              <select id="dmg-target" style="min-width:130px"><option value="">— select —</option></select>
+            </div>
+            <div><label>Amount</label><input type="number" id="dmg-amount" style="width:70px" placeholder="10"></div>
+            <button class="btnp" data-ac="fn-applyDmg" style="padding:calc(.45*var(--tr)) calc(.8*var(--tr));font-size:calc(max(.63,.8)*var(--tu))">Damage</button>
+            <button class="btns" data-ac="fn-applyHeal" style="padding:calc(.45*var(--tr)) calc(.8*var(--tr));font-size:calc(max(.63,.8)*var(--tu))">Heal</button>
+          </div>
+        </div>
+        <div style="margin-left:auto">
+          <div class="dmg-bar-title">Add Condition</div>
+          <div style="display:flex;gap:calc(.4*var(--tr));align-items:end">
+            <div><select id="cond-target" style="min-width:130px"><option value="">— select —</option></select></div>
+            <div><select id="cond-pick" style="min-width:110px">
+              <option>Blinded</option><option>Charmed</option><option>Deafened</option><option>Exhausted</option>
+              <option>Frightened</option><option>Grappled</option><option>Incapacitated</option><option>Invisible</option>
+              <option>Paralyzed</option><option>Petrified</option><option>Poisoned</option><option>Prone</option>
+              <option>Restrained</option><option>Stunned</option><option>Unconscious</option>
+            </select></div>
+            <button class="btns" data-ac="fn-addCond" style="padding:calc(.45*var(--tr)) calc(.8*var(--tr));font-size:calc(max(.63,.8)*var(--tu))">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- add combatant -->
+      <div class="init-add-area">
+        <div><label>Name</label><input type="text" id="new-name" placeholder="Goblin / Aelindra"></div>
+        <div><label>Type</label><select id="new-type"><option value="pc">🧙 PC</option><option value="monster">👹 Monster</option><option value="npc">🧑 NPC</option></select></div>
+        <div><label>Initiative</label><input type="number" id="new-init" placeholder="roll or enter"></div>
+        <div><label>HP</label><input type="number" id="new-hp" placeholder="max hp"></div>
+        <div><label>Count</label><input type="number" id="new-count" placeholder="1" min="1" max="20" style="width:55px"></div>
+        <div><label>AC</label><input type="number" id="new-ac" placeholder="ac"></div>
+        <button class="btnp" data-ac="fn-addCombatant" style="padding:calc(.55*var(--tr)) calc(.8*var(--tr));font-size:calc(max(.63,.8)*var(--tu));white-space:nowrap;align-self:end">+ Add</button>
+      </div>
+      <div style="padding:calc(.5*var(--tr)) calc(.9*var(--tr));border-top:1px solid color-mix(in srgb,var(--tgold) 20%,transparent);display:flex;gap:calc(.5*var(--tr))">
+        <button class="btns" data-ac="fn-rollAllInit" style="font-size:calc(max(.63,.8)*var(--tu));padding:calc(.38*var(--tr)) calc(.75*var(--tr))">🎲 Roll All Initiative</button>
+        <button class="btns" data-ac="fn-addFromChars" style="font-size:calc(max(.63,.8)*var(--tu));padding:calc(.38*var(--tr)) calc(.75*var(--tr))">⇲ Import PCs from Sheets</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CAMPAIGN ══ -->
+<div id="tab-camp" class="pane">
+  <div class="sec">
+    <div class="stitle">Campaign Fronts &amp; Factions</div>
+    <div class="cl" id="faction-list"></div>
+    <button class="abtn" data-ac="fn-addFaction">+ Add Faction</button>
+  </div>
+  <div class="div">· · · ✦ · · ·</div>
+  <div class="sec">
+    <div class="stitle">World Truths</div>
+    <textarea id="world-truths" class="tall" placeholder="Established facts that will not change…"></textarea>
+  </div>
+  <div class="sec">
+    <div class="stitle">Open Threads &amp; Notes</div>
+    <textarea id="camp-notes" class="tall" placeholder="Running threads, unresolved mysteries, long-term arcs…"></textarea>
+  </div>
+</div>
+
+<!-- ══ POST-SESSION ══ -->
+<div id="tab-post" class="pane">
+  <div class="sec">
+    <div class="stitle">Post-Session Review</div>
+    <div style="display:grid;gap:calc(.9*var(--tr))">
+      <div><label>What Happened</label><textarea class="tall" id="summary" placeholder="Brief recap…"></textarea></div>
+      <div><label>What Worked Well</label><textarea id="worked-well" placeholder="Moments that landed…"></textarea></div>
+      <div><label>What to Improve</label><textarea id="improve" placeholder="Pacing, clarity, balance…"></textarea></div>
+      <div><label>Loose Threads &amp; Player Interests</label><textarea class="tall" id="loose-threads" placeholder="What excited the players? New threads…"></textarea></div>
+      <div><label>Secrets Discovered / Carry Forward</label><textarea id="secrets-used" placeholder="Which secrets came up? Which to bring to next session?"></textarea></div>
+      <div><label>First Prep for Next Session</label><textarea id="next-prep" placeholder="What to prep first next time…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Consequences &amp; Ongoing Effects</div>
+    <p class="shint">Track consequences from this session — injuries, debts, curses, faction shifts, reputation changes, broken bonds. Assign to a character or the whole party.</p>
+    <div class="cl" id="conseq-list"></div>
+    <button class="abtn" data-ac="fn-addConseq">+ Add Consequence</button>
+  </div>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div id="tab-hist" class="pane">
+  <div class="sec">
+    <div class="stitle">📚 Session Archive</div>
+    <p class="shint">Export sessions as JSON files, upload to your GitHub <code>sessions/</code> folder, then load them here to browse the campaign history.</p>
+
+    <div class="gh-loader" style="margin-bottom:calc(1*var(--tr))">
+      <div class="gh-title">⇲ Load Past Session from GitHub</div>
+      <div class="gh-row">
+        <div><label>Raw URL of saved session JSON</label><input type="text" id="hist-url" placeholder="https://raw.githubusercontent.com/user/repo/main/sessions/session-07.json"></div>
+        <button class="btns" data-ac="fn-loadHistSession">Load</button>
+      </div>
+      <div class="gh-status" id="hist-status"></div>
+    </div>
+
+    <div class="upload-area" id="upload-drop" data-ac="fn-fileUpload" ondragover="e=event;e.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+      <input type="file" id="file-upload" accept=".json" style="display:none" onchange="handleFileUpload(this)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">Click or drag &amp; drop a session JSON file to view it</div>
+    </div>
+
+    <div id="hist-list"><p style="font-family:var(--bfont);font-style:italic;color:var(--ink-light);font-size:calc(.9*var(--tu))">No sessions loaded yet. Export a session or load one from GitHub.</p></div>
+  </div>
+</div>
+
+<!-- ══ MONSTER DB ══ -->
+<div id="tab-mdb" class="pane">
+  <div class="sec">
+    <div class="stitle">👾 Monster Database</div>
+    <p class="shint">Search and browse D&amp;D 5e SRD monsters. Click a monster to expand its stat block, then send it directly to the Initiative Tracker.</p>
+    <div class="qm-card" id="qm-db"></div>
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:calc(.6*var(--tr));align-items:end;margin-bottom:calc(1*var(--tr))">
+      <div><label>Search Monsters</label><input type="text" id="mdb-search" placeholder="e.g. goblin, dragon, CR 5, undead…" id="mdb-search" data-ac="fn-filterMonsters"></div>
+      <div><label>CR Filter</label><select id="mdb-cr" data-mdb-filter="1">
+        <option value="">All CRs</option>
+        <option>0</option><option>1/8</option><option>1/4</option><option>1/2</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+        <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+        <option>21</option><option>22</option><option>23</option><option>24</option><option>30</option>
+      </select></div>
+      <div><label>Type Filter</label><select id="mdb-type" data-mdb-filter="1">
+        <option value="">All Types</option>
+        <option>Aberration</option><option>Beast</option><option>Celestial</option>
+        <option>Construct</option><option>Dragon</option><option>Elemental</option>
+        <option>Fey</option><option>Fiend</option><option>Giant</option><option>Humanoid</option>
+        <option>Monstrosity</option><option>Ooze</option><option>Plant</option><option>Undead</option>
+      </select></div>
+    </div>
+    <div id="mdb-count" style="font-family:var(--bfont);font-style:italic;font-size:calc(.82*var(--tu));color:var(--ink-light);margin-bottom:calc(.7*var(--tr))"></div>
+    <div id="mdb-list" style="display:grid;gap:calc(.4*var(--tr))"></div>
+  </div>
+</div>
+
+<!-- ══ CONDITIONS ══ -->
+<div id="tab-cond" class="pane">
+  <div class="sec">
+    <div class="stitle">🩹 Condition Reference</div>
+    <p class="shint">All 15 D&amp;D 5e conditions with full mechanical effects. Click to expand. Use "Apply to Initiative" to add a condition to a combatant mid-combat.</p>
+    <div class="cond-grid" id="cond-grid"></div>
+  </div>
+</div>
+
+<!-- ══ RELATIONSHIP WEB ══ -->
+<div id="tab-web" class="pane">
+  <div class="sec">
+    <div class="stitle">🕸 Relationship Web</div>
+    <p class="shint">Drag nodes to arrange. Click a node to see its connections and add relationships. Player characters load automatically from your GitHub sheets.</p>
+
+    <div style="display:flex;gap:calc(.6*var(--tr));flex-wrap:wrap;margin-bottom:calc(.8*var(--tr));align-items:end">
+      <div style="flex:1;min-width:160px">
+        <label>Add Person / Faction / Place</label>
+        <input type="text" id="web-new-name" placeholder="e.g. Albus, Thieves Guild, Waterdeep">
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="web-new-type">
+          <option value="npc">NPC</option>
+          <option value="faction">Faction</option>
+          <option value="location">Location</option>
+          <option value="concept">Concept / Secret</option>
+        </select>
+      </div>
+      <button class="abtn" data-ac="fn-webAddNode" style="align-self:end">+ Add Node</button>
+      <button class="abtn" data-ac="fn-webReset" style="align-self:end;color:var(--red)">Reset Web</button>
+      <button class="abtn" data-ac="fn-webSave" style="align-self:end;border-color:var(--green);color:var(--green)">💾 Save Web</button>
+    </div>
+
+    <div class="web-container">
+      <canvas id="web-canvas" height="520"></canvas>
+      <div class="web-node-panel" id="web-node-panel">
+        <div class="web-node-panel-name" id="wnp-name"></div>
+        <div class="web-node-panel-type" id="wnp-type"></div>
+        <div class="web-rel-list" id="wnp-rels"></div>
+        <div style="font-family:var(--hfont);font-size:calc(max(.62,.8)*var(--tu));letter-spacing:.09em;text-transform:uppercase;color:var(--ink-light);margin-bottom:calc(.3*var(--tr))">Add Relationship</div>
+        <div class="web-add-rel">
+          <div>
+            <label>To</label>
+            <select id="wnp-rel-target" style="font-size:calc(.85*var(--tu))"></select>
+          </div>
+          <div>
+            <label>Type</label>
+            <select id="wnp-rel-type" style="font-size:calc(.85*var(--tu))">
+              <option value="ally">Ally</option>
+              <option value="enemy">Enemy</option>
+              <option value="neutral">Neutral</option>
+              <option value="romantic">Romantic</option>
+              <option value="family">Family</option>
+              <option value="rivalry">Rivalry</option>
+              <option value="secret">Secret</option>
+              <option value="debt">Owes Debt</option>
+              <option value="member">Member Of</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:calc(.4*var(--tr))">
+          <label>Note (optional)</label>
+          <input type="text" id="wnp-rel-note" placeholder="e.g. 20 years of grief" style="font-size:calc(.88*var(--tu))">
+        </div>
+        <div style="display:flex;gap:calc(.4*var(--tr));margin-top:calc(.5*var(--tr));flex-wrap:wrap">
+          <button class="abtn" data-ac="fn-webAddRel" style="font-size:calc(max(.62,.8)*var(--tu))">+ Add Link</button>
+          <button class="abtn" data-ac="fn-webDeleteNode" style="font-size:calc(max(.62,.8)*var(--tu));color:var(--red)">🗑 Delete Node</button>
+          <button class="abtn" data-ac="fn-webClosePanel" style="font-size:calc(max(.62,.8)*var(--tu))">Close</button>
+        </div>
+      </div>
+    </div>
+    <div class="web-legend">
+      <span class="web-legend-item"><span class="web-legend-dot" style="background:#8b1a1a"></span>PC</span>
+      <span class="web-legend-item"><span class="web-legend-dot" style="background:#1a2a4a"></span>NPC</span>
+      <span class="web-legend-item"><span class="web-legend-dot" style="background:#1a4a2e"></span>Faction</span>
+      <span class="web-legend-item"><span class="web-legend-dot" style="background:#5a3a12"></span>Location</span>
+      <span class="web-legend-item"><span class="web-legend-dot" style="background:#4a1a4a"></span>Concept</span>
+    </div>
+    <div class="web-hint">Drag nodes · Click to edit connections · Web saves automatically</div>
+  </div>
+</div>
+
+<!-- ══ RUN SESSION ══ -->
+<div id="tab-run" class="pane">
+  <div class="run-head">
+    <div>
+      <div class="run-title" id="run-title">Session</div>
+      <div class="run-sub" id="run-sub"></div>
+    </div>
+    <div class="run-head-btns">
+      <button class="btns" data-ac="fn-openPrepCheck">✓ Check my prep</button>
+      <button class="btns" data-ac="fn-printSheet">⎙ Print one-page sheet</button>
+      <button class="btns" data-ac="fn-renderRun">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="run-check-strip" id="run-check-strip"></div>
+
+  <div class="run-grid">
+    <div class="run-main">
+      <section class="run-block run-strong">
+        <h3 class="run-h">Strong start</h3>
+        <div id="run-strong" class="run-strong-text"></div>
+        <div id="run-advhook" class="run-meta-line"></div>
+      </section>
+
+      <section class="run-block">
+        <h3 class="run-h">Secrets and clues <span class="run-count" id="run-sec-count"></span></h3>
+        <p class="run-hint">Tick a secret when the players learn it. Ticked secrets are written into your post-session notes.</p>
+        <div id="run-secrets"></div>
+      </section>
+
+      <section class="run-block">
+        <h3 class="run-h">Forks</h3>
+        <div id="run-forks"></div>
+      </section>
+
+      <section class="run-block">
+        <h3 class="run-h">Scenes</h3>
+        <div id="run-scenes"></div>
+      </section>
+
+      <section class="run-block">
+        <h3 class="run-h">Table notes</h3>
+        <p class="run-hint">Jot what happens as you play. This fills in the Post-Session summary.</p>
+        <textarea id="run-notes" rows="5" placeholder="Warryn heard the name Albus from the captain…"></textarea>
+      </section>
+    </div>
+
+    <aside class="run-side">
+      <section class="run-block">
+        <h3 class="run-h">Party</h3>
+        <div id="run-party"></div>
+        <div class="run-rest-btns">
+          <button class="abtn" data-ac="fn-partyShortRest">Short rest</button>
+          <button class="abtn" data-ac="fn-partyLongRest">Long rest</button>
+        </div>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">Character hooks</h3>
+        <div id="run-hooks"></div>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">Improv kit <button class="run-link run-h-link" data-ac="fn-newKit">New kit</button></h3>
+        <p class="run-hint">Names and details for anything you didn't prep. Click a name once you've used it.</p>
+        <div id="run-kit"></div>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">NPCs</h3>
+        <div id="run-npcs"></div>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">Monsters</h3>
+        <div id="run-bench" class="run-meta-line"></div>
+        <div id="run-mons"></div>
+        <details class="qm-details"><summary>Need a monster you didn't prep?</summary><div class="qm-card" id="qm-run"></div></details>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">Locations</h3>
+        <div id="run-locs"></div>
+      </section>
+      <section class="run-block">
+        <h3 class="run-h">Treasure</h3>
+        <div id="run-treas"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<!-- COMBAT DETAIL PANEL -->
+<aside class="combat-panel" id="combat-panel" aria-label="Combatant details">
+  <button class="modal-close" data-ac="fn-closeCombatPanel" aria-label="Close">✕</button>
+  <div id="combat-panel-body"></div>
+</aside>
+
+<!-- NEXT SESSION MODAL -->
+<div class="modal-bg" id="next-session-modal">
+  <div class="modal">
+    <button class="modal-close" data-ac="fn-closeNextSession">✕</button>
+    <div class="modal-title">Start the next session</div>
+    <div class="modal-sub">Campaign details, factions and world truths always carry over. Choose what else to bring.</div>
+    <div class="ns-row">
+      <div><label>Session</label><input type="text" id="ns-num"></div>
+      <div><label>Date</label><input type="text" id="ns-date" placeholder="e.g. 20 June 2026"></div>
+    </div>
+    <div id="ns-options"></div>
+    <div class="ns-btns">
+      <button class="btnp" data-ac="fn-startNextExport">Export this session, then start</button>
+      <button class="btns" data-ac="fn-startNextNoExport">Start without exporting</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREP CHECK MODAL -->
+<div class="modal-bg" id="prep-check-modal">
+  <div class="modal">
+    <button class="modal-close" data-ac="fn-closePrepCheck">✕</button>
+    <div class="modal-title">Prep check</div>
+    <div class="modal-sub" id="pc-summary"></div>
+    <div id="pc-list"></div>
+  </div>
+</div>
+
+<!-- ══ GENERATORS ══ -->
+<div id="tab-gen" class="pane">
+  <div class="sec">
+    <div class="stitle">🎲 Random Generators</div>
+    <p class="shint">One-click inspiration tools drawn from the Lazy GM's Resource Document. Click any result to copy it, or send it directly to your prep notes.</p>
+
+    <div class="gen-grid">
+
+      <!-- NPC GENERATOR -->
+      <div class="gen-card gen-full">
+        <div class="gen-card-title">Quick NPC</div>
+        <div class="gen-card-hint">A complete NPC in one click — name, appearance, occupation, trait, and what they want.</div>
+        <div class="gen-controls" style="margin-bottom:calc(.6*var(--tr))">
+          <select class="gen-select" id="npc-race-filter">
+            <option value="any">Any Race</option>
+            <option value="human">Human</option>
+            <option value="elf">Elf</option>
+            <option value="dwarf">Dwarf</option>
+            <option value="halfling">Halfling</option>
+            <option value="gnome">Gnome</option>
+            <option value="half-orc">Half-Orc</option>
+            <option value="tiefling">Tiefling</option>
+            <option value="dragonborn">Dragonborn</option>
+          </select>
+          <select class="gen-select" id="npc-gender-filter">
+            <option value="any">Any</option>
+            <option value="m">Male</option>
+            <option value="f">Female</option>
+            <option value="n">Neutral</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genNPC">🎲 Generate NPC</button>
+        </div>
+        <div class="gen-npc-block" id="npc-result" style="min-height:80px">
+          <div style="font-family:var(--bfont);font-style:italic;font-size:calc(.88*var(--tu));color:var(--ink-light)">Click Generate NPC to create a quick NPC…</div>
+        </div>
+        <div style="display:flex;gap:calc(.4*var(--tr));flex-wrap:wrap">
+          <button class="gen-send-btn" data-ac="fn-genNPCSend">→ Send to NPC List (Step 6)</button>
+          <button class="gen-send-btn" data-ac="fn-genNPCCopy">📋 Copy to Clipboard</button>
+        </div>
+        <div class="gen-history" id="npc-history"></div>
+      </div>
+
+      <!-- LOCATION GENERATOR -->
+      <div class="gen-card">
+        <div class="gen-card-title">Fantastic Location</div>
+        <div class="gen-card-hint">An evocative location name and three interactive aspects.</div>
+        <div class="gen-result" id="loc-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <select class="gen-select" id="loc-type-filter">
+            <option value="any">Any Type</option>
+            <option value="dungeon">Dungeon</option>
+            <option value="city">City / Urban</option>
+            <option value="wilderness">Wilderness</option>
+            <option value="arcane">Arcane</option>
+            <option value="underdark">Underdark</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genLoc">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genLocSend">→ Send to Locations (Step 5)</button>
+        <div class="gen-history" id="loc-history"></div>
+      </div>
+
+      <!-- ENCOUNTER SEED -->
+      <div class="gen-card">
+        <div class="gen-card-title">Encounter Seed</div>
+        <div class="gen-card-hint">A quick situation, complication, or twist for an encounter.</div>
+        <div class="gen-result" id="enc-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <select class="gen-select" id="enc-type-filter">
+            <option value="any">Any Type</option>
+            <option value="combat">Combat</option>
+            <option value="social">Social</option>
+            <option value="exploration">Exploration</option>
+            <option value="trap">Trap / Hazard</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genEnc">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genEncSend">→ Send to Scenes (Step 3)</button>
+        <div class="gen-history" id="enc-history"></div>
+      </div>
+
+      <!-- SECRET / CLUE GENERATOR -->
+      <div class="gen-card">
+        <div class="gen-card-title">Secret or Clue</div>
+        <div class="gen-card-hint">A piece of hidden information the characters might uncover.</div>
+        <div class="gen-result" id="sec-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <select class="gen-select" id="sec-type-filter">
+            <option value="any">Any Type</option>
+            <option value="villain">Villain / Enemy</option>
+            <option value="history">History / Lore</option>
+            <option value="npc">NPC Secret</option>
+            <option value="treasure">Treasure / Item</option>
+            <option value="location">Location Secret</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genSec">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genSecSend">→ Send to Secrets (Step 4)</button>
+        <div class="gen-history" id="sec-history"></div>
+      </div>
+
+      <!-- TOWN EVENT -->
+      <div class="gen-card">
+        <div class="gen-card-title">Town Event</div>
+        <div class="gen-card-hint">Something happening in town when the party arrives.</div>
+        <div class="gen-result" id="town-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <button class="gen-btn" data-ac="fn-genTown">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genTownSend">→ Send to Scenes (Step 3)</button>
+        <div class="gen-history" id="town-history"></div>
+      </div>
+
+      <!-- MAGIC ITEM -->
+      <div class="gen-card">
+        <div class="gen-card-title">Magic Item</div>
+        <div class="gen-card-hint">A random magic item appropriate for the party.</div>
+        <div class="gen-result" id="item-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <select class="gen-select" id="item-rarity">
+            <option value="any">Any Rarity</option>
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="very rare">Very Rare</option>
+            <option value="legendary">Legendary</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genItem">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genItemSend">→ Send to Treasure (Step 8)</button>
+        <div class="gen-history" id="item-history"></div>
+      </div>
+
+      <!-- TRAP / HAZARD -->
+      <div class="gen-card">
+        <div class="gen-card-title">Trap or Hazard</div>
+        <div class="gen-card-hint">A dungeon trap or environmental hazard with trigger and effect.</div>
+        <div class="gen-result" id="trap-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <button class="gen-btn" data-ac="fn-genTrap">🎲 Generate</button>
+        </div>
+        <div class="gen-history" id="trap-history"></div>
+      </div>
+
+      <!-- STRONG START SEED -->
+      <div class="gen-card">
+        <div class="gen-card-title">Strong Start Seed</div>
+        <div class="gen-card-hint">A spark for "something happens" — riff on it, don't use it literally.</div>
+        <div class="gen-result" id="start-result" title="Click to copy">Click to generate…</div>
+        <div class="gen-controls">
+          <button class="gen-btn" data-ac="fn-genStart">🎲 Generate</button>
+        </div>
+        <button class="gen-send-btn" data-ac="fn-genStartSend">→ Send to Strong Start (Step 2)</button>
+        <div class="gen-history" id="start-history"></div>
+      </div>
+
+      <!-- FORK GENERATOR -->
+      <div class="gen-card gen-full">
+        <div class="gen-card-title">Scene Fork</div>
+        <div class="gen-card-hint">A meaningful choice with two genuine paths. Filter by situation type, then generate. Riff on the result — don't use it literally.</div>
+        <div class="gen-controls" style="margin-bottom:calc(.6*var(--tr))">
+          <select class="gen-select" id="fork-type-filter">
+            <option value="any">Any Situation</option>
+            <option value="travel">Travel / Journey</option>
+            <option value="social">Social / Political</option>
+            <option value="dungeon">Dungeon / Location</option>
+            <option value="moral">Moral Dilemma</option>
+            <option value="combat">Combat / Conflict</option>
+            <option value="mystery">Mystery / Investigation</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-genFork">🎲 Generate Fork</button>
+        </div>
+        <div id="fork-result-block" style="background:color-mix(in srgb,var(--field) 85%,transparent);border:1px solid var(--parch-shadow);border-radius:2px;padding:calc(.7*var(--tr)) calc(.9*var(--tr));margin-bottom:calc(.6*var(--tr));min-height:80px">
+          <div style="font-family:var(--bfont);font-style:italic;font-size:calc(.88*var(--tu));color:var(--ink-light)">Click Generate Fork to create a player choice…</div>
+        </div>
+        <div style="display:flex;gap:calc(.4*var(--tr));flex-wrap:wrap">
+          <button class="gen-send-btn" data-ac="fn-genForkSend">→ Send to Scenes / Forks (Step 3)</button>
+          <button class="gen-send-btn" data-ac="fn-genForkCopy">📋 Copy to Clipboard</button>
+        </div>
+        <div class="gen-history" id="fork-history"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="actbar">
+  <div style="display:flex;gap:calc(.55*var(--tr));flex-wrap:wrap;align-items:center">
+    <button class="btnp" data-ac="fn-saveAll">✦ Save Session</button>
+    <button class="btns" data-ac="fn-openPrepCheck">✓ Check Prep</button>
+    <button class="btns" data-ac="fn-openNextSession">➜ Start Next Session</button>
+    <button class="btns" data-ac="fn-loadSave">↺ Load Browser Save</button>
+    <button class="btnp" data-ac="fn-exportSession" style="background:var(--blue)">⇩ Export JSON</button>
+    <button class="btns" data-ac="fn-loadSessionFile" style="border-color:var(--blue);color:var(--blue)">📂 Load Session File</button>
+    <button class="btns" data-ac="fn-loadSessionURL">🔗 Load Session URL</button>
+    <button class="btns" data-ac="fn-printSheet">⎙ Print Prep Sheet</button>
+    <button class="btns" data-ac="fn-print">Print</button>
+    <button class="btns" data-ac="fn-clearAll" style="color:var(--red)">Clear All</button>
+    <input type="file" id="session-file-input" accept=".json" style="display:none">
+  </div>
+  <span class="sst" id="sst">✓ Saved</span>
+</div>
+
+<!-- SESSION URL MODAL -->
+<div class="modal-bg" id="session-url-modal">
+  <div class="modal">
+    <button class="modal-close" id="session-url-close">✕</button>
+    <div class="modal-title">Load Session from URL</div>
+    <div class="modal-sub">Paste the raw GitHub URL of any exported session JSON file to load it directly into the prep tool.</div>
+    <label>Session JSON URL</label>
+    <input type="text" id="session-url-input" placeholder="https://raw.githubusercontent.com/Lachiee/DnD_Lucia/main/sessions/session-07.json" style="margin-bottom:calc(.8*var(--tr))">
+    <div style="display:flex;gap:calc(.5*var(--tr));margin-top:calc(.5*var(--tr))">
+      <button class="btnp" data-ac="fn-loadSessionURLConfirm">Load Session</button>
+      <button class="btns" data-ac="fn-closeSessionURLModal">Cancel</button>
+    </div>
+    <div class="gh-status" id="session-url-status" style="margin-top:calc(.5*var(--tr))"></div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+</div>

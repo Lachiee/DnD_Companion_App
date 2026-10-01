@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Party Sheets</title>
+<style>
+:root{
+  --bg:#eef1ee; --panel:#fbfcfb; --ink:#1d2a27; --muted:#5d6e69; --line:#cdd7d3;
+  --accent:#1f6f66; --accent-ink:#ffffff; --brass:#9a6b1a;
+  --hp-ok:#2e8b57; --hp-mid:#c98a14; --hp-low:#b83a32; --chip:#e3ebe8; --field:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121917; --panel:#1a2421; --ink:#e4ece9; --muted:#97aaa4; --line:#2d3b37;
+    --accent:#4fb3a6; --accent-ink:#0b1412; --brass:#d9a441;
+    --hp-ok:#4cc27f; --hp-mid:#e0a63a; --hp-low:#e0675e; --chip:#25322e; --field:#141c19;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+h1,h2,h3{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;margin:0;font-weight:700;letter-spacing:.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:8px 0 16px;border-bottom:2px solid var(--brass);margin-bottom:18px}
+header.top h1{font-size:1.9rem}
+.sub{color:var(--muted);font-size:.9rem}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--chip);font-size:.8rem;font-weight:600}
+.badge.dm{background:var(--brass);color:#fff}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{padding:4px 10px;font-size:.85rem}
+.btn.danger{color:var(--hp-low)}
+.btn:disabled{opacity:.5;cursor:default}
+.status{font-size:.85rem;color:var(--muted)}
+.status.err{color:var(--hp-low)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.mine{border-left-color:var(--brass)}
+.card h3{font-size:1.15rem;line-height:1.2}
+.card .who{color:var(--muted);font-size:.85rem}
+.hpbar{height:12px;border-radius:6px;background:var(--chip);overflow:hidden;border:1px solid var(--line)}
+.hpbar>i{display:block;height:100%}
+.hprow{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.hpnum{font-weight:700;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.stat{background:var(--chip);border-radius:8px;padding:4px 2px}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.72rem;color:var(--muted)}
+.conds{font-size:.82rem;color:var(--hp-low);min-height:1em}
+.empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:12px;color:var(--muted)}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:20px}
+.sheet-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:12px}
+.row{display:grid;gap:10px}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.cols4{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--muted);font-weight:600}
+input[type=text],input[type=number],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+textarea{min-height:90px;resize:vertical}
+input:disabled,textarea:disabled,select:disabled{opacity:1;background:transparent;border-color:transparent;padding-left:0}
+.section{margin-top:18px}
+.section h3{font-size:1.05rem;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.abil{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media(max-width:640px){.abil{grid-template-columns:repeat(3,1fr)}}
+.ab{background:var(--chip);border-radius:10px;padding:8px 4px;text-align:center}
+.ab .nm{font-size:.75rem;color:var(--muted);font-weight:700}
+.ab .md{font-size:1.4rem;font-weight:700;font-family:Georgia,serif}
+.ab input{width:60px;text-align:center;margin:0 auto;padding:3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.prof{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.92rem}
+.prof .val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;min-width:2.2em;text-align:right}
+.prof input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.slot{background:var(--chip);border-radius:8px;padding:6px 8px;font-size:.85rem}
+.pips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.pip{width:20px;height:20px;border-radius:50%;border:2px solid var(--accent);background:transparent;padding:0}
+.pip.used{background:var(--accent)}
+.atk{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:6px;margin-bottom:6px}
+.note{background:var(--chip);padding:10px 14px;border-radius:8px;font-size:.9rem;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.dmbar input{width:200px}
+.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:10px}
+.gatecard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.gatecard h2{font-size:1.25rem}
+.msg{font-size:.9rem;min-height:1.2em}
+.msg.err{color:var(--hp-low)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Party Sheets</h1>
+      <div class="sub" id="who">Loading…</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span class="status" id="status"></span>
+      <button class="btn primary" id="newBtn" hidden>Create my character</button>
+      <button class="btn" id="npcBtn" hidden>Add NPC / extra sheet</button>
+      <button class="btn" id="linkBtn" hidden>Keep my login with Google</button>
+      <button class="btn" id="outBtn" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate" hidden>
+    <div class="gatecard">
+      <h2>Join the party</h2>
+      <p class="sub" style="margin:0">Enter the party code from your DM. No account needed.</p>
+      <label class="f">Party code<input type="text" id="codeIn" autocomplete="off" autocapitalize="off"></label>
+      <button class="btn primary" id="joinBtn">Join</button>
+      <div class="msg" id="gateMsg" role="status"></div>
+    </div>
+    <div class="gatecard">
+      <h2>Dungeon Master or returning player</h2>
+      <p class="sub" style="margin:0">Sign in with the Google account you used before.</p>
+      <button class="btn" id="googleBtn">Sign in with Google</button>
+      <div class="msg" id="gateMsg2" role="status"></div>
+    </div>
+  </section>
+
+  <main id="app" hidden>
+    <div id="dmBar" class="dmbar" hidden>
+      <label class="f" style="flex-direction:row;align-items:center;gap:8px">Party code
+        <input type="text" id="codeSet" autocomplete="off" autocapitalize="off"></label>
+      <button class="btn small" id="codeSave">Save code</button>
+      <span class="sub">Players need this code the first time they join.</span>
+    </div>
+    <div id="notice"></div>
+    <section aria-label="Party"><div class="grid" id="party"></div></section>
+    <section id="sheetHost" aria-live="polite"></section>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDYnsx30sdSSQm9Khjdc8gJ_BJLjHMhL4g",
+  authDomain: "dnd-campaign-companion-app.firebaseapp.com",
+  projectId: "dnd-campaign-companion-app",
+  storageBucket: "dnd-campaign-companion-app.firebasestorage.app",
+  messagingSenderId: "305544250683",
+  appId: "1:305544250683:web:6b38e7bbe9bc3e23a1231e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ABIL=["str","dex","con","int","wis","cha"];
+const ABN={str:"Strength",dex:"Dexterity",con:"Constitution",int:"Intelligence",wis:"Wisdom",cha:"Charisma"};
+const SKILLS=[["Acrobatics","dex"],["Animal Handling","wis"],["Arcana","int"],["Athletics","str"],["Deception","cha"],["History","int"],["Insight","wis"],["Intimidation","cha"],["Investigation","int"],["Medicine","wis"],["Nature","int"],["Perception","wis"],["Performance","cha"],["Persuasion","cha"],["Religion","int"],["Sleight of Hand","dex"],["Stealth","dex"],["Survival","wis"]];
+
+let uid=null, role=null, isAnon=false, partyCode="";
+let chars={}, openId=null, unsub=null, enterTok=0;
+const pending={}, writing={};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const mod=n=>Math.floor((Number(n||10)-10)/2);
+const sgn=n=>(n>=0?"+":"")+n;
+const prof=l=>2+Math.floor((Math.max(1,Number(l)||1)-1)/4);
+function setStatus(t,err){const s=$("status");s.textContent=t||"";s.className="status"+(err?" err":"")}
+
+function blank(owner){
+  const a={};ABIL.forEach(k=>a[k]=10);
+  return {name:"New adventurer",owner:owner||null,claimable:false,player:"",race:"",cls:"",level:1,background:"",
+    abilities:a,saveProf:{},skillProf:{},ac:10,speed:30,hpMax:10,hp:10,hpTemp:0,hitDice:"",
+    deathS:0,deathF:0,inspiration:false,conditions:"",spellAbility:"",
+    slots:{},attacks:[],features:"",inventory:"",notes:"",gold:0};
+}
+function normalize(d){
+  const b=blank(d.owner||null),o=Object.assign({},b,d);
+  o.abilities=Object.assign({},b.abilities,d.abilities||{});
+  o.saveProf=d.saveProf||{};o.skillProf=d.skillProf||{};o.slots=d.slots||{};
+  o.attacks=Array.isArray(d.attacks)?d.attacks:[];
+  o.claimable=!!d.claimable;
+  return o;
+}
+const isDM=()=>role==="dm";
+function canEditChar(id){
+  const c=chars[id];if(!c)return false;
+  return isDM()||c.owner===uid;
+}
+const myIds=()=>Object.keys(chars).filter(id=>chars[id].owner===uid);
+
+/* ---------- saving ---------- */
+function queueSave(id,immediate){
+  const p=pending[id]||(pending[id]={});
+  p.data=JSON.parse(JSON.stringify(chars[id]));
+  clearTimeout(p.timer);
+  p.timer=setTimeout(()=>flush(id),immediate?0:700);
+  setStatus("Saving…");
+}
+async function flush(id){
+  const p=pending[id];if(!p||!p.data)return;
+  if(writing[id]){p.timer=setTimeout(()=>flush(id),300);return}
+  const data=p.data;p.data=null;writing[id]=true;
+  try{
+    await setDoc(doc(db,"characters",id),data);
+    if(!p.data)setStatus("Saved");
+  }catch(e){
+    setStatus("Could not save ("+(e&&e.code||"error")+")",true);
+  }finally{writing[id]=false}
+}
+
+/* ---------- rendering: party ---------- */
+function hpColor(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r>.5?"var(--hp-ok)":r>.25?"var(--hp-mid)":"var(--hp-low)"}
+function renderParty(){
+  const host=$("party");
+  const ids=Object.keys(chars).sort((a,b)=>String(chars[a].name||"").localeCompare(String(chars[b].name||"")));
+  if(!ids.length){host.innerHTML='<div class="empty" style="grid-column:1/-1">No characters yet. Players: tap “Create my character”.</div>';return}
+  host.innerHTML=ids.map(id=>{
+    const c=chars[id],mine=c.owner===uid,ed=canEditChar(id);
+    const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
+    const who=c.player||(c.owner==="dm"?"DM sheet":"");
+    const passive=10+mod(c.abilities.wis)+(c.skillProf.Perception?prof(c.level)*c.skillProf.Perception:0);
+    const dc=c.spellAbility&&c.abilities[c.spellAbility]!=null?8+prof(c.level)+mod(c.abilities[c.spellAbility]):null;
+    return '<article class="card'+(mine?' mine':'')+'" data-id="'+esc(id)+'">'+
+      '<div><h3>'+esc(c.name||"Unnamed")+'</h3><div class="who">'+esc([c.race,c.cls,c.level?("Lv "+c.level):""].filter(Boolean).join(" ")||"No class yet")+(who?' · '+esc(who):'')+'</div></div>'+
+      '<div class="hprow"><span class="hpnum">'+c.hp+' / '+c.hpMax+(c.hpTemp?(' (+'+c.hpTemp+')'):'')+' HP</span>'+
+      (ed?'<span><button class="btn small" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button> <button class="btn small" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button> <button class="btn small" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button></span>':'')+'</div>'+
+      '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>'+
+      '<div class="stats"><div class="stat"><b>'+c.ac+'</b><span>AC</span></div><div class="stat"><b>'+passive+'</b><span>Passive Perc.</span></div>'+
+      '<div class="stat"><b>'+(dc==null?"–":dc)+'</b><span>Spell DC</span></div><div class="stat"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init.</span></div></div>'+
+      '<div class="conds">'+esc(c.conditions||"")+(c.inspiration?" ★ Inspired":"")+'</div>'+
+      '<button class="btn small" data-act="open">'+(ed?'Open sheet':'View sheet')+'</button></article>';
+  }).join("");
+}
+
+function renderNotice(){
+  const n=$("notice");let h="";
+  if(isDM()&&!partyCode)h+='<div class="note">Set a party code above so your players can join.</div>';
+  if(!isDM()&&!myIds().length){
+    const claimable=Object.keys(chars).filter(id=>chars[id].claimable);
+    if(claimable.length){
+      h+='<div class="note">Lost access to a character? Your DM has released these sheets: '+
+        claimable.map(id=>'<button class="btn small" data-act="claim" data-id="'+esc(id)+'">Claim '+esc(chars[id].name||"sheet")+'</button>').join(" ")+'</div>';
+    }
+  }
+  n.innerHTML=h;
+}
+
+/* ---------- rendering: sheet ---------- */
+function fld(path,label,val,type,dis,extra){
+  return '<label class="f">'+esc(label)+'<input type="'+type+'" data-path="'+path+'" value="'+esc(val)+'"'+(extra?" "+extra:"")+dis+'></label>';
+}
+function sheetFocused(){const a=document.activeElement;return a&&$("sheetHost").contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)}
+function renderSheet(){
+  const host=$("sheetHost");
+  if(!openId||!chars[openId]){host.innerHTML="";return}
+  const c=chars[openId],ed=canEditChar(openId),dis=ed?"":" disabled",pb=prof(c.level);
+  let h='<div class="sheet" data-id="'+esc(openId)+'"><div class="sheet-head"><h2>'+esc(c.name||"Unnamed")+'</h2><div>'+
+    (isDM()&&c.owner&&c.owner!=="dm"&&!c.claimable?'<button class="btn small" data-act="release">Release for re-claim</button> ':'')+
+    (isDM()?'<button class="btn small danger" data-act="del">Delete sheet</button> ':'')+
+    '<button class="btn small" data-act="close">Close</button></div></div>';
+  if(!ed)h+='<div class="note">Read-only. Only its owner and the DM can change this sheet.</div>';
+  if(c.claimable)h+='<div class="note">Released: the next player to claim this sheet becomes its owner.</div>';
+  h+='<div class="row cols4">'+fld("name","Name",c.name,"text",dis)+fld("player","Played by",c.player,"text",dis)+fld("race","Race / species",c.race,"text",dis)+
+    fld("cls","Class",c.cls,"text",dis)+fld("level","Level",c.level,"number",dis,'min="1" max="20"')+fld("background","Background",c.background,"text",dis)+'</div>';
+  h+='<div class="section"><h3>Abilities <span class="sub">(proficiency bonus '+sgn(pb)+')</span></h3><div class="abil">'+
+    ABIL.map(k=>'<div class="ab"><div class="nm">'+ABN[k]+'</div><div class="md">'+sgn(mod(c.abilities[k]))+'</div><input type="number" min="1" max="30" aria-label="'+ABN[k]+' score" data-path="abilities.'+k+'" value="'+c.abilities[k]+'"'+dis+'></div>').join("")+'</div></div>';
+  h+='<div class="section"><h3>Combat</h3><div class="row cols4">'+
+    fld("ac","Armor class",c.ac,"number",dis)+fld("speed","Speed (ft)",c.speed,"number",dis)+fld("hpMax","Max HP",c.hpMax,"number",dis)+fld("hp","Current HP",c.hp,"number",dis)+
+    fld("hpTemp","Temp HP",c.hpTemp,"number",dis)+fld("hitDice","Hit dice",c.hitDice,"text",dis)+
+    fld("deathS","Death save successes",c.deathS,"number",dis,'min="0" max="3"')+fld("deathF","Death save failures",c.deathF,"number",dis,'min="0" max="3"')+
+    '</div><div class="row cols2" style="margin-top:10px">'+fld("conditions","Conditions",c.conditions,"text",dis)+
+    '<label class="prof"><input type="checkbox" data-path="inspiration"'+(c.inspiration?" checked":"")+dis+'> Inspiration</label></div></div>';
+  h+='<div class="two"><div class="section"><h3>Saving throws</h3>'+
+    ABIL.map(k=>{const p=c.saveProf[k]?1:0;return '<div class="prof"><input type="checkbox" aria-label="'+ABN[k]+' save proficiency" data-path="saveProf.'+k+'"'+(p?" checked":"")+dis+'> '+ABN[k]+'<span class="val">'+sgn(mod(c.abilities[k])+p*pb)+'</span></div>'}).join("")+'</div>'+
+    '<div class="section"><h3>Skills <span class="sub">(○ none, ● proficient, ◉ expertise)</span></h3>'+
+    SKILLS.map(s=>{const lv=Number(c.skillProf[s[0]]||0);return '<div class="prof"><button type="button" class="btn small" style="min-width:44px" data-act="skill" data-skill="'+esc(s[0])+'"'+dis+' aria-label="'+esc(s[0])+' proficiency level">'+["○","●","◉"][lv]+'</button> '+s[0]+' <span class="sub">('+s[1]+')</span><span class="val">'+sgn(mod(c.abilities[s[1]])+lv*pb)+'</span></div>'}).join("")+'</div></div>';
+  const sa=c.spellAbility;
+  h+='<div class="section"><h3>Spellcasting</h3><div class="row cols4"><label class="f">Spellcasting ability<select data-path="spellAbility"'+dis+'><option value="">None</option>'+
+    ABIL.map(k=>'<option value="'+k+'"'+(sa===k?" selected":"")+'>'+ABN[k]+'</option>').join("")+'</select></label>'+
+    (sa?'<div class="stat"><b>'+sgn(pb+mod(c.abilities[sa]))+'</b><span>Spell attack</span></div><div class="stat"><b>'+(8+pb+mod(c.abilities[sa]))+'</b><span>Spell save DC</span></div>':'')+
+    '</div><div class="slots" style="margin-top:10px">'+
+    [1,2,3,4,5,6,7,8,9].map(l=>{
+      const s=c.slots[l]||{max:0,used:0};let pips="";
+      for(let i=0;i<s.max;i++)pips+='<button type="button" class="pip'+(i<s.used?" used":"")+'" data-act="pip" data-lvl="'+l+'" data-i="'+i+'" aria-label="Level '+l+' slot '+(i+1)+(i<s.used?" used":" available")+'"'+dis+'></button>';
+      return '<div class="slot">Level '+l+' <input type="number" min="0" max="9" style="width:54px;padding:2px 4px" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+s.max+'"'+dis+'><div class="pips">'+pips+'</div></div>';
+    }).join("")+'</div></div>';
+  h+='<div class="section"><h3>Attacks</h3>'+(c.attacks.length?'':'<div class="sub">No attacks yet.</div>')+
+    c.attacks.map((a,i)=>'<div class="atk"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+esc(a.name)+'"'+dis+'><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+esc(a.bonus)+'"'+dis+'><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+esc(a.dmg)+'"'+dis+'>'+(ed?'<button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button>':'<span></span>')+'</div>').join("")+
+    (ed?'<button class="btn small" data-act="addatk">Add attack</button>':'')+'</div>';
+  h+='<div class="two"><div class="section"><h3>Features &amp; traits</h3><textarea data-path="features"'+dis+'>'+esc(c.features)+'</textarea></div>'+
+    '<div class="section"><h3>Inventory</h3><div class="row cols4" style="margin-bottom:8px">'+fld("gold","Gold (gp)",c.gold,"number",dis)+'</div><textarea data-path="inventory"'+dis+'>'+esc(c.inventory)+'</textarea></div></div>';
+  h+='<div class="section"><h3>Notes</h3><textarea data-path="notes"'+dis+'>'+esc(c.notes)+'</textarea></div></div>';
+  host.innerHTML=h;
+}
+
+/* ---------- editing ---------- */
+function setPath(obj,path,val){
+  const p=path.split(".");let o=obj;
+  for(let i=0;i<p.length-1;i++){if(o[p[i]]==null)o[p[i]]={};o=o[p[i]]}
+  o[p[p.length-1]]=val;
+}
+function commit(id,rerender){queueSave(id);renderParty();if(rerender)renderSheet()}
+
+$("sheetHost").addEventListener("input",e=>{
+  const t=e.target,path=t.getAttribute("data-path");
+  if(!path||!openId||!canEditChar(openId))return;
+  let val;
+  if(t.type==="checkbox")val=t.checked;
+  else if(t.type==="number")val=t.value===""?0:Number(t.value);
+  else val=t.value;
+  setPath(chars[openId],path,val);
+  commit(openId,false);
+});
+$("sheetHost").addEventListener("change",e=>{
+  const t=e.target,path=t.getAttribute("data-path");
+  if(!path||!openId||!canEditChar(openId))return;
+  if(/^(abilities|level|spellAbility|slots|saveProf)/.test(path)||t.type==="checkbox")renderSheet();
+});
+$("sheetHost").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b||!openId)return;
+  const act=b.getAttribute("data-act"),c=chars[openId];
+  if(act==="close"){openId=null;renderSheet();return}
+  if(act==="release"&&isDM()){
+    try{await updateDoc(doc(db,"characters",openId),{claimable:true})}catch(err){setStatus("Could not release",true)}
+    return;
+  }
+  if(act==="del"&&isDM()){
+    if(confirm("Delete this sheet for everyone?")){
+      const id=openId;openId=null;renderSheet();
+      try{await deleteDoc(doc(db,"characters",id))}catch(err){setStatus("Could not delete",true)}
+    }
+    return;
+  }
+  if(!canEditChar(openId))return;
+  if(act==="skill"){const s=b.getAttribute("data-skill");c.skillProf[s]=((Number(c.skillProf[s])||0)+1)%3;commit(openId,true)}
+  else if(act==="pip"){
+    const l=b.getAttribute("data-lvl"),i=Number(b.getAttribute("data-i")),sl=c.slots[l]||(c.slots[l]={max:0,used:0});
+    sl.used=(i<sl.used)?i:i+1;commit(openId,true);
+  }
+  else if(act==="addatk"){c.attacks.push({name:"",bonus:"",dmg:""});commit(openId,true)}
+  else if(act==="delatk"){c.attacks.splice(Number(b.getAttribute("data-i")),1);commit(openId,true)}
+});
+$("party").addEventListener("click",e=>{
+  const card=e.target.closest(".card"),b=e.target.closest("[data-act]");
+  if(!card||!b)return;
+  const id=card.getAttribute("data-id"),act=b.getAttribute("data-act");
+  if(act==="open"){
+    openId=id;renderSheet();
+    $("sheetHost").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+  }else if(act==="hp"&&canEditChar(id)){
+    const c=chars[id],d=Number(b.getAttribute("data-d"));
+    c.hp=Math.max(0,Math.min(c.hpMax,c.hp+d));
+    commit(id,openId===id);
+  }
+});
+$("notice").addEventListener("click",async e=>{
+  const b=e.target.closest('[data-act="claim"]');if(!b)return;
+  const id=b.getAttribute("data-id");
+  try{await updateDoc(doc(db,"characters",id),{owner:uid,claimable:false});setStatus("Claimed")}
+  catch(err){setStatus("Could not claim ("+(err&&err.code||"error")+")",true)}
+});
+$("newBtn").addEventListener("click",()=>{
+  const id=doc(collection(db,"characters")).id;
+  chars[id]=blank(uid);openId=id;
+  queueSave(id,true);renderParty();renderSheet();updateButtons();renderNotice();
+});
+$("npcBtn").addEventListener("click",()=>{
+  const id=doc(collection(db,"characters")).id;
+  const c=blank("dm");c.name="New NPC";chars[id]=c;openId=id;
+  queueSave(id,true);renderParty();renderSheet();
+});
+$("codeSave").addEventListener("click",async()=>{
+  const v=$("codeSet").value.trim();
+  if(!v){setStatus("Enter a code first",true);return}
+  try{await setDoc(doc(db,"config","party"),{code:v});partyCode=v;setStatus("Party code saved");renderNotice()}
+  catch(err){setStatus("Could not save code ("+(err&&err.code||"error")+")",true)}
+});
+
+function updateButtons(){
+  $("newBtn").hidden=!(role==="player"&&!myIds().length);
+  $("npcBtn").hidden=!isDM();
+  $("linkBtn").hidden=!(role==="player"&&isAnon);
+  $("outBtn").hidden=!uid;
+}
+
+/* ---------- live data ---------- */
+function onSnap(snap){
+  const next={};
+  snap.docs.forEach(d=>{next[d.id]=normalize(d.data()||{})});
+  Object.keys(pending).forEach(id=>{if(pending[id]&&pending[id].data&&chars[id])next[id]=chars[id]});
+  const openChanged=openId&&JSON.stringify(next[openId])!==JSON.stringify(chars[openId]);
+  chars=next;
+  if(openId&&!chars[openId])openId=null;
+  renderParty();renderNotice();updateButtons();
+  if(openId&&(openChanged||!$("sheetHost").firstChild)&&!sheetFocused())renderSheet();
+  if(!Object.keys(pending).some(k=>pending[k]&&pending[k].data))setStatus("Live");
+}
+
+/* ---------- auth flow ---------- */
+function showGate(msg){
+  if(unsub){unsub();unsub=null}
+  chars={};openId=null;role=null;
+  $("app").hidden=true;$("gate").hidden=false;
+  $("who").textContent="Not signed in";
+  if(msg)$("gateMsg").textContent=msg;
+  updateButtons();
+}
+async function enter(user){
+  const tok=++enterTok;
+  if(!user){uid=null;showGate();return}
+  uid=user.uid;isAnon=user.isAnonymous;role=null;
+  try{
+    const cfg=await getDoc(doc(db,"config","party"));
+    role="dm";partyCode=cfg.exists()?(cfg.data().code||""):"";
+  }catch(e){}
+  if(!role){
+    try{const m=await getDoc(doc(db,"members",uid));if(m.exists())role="player"}catch(e){}
+  }
+  if(tok!==enterTok)return;
+  if(!role){showGate(isAnon?"":"This Google account hasn’t joined yet. Enter the party code to join.");return}
+  $("gate").hidden=true;$("app").hidden=false;
+  $("who").innerHTML=(isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>')+(user.displayName?" "+esc(user.displayName):"");
+  $("dmBar").hidden=!isDM();
+  if(isDM())$("codeSet").value=partyCode;
+  if(unsub)unsub();
+  unsub=onSnapshot(collection(db,"characters"),onSnap,e=>setStatus("Sync problem ("+(e&&e.code||"error")+")",true));
+  updateButtons();renderParty();renderNotice();
+}
+onAuthStateChanged(auth,user=>{enter(user)});
+
+$("joinBtn").addEventListener("click",async()=>{
+  const code=$("codeIn").value.trim(),msg=$("gateMsg");
+  if(!code){msg.className="msg err";msg.textContent="Enter the party code.";return}
+  msg.className="msg";msg.textContent="Joining…";
+  try{
+    if(!auth.currentUser)await signInAnonymously(auth);
+    await setDoc(doc(db,"members",auth.currentUser.uid),{code:code,joinedAt:serverTimestamp()});
+    msg.textContent="";
+    await enter(auth.currentUser);
+  }catch(e){
+    msg.className="msg err";
+    msg.textContent=(e&&e.code==="permission-denied")?"That code isn’t right. Check it with your DM.":"Could not join ("+(e&&e.code||"error")+").";
+  }
+});
+$("googleBtn").addEventListener("click",async()=>{
+  const msg=$("gateMsg2");msg.className="msg";msg.textContent="";
+  try{await signInWithPopup(auth,new GoogleAuthProvider())}
+  catch(e){msg.className="msg err";msg.textContent="Google sign-in failed ("+(e&&e.code||"error")+").";}
+});
+$("linkBtn").addEventListener("click",async()=>{
+  try{
+    await linkWithPopup(auth.currentUser,new GoogleAuthProvider());
+    setStatus("Linked. You can now sign in with Google on any device.");
+    await enter(auth.currentUser);
+  }catch(e){
+    setStatus(e&&e.code==="auth/credential-already-in-use"?"That Google account is already linked to another player. Use Sign out, then Sign in with Google.":"Could not link ("+(e&&e.code||"error")+")",true);
+  }
+});
+$("outBtn").addEventListener("click",async()=>{
+  if(isAnon&&!confirm("You joined without an account. If you sign out, you will lose access to your character unless the DM releases it for re-claim. Sign out anyway?"))return;
+  await signOut(auth);
+});
+</script>
+</body>
+</html>

@@ -23,77 +23,107 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 "Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 calc(76px + env(safe-area-inset-bottom,0))}
+body.nonav{padding-bottom:env(safe-area-inset-bottom,0)}
 h1,h2,h3{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;margin:0;font-weight:700;letter-spacing:.01em}
 button,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
 [hidden]{display:none!important}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
-header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:8px 0 16px;border-bottom:2px solid var(--brass);margin-bottom:18px}
-header.top h1{font-size:1.9rem}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:8px 0 14px;border-bottom:2px solid var(--brass);margin-bottom:16px}
+header.top h1{font-size:1.8rem}
 .sub{color:var(--muted);font-size:.9rem}
-.badge{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--chip);font-size:.8rem;font-weight:600}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--chip);font-size:.78rem;font-weight:600}
 .badge.dm{background:var(--brass);color:#fff}
-.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600}
+.badge.ok{background:var(--accent);color:var(--accent-ink)}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600;min-height:40px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn.small{padding:4px 10px;font-size:.85rem}
+.btn.small{padding:4px 10px;font-size:.88rem;min-height:36px}
 .btn.danger{color:var(--hp-low)}
 .btn.dmg{color:var(--hp-low);border-color:var(--hp-low)}
 .btn.heal{color:var(--hp-ok);border-color:var(--hp-ok)}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:default}
 .status{font-size:.85rem;color:var(--muted)}
-.status.err{color:var(--hp-low)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.status.err,.sub.err{color:var(--hp-low)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .card h3{font-size:1.15rem;line-height:1.2}
 .card .who{color:var(--muted);font-size:.85rem}
 .hpbar{height:12px;border-radius:6px;background:var(--chip);overflow:hidden;border:1px solid var(--line)}
 .hpbar>i{display:block;height:100%}
-.hprow{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.hprow{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-wrap:wrap}
 .hpnum{font-weight:700;font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
-.stat{background:var(--chip);border-radius:8px;padding:4px 2px}
-.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums}
-.stat span{font-size:.72rem;color:var(--muted)}
-.conds{font-size:.82rem;color:var(--hp-low);min-height:1em}
+.stat,.tile{background:var(--chip);border-radius:10px;padding:6px 4px;text-align:center}
+.stat b,.tile b{display:block;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.stat span,.tile span{font-size:.72rem;color:var(--muted)}
+.tile b{font-size:1.4rem;font-family:Georgia,serif}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-bottom:14px}
+.tile .ctl{display:flex;gap:4px;justify-content:center;margin-top:2px}
+.conds{font-size:.85rem;color:var(--hp-low)}
 .empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:12px;color:var(--muted)}
-.sheet{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:20px}
 .row{display:grid;gap:10px}
-.cols2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .cols4{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 label.f{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--muted);font-weight:600}
-input[type=text],input[type=number],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
-textarea{min-height:70px;resize:vertical}
-input:disabled,textarea:disabled,select:disabled{opacity:1;background:transparent;border-color:transparent;padding-left:0}
-.section{margin-top:14px}
-details.section>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-family:Georgia,"Iowan Old Style",serif;font-weight:700;font-size:1.05rem;border-bottom:1px solid var(--line);margin-bottom:8px}
-details.section>summary::-webkit-details-marker{display:none}
-details.section>summary::before{content:"▸";display:inline-block;width:1em;color:var(--brass);transition:transform .15s}
-details.section[open]>summary::before{transform:rotate(90deg)}
-.abil{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+input[type=text],input[type=number],input[type=search],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:72px;resize:vertical}
+.sheet{margin-top:0}
+.sbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border:1px solid var(--line);border-bottom:2px solid var(--brass);border-radius:12px;margin-bottom:12px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.sbar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 140px}
+.sbar-title strong{font-family:Georgia,serif;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hpctl{display:flex;gap:6px;align-items:center;flex:1 1 100%}
+.hpctl input{width:84px;text-align:center}
+.hpctl .btn{flex:1}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.pane>h3{font-size:1.05rem;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;align-items:start}
+.ident{margin-bottom:12px;font-size:1.05rem}
+.hp-big{font-family:Georgia,serif;font-size:2.2rem;font-weight:700;line-height:1.1}
+.hp-big small{font-size:1.1rem;color:var(--muted)}
+.hp-big .tmp{font-size:.95rem;color:var(--accent);font-family:inherit}
+.abil{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
 .ab{background:var(--chip);border-radius:10px;padding:8px 4px;text-align:center}
 .ab .nm{font-size:.75rem;color:var(--muted);font-weight:700}
-.ab .md{font-size:1.4rem;font-weight:700;font-family:Georgia,serif}
-.ab input{width:60px;text-align:center;margin:0 auto;padding:3px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.prof{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.92rem}
-.prof .val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;min-width:2.2em;text-align:right}
-.prof input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
-.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-.slot{background:var(--chip);border-radius:8px;padding:6px 8px;font-size:.85rem}
-.pips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
-.pip{width:20px;height:20px;border-radius:50%;border:2px solid var(--accent);background:transparent;padding:0}
+.ab .md{font-size:1.5rem;font-weight:700;font-family:Georgia,serif}
+.ab .sc{font-size:.8rem;color:var(--muted)}
+.ab input{width:64px;text-align:center;margin:0 auto;padding:4px}
+.prof{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.95rem;border-bottom:1px dashed var(--line);min-height:36px}
+.prof .val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.dot{width:14px;text-align:center;color:var(--brass);font-weight:700}
+.pip{width:26px;height:26px;border-radius:50%;border:2px solid var(--accent);background:transparent;padding:0}
 .pip.used{background:var(--accent)}
-.atk{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:6px;margin-bottom:10px}
-.atk>:nth-child(5){grid-column:1/-1}
-.entry{margin-bottom:12px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--field)}
-.entry-h{display:flex;gap:6px;margin-bottom:6px}
-.entry-h input{font-weight:700}
-.entry textarea{border-color:transparent;padding:6px 2px;overflow:hidden}
-.note{background:var(--chip);padding:10px 14px;border-radius:8px;font-size:.9rem;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pips{display:flex;gap:8px;flex-wrap:wrap}
+.slotrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.slotrow .lv{min-width:64px;font-weight:700}
+.res{padding:8px 0;border-bottom:1px dashed var(--line)}
+.res-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
+.res-h b{font-weight:700}
+.counter{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.counter b{min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+.atk-card{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.atk-card .hit{font-weight:700;font-size:1.15rem;font-family:Georgia,serif;text-align:right}
+.atk-card .dm2{grid-column:1/-1}
+.atkedit{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:6px;margin-bottom:10px}
+.atkedit>:nth-child(5){grid-column:1/-1}
+details.entry,details.spell{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--field)}
+details.entry>summary,details.spell>summary{list-style:none;cursor:pointer;padding:10px 12px;min-height:44px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
+details.entry>summary::-webkit-details-marker,details.spell>summary::-webkit-details-marker{display:none}
+details.entry>summary::before,details.spell>summary::before{content:"▸";color:var(--brass);transition:transform .15s}
+details[open].entry>summary::before,details[open].spell>summary::before{transform:rotate(90deg)}
+details.entry>.body,details.spell>.spell-body{padding:0 12px 12px}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere}
+.entry-edit{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:10px;background:var(--field)}
+.entry-edit .h{display:flex;gap:6px;margin-bottom:6px}
+.entry-edit input{font-weight:700}
+.lvl{background:var(--chip);border:2px solid var(--brass);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+.lvl h3{font-size:1.1rem}
+.hist{font-size:.9rem;padding:4px 0;border-bottom:1px solid var(--line)}
+.note{background:var(--chip);padding:10px 14px;border-radius:8px;font-size:.9rem;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .dmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-.codes{margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 14px}
+.codes{margin:16px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 14px}
 .codes>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700}
 .coderow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
 .coderow .nm{flex:1 1 140px;min-width:0}
@@ -103,50 +133,65 @@ details.section[open]>summary::before{transform:rotate(90deg)}
 .gatecard h2{font-size:1.25rem}
 .msg{font-size:.9rem;min-height:1.2em}
 .msg.err{color:var(--hp-low)}
-.sbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--brass);margin:-16px -16px 14px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
-.sbar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 140px}
-.sbar-title strong{font-family:Georgia,serif;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hpctl{display:flex;gap:6px;align-items:center;flex:1 1 100%}
-.hpctl input{width:80px;text-align:center}
-.hpctl .btn{flex:1}
-.lvl{background:var(--chip);border:2px solid var(--brass);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
-.lvl h3{font-size:1.1rem}
-.hist{font-size:.9rem;padding:4px 0;border-bottom:1px solid var(--line)}
-@media (min-width:701px){.hpctl{flex:0 0 auto}.sbar{flex-wrap:nowrap}}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:2px solid var(--brass);display:flex;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom,0);scrollbar-width:none}
+.bnav::-webkit-scrollbar{display:none}
+.bnav button{flex:1 0 66px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:0;border-top:3px solid transparent;font-size:.72rem;color:var(--muted);position:relative}
+.bnav button.on{color:var(--accent);font-weight:700;border-top-color:var(--accent)}
+.bnav .ico{font-size:1.25rem;line-height:1}
+.bnav .n{position:absolute;top:4px;left:calc(50% + 6px);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.66rem;min-width:18px;padding:0 5px;line-height:18px}
+.lk-bar{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:thin}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 12px;font-size:.88rem;min-height:36px}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.lk-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:8px}
+.sd-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 12px;margin-bottom:8px}
+.sd-meta span{display:block;font-size:.72rem;color:var(--muted);font-weight:700}
+.spell>summary .sub{font-weight:400}
+.thread{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow-y:auto;padding:4px 2px;margin-bottom:10px}
+.bub{max-width:86%;padding:8px 12px;border-radius:14px;background:var(--chip);align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}
+.bub.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.bub .t{font-size:.72rem;opacity:.75;margin-top:2px}
+.composer{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{min-height:48px}
+.comp{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--brass);border-radius:12px;padding:12px;margin-bottom:12px}
+.comp-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:4px}
+.mini{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;text-align:center;margin:8px 0}
+.mini div{background:var(--chip);border-radius:8px;padding:4px 0;font-size:.8rem}
+.mini b{display:block}
+.camp-bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
+#campFrame{width:100%;height:calc(100vh - 190px);min-height:480px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.legal{font-size:.75rem;color:var(--muted);margin-top:14px}
 @media (max-width:700px){
   .wrap{padding:10px}
-  header.top{padding:4px 0 12px;margin-bottom:12px;gap:8px}
-  header.top h1{font-size:1.5rem}
-  header.top>div:last-child{width:100%}
-  header.top>div:last-child .btn{flex:1 1 auto}
-  body.sheet-open header.top,body.sheet-open #partySec,body.sheet-open #notice,body.sheet-open #dmBar{display:none}
+  header.top{padding:4px 0 10px;margin-bottom:10px;gap:8px}
+  header.top h1{font-size:1.45rem}
+  body.compact header.top{display:none}
+  .btn{min-height:44px}
+  .btn.small{min-height:40px;min-width:40px}
+  input[type=text],input[type=number],input[type=search],textarea,select{font-size:16px;padding:10px}
   .grid{grid-template-columns:1fr}
-  .sheet{margin-top:0;padding:16px 12px;border-radius:0;border-left:0;border-right:0}
-  .sbar{margin:-16px -12px 12px;padding:8px 12px}
-  .btn{min-height:44px;padding:8px 14px}
-  .btn.small{min-height:40px;min-width:40px;padding:6px 12px;font-size:.92rem}
-  input[type=text],input[type=number],textarea,select{padding:10px;font-size:16px}
-  .two{grid-template-columns:1fr;gap:0}
-  .abil{grid-template-columns:repeat(3,1fr)}
-  .prof{padding:2px 0;min-height:44px}
-  .prof input[type=checkbox]{width:26px;height:26px}
-  .pip{width:32px;height:32px}
-  .pips{gap:6px}
-  .slot input[type=number]{padding:6px 4px!important;width:64px!important}
-  .ab input{width:72px;padding:6px}
-  .atk{grid-template-columns:1fr 2fr auto}
-  .atk>:nth-child(1){grid-column:1/3;grid-row:1}
-  .atk>:nth-child(4){grid-column:3;grid-row:1}
-  .atk>:nth-child(2){grid-column:1;grid-row:2}
-  .atk>:nth-child(3){grid-column:2/4;grid-row:2}
-  .atk>:nth-child(5){grid-column:1/-1;grid-row:3}
   .stats{gap:4px}
   .cols4{grid-template-columns:repeat(2,1fr)}
+  .pip{width:32px;height:32px}
+  .prof{min-height:44px}
+  .atkedit{grid-template-columns:1fr 2fr auto}
+  .atkedit>:nth-child(1){grid-column:1/3;grid-row:1}
+  .atkedit>:nth-child(4){grid-column:3;grid-row:1}
+  .atkedit>:nth-child(2){grid-column:1;grid-row:2}
+  .atkedit>:nth-child(3){grid-column:2/4;grid-row:2}
+  .atkedit>:nth-child(5){grid-column:1/-1;grid-row:3}
+  #campFrame{height:calc(100vh - 150px)}
+  .split{grid-template-columns:1fr}
 }
-@media (prefers-reduced-motion:reduce){details.section>summary::before{transition:none}}
+@media (min-width:701px) and (max-width:1100px){
+  .wrap{padding:14px 18px}
+  .btn.small{min-height:40px}
+  .pip{width:30px;height:30px}
+}
+@media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
 </style>
 </head>
-<body>
+<body class="nonav">
 <div class="wrap">
   <header class="top">
     <div>
@@ -155,15 +200,15 @@ details.section[open]>summary::before{transform:rotate(90deg)}
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="status" id="status"></span>
-      <button class="btn" id="outBtn" hidden>Sign out</button>
+      <button class="btn" data-act="signout" id="outBtn" hidden>Sign out</button>
     </div>
   </header>
 
   <section id="gate" class="gate" hidden>
     <div class="gatecard">
       <h2>Players: open your character</h2>
-      <p class="sub" style="margin:0">Enter the character code your DM gave you. No account or email needed. Keep the code: it gets you back in on a new phone.</p>
-      <label class="f">Character code<input type="text" id="codeIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="e.g. sarick-k7m2x9"></label>
+      <p class="sub" style="margin:0">Type your first name (the one your DM gave you). No account or email needed.</p>
+      <label class="f">Your name<input type="text" id="codeIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="e.g. jason"></label>
       <button class="btn primary" id="joinBtn">Open my character</button>
       <div class="msg" id="gateMsg" role="status"></div>
     </div>
@@ -176,25 +221,20 @@ details.section[open]>summary::before{transform:rotate(90deg)}
   </section>
 
   <main id="app" hidden>
-    <div id="dmBar" hidden>
-      <div class="dmbar">
-        <button class="btn" id="importBtn">Import characters (JSON)</button>
-        <input type="file" id="importIn" accept=".json,application/json" multiple hidden>
-        <button class="btn" id="npcBtn">Add NPC</button>
-      </div>
-      <div class="note" id="importMsg" hidden></div>
-      <details class="codes" id="codesBox"><summary>Player codes</summary><div id="codesList"></div></details>
-    </div>
     <div id="notice"></div>
-    <section id="partySec" aria-label="Party" hidden><div class="grid" id="party"></div></section>
-    <section id="sheetHost" aria-live="polite"></section>
+    <section id="viewParty" hidden></section>
+    <section id="viewMsgs" hidden></section>
+    <section id="viewLookup" hidden></section>
+    <section id="viewCampaign" hidden></section>
+    <section id="viewSheet" hidden aria-live="polite"></section>
   </main>
 </div>
+<nav class="bnav" id="bnav" aria-label="Sections" hidden></nav>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYnsx30sdSSQm9Khjdc8gJ_BJLjHMhL4g",
@@ -204,7 +244,6 @@ const firebaseConfig = {
   messagingSenderId: "305544250683",
   appId: "1:305544250683:web:6b38e7bbe9bc3e23a1231e"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -216,7 +255,6 @@ const SKILLS=[["Acrobatics","dex"],["Animal Handling","wis"],["Arcana","int"],["
 const mod=n=>Math.floor((Number(n==null?10:n)-10)/2);
 const sgn=n=>(n>=0?"+":"")+n;
 const prof=l=>2+Math.floor((Math.max(1,Number(l)||1)-1)/4);
-
 const CLASSES={
   barbarian:{die:12},bard:{die:8,caster:"full",ab:"cha"},cleric:{die:8,caster:"full",ab:"wis"},
   druid:{die:8,caster:"full",ab:"wis"},fighter:{die:10},monk:{die:8},
@@ -245,21 +283,34 @@ function slotsFor(info,level,old){
   if(old)Object.keys(out).forEach(k=>{const u=(old[k]&&old[k].used)||0;out[k].used=Math.min(u,out[k].max)});
   return out;
 }
-
 function blank(){
   const a={};ABIL.forEach(k=>a[k]=10);
   return {name:"New adventurer",player:"",race:"",cls:"",subclass:"",alignment:"",size:"",level:1,background:"",
     abilities:a,saveProf:{},skillProf:{},skillExtra:{},ac:10,speed:30,hpMax:10,hp:10,hpTemp:0,hitDice:"",
-    deathS:0,deathF:0,inspiration:0,conditions:"",spellAbility:"",slots:{},spellList:"",spellInfo:[],
-    attacks:[],actions:[],features:[],traits:[],inventory:"",gold:0,languages:"",goals:"",backstory:"",notes:"",
+    deathS:0,deathF:0,inspiration:0,conditions:"",spellAbility:"",slots:{},spells:[],spellInfo:[],
+    attacks:[],actions:[],features:[],traits:[],resources:[],inventory:"",gold:0,languages:"",goals:"",backstory:"",notes:"",
     history:[],npc:false,updated:0};
+}
+function normalize(d){
+  const b=blank(),o=Object.assign({},b,d);
+  o.abilities=Object.assign({},b.abilities,d.abilities||{});
+  ["saveProf","skillProf","skillExtra","slots"].forEach(k=>{o[k]=(d[k]&&typeof d[k]==="object")?d[k]:{}});
+  ["spells","spellInfo","attacks","actions","features","traits","resources","history"].forEach(k=>{o[k]=Array.isArray(d[k])?d[k]:[]});
+  o.inspiration=Number(d.inspiration)||0;
+  return o;
 }
 function slugify(name){
   const w=String(name||"").trim().split(/\s+/)[0]||"";
   const s=w.toLowerCase().replace(/[^a-z0-9]/g,"");
   return s||("pc"+Math.random().toString(36).slice(2,6));
 }
-function convert(j){
+function slugName(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,20)}
+function convert(j,levelOf){
+  if(j&&j.format==="sheet3"){
+    const s=normalize(j.sheet||{});
+    s.updated=Date.now();
+    return {sheet:s,dm:j.dm||"",companions:Array.isArray(j.companions)?j.companions:[]};
+  }
   const s=blank();
   s.name=j.name||"Unnamed";s.player=j.player||"";s.race=j.race||"";s.cls=j.class||"";s.subclass=j.subclass||"";
   s.alignment=j.alignment||"";s.size=j.size||"";s.level=Number(j.level)||1;s.background=j.background||"";
@@ -289,7 +340,12 @@ function convert(j){
   if(info&&info.ab)s.spellAbility=info.ab;
   s.slots=slotsFor(info,s.level);
   s.languages=(j.languages||[]).join(", ");
-  s.spellList=(j.spells||[]).join("\n");
+  s.spells=(j.spells||[]).map(t=>{
+    const nm=String(t).trim(),cant=/cantrip/i.test(nm);
+    const clean=nm.replace(/\s*\([^)]*cantrip[^)]*\)/i,"").trim();
+    let lv=cant?0:(levelOf?levelOf(clean):-1);if(lv==null)lv=-1;
+    return {name:clean,level:lv,desc:""};
+  });
   s.spellInfo=(j.spellcasting||[]).map(e=>({name:e.name||"",desc:e.desc||""}));
   const actionNames={};
   (j.actions||[]).forEach(a=>{
@@ -318,61 +374,65 @@ function convert(j){
     else inv.push(line);
   });
   s.inventory=inv.join("\n");
+  const die=info?info.die:8;
+  s.resources=[{name:"Hit Dice (d"+die+")",max:s.level,used:0,reset:"hitdice"}];
   if(j.notes)dmParts.unshift(j.notes);
   s.updated=Date.now();
-  return {sheet:s,dm:dmParts.join("\n\n")};
+  return {sheet:s,dm:dmParts.join("\n\n"),companions:[]};
 }
 /*IMPORT_END*/
 
-/* ---------- state ---------- */
+/* ================= state ================= */
 let uid=null, role=null, charId=null, isAnon=false;
-let chars={}, dmNotes={}, claimByChar={};
-let openId=null, unsubs=[], enterTok=0, lvlUp=null, hpAmtVal="1";
-const pending={}, writing={}, noteTimers={}, secOpen={};
+let importMsg="", codesOpen=false;
+let chars={}, dmNotes={}, claimByChar={}, companions={}, messages={}, customSpells=[];
+let openId=null, dmTab="party", sheetTab="play", editMode=false, lvlUp=null, hpAmtVal="1", dmMsgChar=null;
+let unsubs=[], charSubs={}, enterTok=0;
+const compEdit={}, markedRead=new Set();
 
 const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const WIDE=()=>matchMedia("(min-width:701px)").matches;
 const isDM=()=>role==="dm";
-function setStatus(t,err){
-  ["status","sbarSave"].forEach(id=>{const s=$(id);if(s){s.textContent=t||"";s.className=(id==="status"?"status":"sub")+(err?" err":"")}});
-}
-function normalize(d){
-  const b=blank(),o=Object.assign({},b,d);
-  o.abilities=Object.assign({},b.abilities,d.abilities||{});
-  ["saveProf","skillProf","skillExtra","slots"].forEach(k=>{o[k]=d[k]||{}});
-  ["spellInfo","attacks","actions","features","traits","history"].forEach(k=>{o[k]=Array.isArray(d[k])?d[k]:[]});
-  o.inspiration=Number(d.inspiration)||0;
-  return o;
-}
+function setStatus(t,err){const s=$("status");if(s){s.textContent=t||"";s.className="status"+(err?" err":"")}}
 function canEditChar(id){return !!chars[id]&&(isDM()||id===charId)}
-function skillTotal(c,s){
-  return mod(c.abilities[s[1]])+(Number(c.skillProf[s[0]])||0)*prof(c.level)+(Number(c.skillExtra[s[0]])||0);
+const ed=()=>editMode&&openId&&canEditChar(openId);
+function skillTotal(c,s){return mod(c.abilities[s[1]])+(Number(c.skillProf[s[0]])||0)*prof(c.level)+(Number(c.skillExtra[s[0]])||0)}
+const passive=c=>10+skillTotal(c,["Perception","wis"]);
+function spellStats(c){
+  const sa=c.spellAbility;if(!sa)return null;
+  const m=mod(c.abilities[sa]),pb=prof(c.level);
+  return {dc:8+pb+m,atk:pb+m};
 }
-function passive(c){return 10+skillTotal(c,["Perception","wis"])}
+const timeStr=t=>t?new Date(t).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";
 
-/* ---------- saving ---------- */
-function queueSave(id,keys){
-  const c=chars[id];if(!c)return;
-  c.updated=Date.now();
-  const p=pending[id]||(pending[id]={keys:new Set()});
-  keys.forEach(k=>p.keys.add(k));p.keys.add("updated");
-  clearTimeout(p.timer);p.timer=setTimeout(()=>flush(id),700);
+/* ================= saving ================= */
+const pend={};
+function queueWrite(key,ref,get,keys){
+  const p=pend[key]||(pend[key]={keys:new Set()});
+  p.ref=ref;p.get=get;keys.forEach(k=>p.keys.add(k));p.keys.add("updated");
+  const o=get();if(o)o.updated=Date.now();
+  clearTimeout(p.timer);p.timer=setTimeout(()=>flush(key),700);
   setStatus("Saving…");
 }
-async function flush(id){
-  const p=pending[id];if(!p||!p.keys.size||!chars[id])return;
-  if(writing[id]){p.timer=setTimeout(()=>flush(id),300);return}
-  const keys=Array.from(p.keys);p.keys=new Set();writing[id]=true;
-  const data={};keys.forEach(k=>{data[k]=chars[id][k]});
-  try{
-    await setDoc(doc(db,"characters",id),data,{mergeFields:keys});
-    if(!p.keys.size)setStatus("Saved");
-  }catch(e){
-    keys.forEach(k=>p.keys.add(k));
-    setStatus("Could not save ("+(e&&e.code||"error")+")",true);
-  }finally{writing[id]=false}
+async function flush(key){
+  const p=pend[key];if(!p||!p.keys.size)return;
+  const o=p.get();if(!o)return;
+  if(p.busy){p.timer=setTimeout(()=>flush(key),300);return}
+  const keys=Array.from(p.keys);p.keys=new Set();p.busy=true;
+  const data={};keys.forEach(k=>{data[k]=o[k]===undefined?null:o[k]});
+  try{await setDoc(p.ref,data,{mergeFields:keys});if(!p.keys.size)setStatus("Saved")}
+  catch(e){keys.forEach(k=>p.keys.add(k));setStatus("Could not save ("+(e&&e.code||"error")+")",true)}
+  finally{p.busy=false}
 }
+const saveChar=(id,keys)=>queueWrite("c:"+id,doc(db,"characters",id),()=>chars[id],keys);
+const saveComp=(cid,pid,keys)=>queueWrite("p:"+cid+"/"+pid,doc(db,"characters",cid,"companions",pid),()=>companions[cid]&&companions[cid][pid],keys);
+function keepLocal(prefix,id,remote,local){
+  const p=pend[prefix+id];
+  if(p&&p.keys&&p.keys.size&&local)p.keys.forEach(k=>{remote[k]=local[k]});
+  return remote;
+}
+let noteTimers={};
 function queueNote(id){
   clearTimeout(noteTimers[id]);setStatus("Saving…");
   noteTimers[id]=setTimeout(async()=>{
@@ -381,356 +441,855 @@ function queueNote(id){
   },700);
 }
 
-/* ---------- rendering: DM party ---------- */
-function hpColor(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r>.5?"var(--hp-ok)":r>.25?"var(--hp-mid)":"var(--hp-low)"}
-function renderParty(){
-  if(!isDM())return;
-  const host=$("party");
-  const ids=Object.keys(chars).sort((a,b)=>(chars[a].npc?1:0)-(chars[b].npc?1:0)||String(chars[a].name||"").localeCompare(String(chars[b].name||"")));
-  if(!ids.length){host.innerHTML='<div class="empty" style="grid-column:1/-1">No characters yet. Use “Import characters (JSON)” above.</div>';return}
-  host.innerHTML=ids.map(id=>{
-    const c=chars[id];
-    const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
-    const dc=c.spellAbility&&c.abilities[c.spellAbility]!=null?8+prof(c.level)+mod(c.abilities[c.spellAbility]):null;
-    const who=c.npc?"NPC":(c.player||"");
-    const upd=c.updated?new Date(c.updated).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";
-    return '<article class="card" data-id="'+esc(id)+'">'+
-      '<div><h3>'+esc(c.name||"Unnamed")+'</h3><div class="who">'+esc([c.race,c.cls,c.level?("Lv "+c.level):""].filter(Boolean).join(" ")||"No class yet")+(who?' · '+esc(who):'')+'</div></div>'+
-      '<div class="hprow"><span class="hpnum">'+c.hp+' / '+c.hpMax+(c.hpTemp?(' (+'+c.hpTemp+')'):'')+' HP</span>'+
-      '<span><button class="btn small" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button> <button class="btn small" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button> <button class="btn small" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button></span></div>'+
-      '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>'+
-      '<div class="stats"><div class="stat"><b>'+c.ac+'</b><span>AC</span></div><div class="stat"><b>'+passive(c)+'</b><span>Passive Perc.</span></div>'+
-      '<div class="stat"><b>'+(dc==null?"–":dc)+'</b><span>Spell DC</span></div><div class="stat"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init.</span></div></div>'+
-      '<div class="conds">'+esc(c.conditions||"")+(c.inspiration?" ★ Inspiration ×"+c.inspiration:"")+'</div>'+
-      (upd?'<div class="sub">Updated '+esc(upd)+'</div>':'')+
-      '<button class="btn small" data-act="open">Open sheet</button></article>';
-  }).join("");
+/* ================= form helpers ================= */
+function inp(path,label,val,type,extra,attrs){
+  return '<label class="f">'+E(label)+'<input type="'+type+'" data-path="'+path+'" value="'+E(val)+'"'+(extra?" "+extra:"")+(attrs||"")+'></label>';
 }
-function renderCodes(){
-  if(!isDM())return;
-  const ids=Object.keys(chars).filter(id=>!chars[id].npc).sort((a,b)=>String(chars[a].name).localeCompare(String(chars[b].name)));
-  $("codesList").innerHTML=ids.length?ids.map(id=>{
-    const c=chars[id],code=claimByChar[id];
-    return '<div class="coderow"><div class="nm"><b>'+esc((c.name||"").split(" ")[0]||"Unnamed")+'</b> <span class="sub">'+esc(c.player||"")+'</span></div>'+
-      (code?'<code>'+esc(code)+'</code><button class="btn small" data-act="copy" data-code="'+esc(code)+'">Copy</button><button class="btn small" data-act="reset" data-id="'+esc(id)+'">New code</button>'
-           :'<button class="btn small" data-act="reset" data-id="'+esc(id)+'">Create code</button>')+'</div>';
-  }).join(""):'<div class="sub" style="padding:8px 0">Import characters to create their codes.</div>';
+function area(path,label,val,attrs){
+  return '<label class="f">'+E(label)+'<textarea data-path="'+path+'"'+(attrs||"")+'>'+E(val)+'</textarea></label>';
+}
+const prose=t=>t?'<div class="prose">'+E(t)+'</div>':'<div class="sub">Nothing here yet.</div>';
+function autosize(t){if(t.scrollHeight>0){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}}
+function entryList(list,arr,label,attrs){
+  const edit=ed()&&!attrs;
+  if(!edit)return (arr.length?arr.map(e=>'<details class="entry"><summary>'+E(e.name||"Untitled")+'</summary><div class="body">'+prose(e.desc)+'</div></details>').join(""):'<div class="sub">Nothing here yet.</div>');
+  return arr.map((e,i)=>'<div class="entry-edit"><div class="h"><input type="text" placeholder="Name" aria-label="Name" data-path="'+list+'.'+i+'.name" value="'+E(e.name)+'">'+
+    '<button class="btn small danger" data-act="delentry" data-list="'+list+'" data-i="'+i+'" aria-label="Remove '+E(e.name)+'">✕</button></div>'+
+    '<textarea aria-label="Description" data-path="'+list+'.'+i+'.desc">'+E(e.desc)+'</textarea></div>').join("")+
+    '<button class="btn small" data-act="addentry" data-list="'+list+'">'+E(label)+'</button>';
 }
 
-/* ---------- rendering: sheet ---------- */
-function fld(path,label,val,type,dis,extra){
-  return '<label class="f">'+esc(label)+'<input type="'+type+'" data-path="'+path+'" value="'+esc(val)+'"'+(extra?" "+extra:"")+dis+'></label>';
+/* ================= spells database ================= */
+const lk={q:"",lv:"any",cls:"any",sch:"any",ver:"2014",conc:false,rit:false,limit:40,csOpen:false};
+const spellDB={}, spellIdx={}, spellLoad={};
+const ALIAS={"melf's acid arrow":"acid arrow"};
+function loadSpells(ver){
+  if(spellDB[ver])return Promise.resolve();
+  if(!spellLoad[ver])spellLoad[ver]=fetch("spells-"+ver+".json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{
+    spellDB[ver]=a;spellIdx[ver]=new Map(a.map(s=>[s.n.toLowerCase(),s]));
+  }).catch(e=>{spellLoad[ver]=null;throw e});
+  return spellLoad[ver];
 }
-function sbarStat(c){return "HP "+c.hp+" / "+c.hpMax+(c.hpTemp?" (+"+c.hpTemp+")":"")+" · AC "+c.ac}
-function sec(name,title,inner){
-  const open=(name in secOpen)?secOpen[name]:(WIDE()||["abilities","combat","attacks"].indexOf(name)>=0);
-  return '<details class="section" data-sec="'+name+'"'+(open?" open":"")+'><summary>'+title+'</summary>'+inner+'</details>';
+function findSpell(name){
+  let n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
+  const c=customSpells.filter(x=>String(x.n).toLowerCase()===n)[0];
+  if(c)return Object.assign({},c,{u:2});
+  const idx=spellIdx[lk.ver];if(!idx)return null;
+  return idx.get(n)||idx.get(ALIAS[n]||"")||null;
 }
-function entryList(list,arr,dis,label){
-  return (arr.length?'':'<div class="sub" style="margin-bottom:6px">Nothing here yet.</div>')+
-    arr.map((e,i)=>'<div class="entry"><div class="entry-h"><input type="text" placeholder="Name" aria-label="Name" data-path="'+list+'.'+i+'.name" value="'+esc(e.name)+'"'+dis+'>'+
-      '<button class="btn small danger" data-act="delentry" data-list="'+list+'" data-i="'+i+'" aria-label="Remove '+esc(e.name)+'"'+dis+'>✕</button></div>'+
-      '<textarea aria-label="Description" data-path="'+list+'.'+i+'.desc"'+dis+'>'+esc(e.desc)+'</textarea></div>').join("")+
-    '<button class="btn small" data-act="addentry" data-list="'+list+'"'+dis+'>'+label+'</button>';
+function spellDetail(sp){
+  const meta=[["Casting time",sp.t],["Range",sp.r],["Components",sp.c],["Duration",sp.d]].filter(x=>x[1]);
+  let h='<div class="sd-meta">'+meta.map(x=>'<div><span>'+x[0]+'</span>'+E(x[1])+'</div>').join("")+'</div>';
+  h+='<div class="prose">'+E(sp.x)+'</div>';
+  if(sp.h)h+='<div class="prose" style="margin-top:8px"><b>At higher levels.</b> '+E(sp.h)+'</div>';
+  const notes=[];
+  if(sp.cl&&sp.cl.length)notes.push("Classes: "+sp.cl.join(", ")+".");
+  if(sp.u===1)notes.push("Short summary only. Check your book for the full text.");
+  if(sp.u===2)notes.push("Custom spell from your DM.");
+  if(notes.length)h+='<div class="sub" style="margin-top:8px">'+E(notes.join(" "))+'</div>';
+  return h;
 }
-function hpGainDefault(c){
-  const info=classInfo(c.cls),die=info?info.die:8;
-  return Math.max(1,Math.floor(die/2)+1+mod(c.abilities.con));
+async function fillSpell(el){
+  const body=el.querySelector(".spell-body");
+  if(!body||body.dataset.done)return;
+  body.innerHTML='<div class="sub">Loading…</div>';
+  try{await loadSpells(lk.ver)}catch(e){body.innerHTML='<div class="sub err">Could not load the spell list. Check your connection.</div>';return}
+  const name=el.dataset.n;
+  const own=(el.dataset.ci&&chars[el.dataset.ci])?chars[el.dataset.ci].spells[Number(el.dataset.si)]:null;
+  const sp=findSpell(name);
+  let h=sp?spellDetail(sp):'<div class="sub">Not in the rules database.</div>';
+  if(own&&own.desc)h=(sp?h+'<div class="prose" style="margin-top:8px"><b>Character note.</b> '+E(own.desc)+'</div>':'<div class="prose">'+E(own.desc)+'</div>'+h);
+  if(el.dataset.lk&&role==="player"&&chars[charId]&&sp&&!chars[charId].spells.some(s=>s.name.toLowerCase()===sp.n.toLowerCase()))
+    h+='<div style="margin-top:10px"><button class="btn small" data-act="addspell" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add to my spells</button></div>';
+  if(el.dataset.lk&&isDM()&&sp&&sp.u===2)h+='<div style="margin-top:10px"><button class="btn small danger" data-act="delcs" data-n="'+E(sp.n)+'">Delete custom spell</button></div>';
+  body.innerHTML=h;body.dataset.done=1;
+}
+document.addEventListener("toggle",e=>{
+  const d=e.target;
+  if(d&&d.classList&&d.classList.contains("spell")&&d.open)fillSpell(d);
+  if(d&&d.id==="codesBox")codesOpen=d.open;
+  if(d&&d.dataset&&d.dataset.sec&&d.open)d.querySelectorAll("textarea").forEach(autosize);
+  if(d&&d.classList&&d.classList.contains("entry")&&d.open)d.querySelectorAll("textarea").forEach(autosize);
+},true);
+function lvLabel(l){return l===0?"Cantrip":l>0?"Level "+l:"Other"}
+function lookupResults(){
+  const base=(spellDB[lk.ver]||[]).concat(customSpells.map(c=>Object.assign({},c,{u:2})));
+  const q=lk.q.trim().toLowerCase();
+  let res=base.filter(s=>{
+    if(lk.lv!=="any"&&s.l!==Number(lk.lv))return false;
+    if(lk.cls!=="any"&&!(s.cl||[]).some(c=>c===lk.cls))return false;
+    if(lk.sch!=="any"&&s.s!==lk.sch)return false;
+    if(lk.conc&&!s.k)return false;
+    if(lk.rit&&!s.i)return false;
+    if(q&&s.n.toLowerCase().indexOf(q)<0&&String(s.x).toLowerCase().indexOf(q)<0)return false;
+    return true;
+  });
+  res.sort((a,b)=>{
+    if(q){const ai=a.n.toLowerCase().indexOf(q)===0?0:a.n.toLowerCase().indexOf(q)>0?1:2,bi=b.n.toLowerCase().indexOf(q)===0?0:b.n.toLowerCase().indexOf(q)>0?1:2;if(ai!==bi)return ai-bi}
+    return a.n.localeCompare(b.n);
+  });
+  return res;
+}
+function renderLookupResults(){
+  const box=$("lkResults");if(!box)return;
+  if(!spellDB[lk.ver]){box.innerHTML='<div class="sub">Loading spells…</div>';return}
+  const res=lookupResults(),shown=res.slice(0,lk.limit);
+  $("lkCount").textContent=res.length+" spell"+(res.length===1?"":"s");
+  box.innerHTML=shown.map(s=>'<details class="spell" data-n="'+E(s.n)+'" data-lk="1"><summary>'+E(s.n)+' <span class="sub">'+lvLabel(s.l)+' · '+E(s.s||"")+(s.k?" · Concentration":"")+(s.i?" · Ritual":"")+(s.u===2?" · Custom":"")+'</span></summary><div class="spell-body"></div></details>').join("")+
+    (res.length>shown.length?'<button class="btn" data-act="lkmore" style="width:100%">Show more ('+(res.length-shown.length)+' left)</button>':"")+
+    (!res.length?'<div class="empty">No spells match. Try fewer filters.</div>':"");
+}
+function renderLookup(host){
+  const all=(spellDB[lk.ver]||[]).concat(customSpells);
+  const classes=Array.from(new Set(all.flatMap(s=>s.cl||[]))).sort();
+  const schools=["Abjuration","Conjuration","Divination","Enchantment","Evocation","Illusion","Necromancy","Transmutation"];
+  let h='<div class="pane"><h3>Spell lookup</h3>';
+  h+='<div class="lk-bar"><input type="search" id="lkQ" placeholder="Search by name or text, e.g. moonbeam or &quot;prone&quot;" value="'+E(lk.q)+'" aria-label="Search spells"><select id="lkVer" aria-label="Rules version"><option value="2014"'+(lk.ver==="2014"?" selected":"")+'>2014 rules</option><option value="2024"'+(lk.ver==="2024"?" selected":"")+'>2024 rules</option></select></div>';
+  h+='<div class="chips" role="group" aria-label="Spell level">'+["any",0,1,2,3,4,5,6,7,8,9].map(l=>'<button class="chip'+(String(lk.lv)===String(l)?" on":"")+'" data-act="lklv" data-v="'+l+'">'+(l==="any"?"All":l===0?"Cantrips":"Level "+l)+'</button>').join("")+'</div>';
+  h+='<div class="lk-filters"><select id="lkCls" aria-label="Class"><option value="any">All classes</option>'+classes.map(c=>'<option'+(lk.cls===c?" selected":"")+'>'+E(c)+'</option>').join("")+'</select>'+
+     '<select id="lkSch" aria-label="School"><option value="any">All schools</option>'+schools.map(c=>'<option'+(lk.sch===c?" selected":"")+'>'+c+'</option>').join("")+'</select>'+
+     '<button class="chip'+(lk.conc?" on":"")+'" data-act="lkconc">Concentration</button><button class="chip'+(lk.rit?" on":"")+'" data-act="lkrit">Ritual</button></div>';
+  h+='<div class="sub" id="lkCount" style="margin-bottom:8px"></div><div id="lkResults"></div>';
+  h+='<div class="legal">Spell text: System Reference Document 5.1 and 5.2 © Wizards of the Coast LLC, licensed CC BY 4.0. Entries marked “short summary” are not in the SRD. Not every spell in your books is here: your DM can add custom ones.</div>';
+  h+='</div>';
+  if(isDM())h+=csForm();
+  host.innerHTML=h;
+  loadSpells(lk.ver).then(()=>{if($("lkResults")){renderLookupResults()}}).catch(()=>{if($("lkResults"))$("lkResults").innerHTML='<div class="sub err">Could not load the spell list. Check your connection and try again.</div>'});
+  renderLookupResults();
+}
+function csForm(){
+  return '<details class="pane" style="padding:0" '+(lk.csOpen?"open":"")+' id="csBox"><summary style="padding:14px;cursor:pointer;font-weight:700;min-height:44px">Add a custom spell (DM)</summary><div style="padding:0 14px 14px;display:grid;gap:8px">'+
+   '<div class="row cols4"><label class="f">Name<input type="text" id="csName"></label><label class="f">Level<select id="csLevel">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'">'+(l===0?"Cantrip":l)+'</option>').join("")+'</select></label><label class="f">School<input type="text" id="csSchool"></label>'+
+   '<label class="f">Casting time<input type="text" id="csTime" placeholder="1 action"></label><label class="f">Range<input type="text" id="csRange"></label><label class="f">Components<input type="text" id="csComp" placeholder="V, S"></label><label class="f">Duration<input type="text" id="csDur"></label><label class="f">Classes (comma separated)<input type="text" id="csCls"></label></div>'+
+   '<div style="display:flex;gap:16px;flex-wrap:wrap"><label class="prof"><input type="checkbox" id="csConc"> Concentration</label><label class="prof"><input type="checkbox" id="csRit"> Ritual</label></div>'+
+   '<label class="f">Description<textarea id="csText"></textarea></label><label class="f">At higher levels (optional)<textarea id="csHigh" style="min-height:48px"></textarea></label>'+
+   '<div><button class="btn primary" data-act="savecs">Save custom spell</button> <span class="sub">Saving with the same name replaces it. Everyone can see custom spells.</span></div></div></details>';
+}
+function hasSpells(c){return c.spells.length>0||!!c.spellAbility||Object.keys(c.slots).some(k=>c.slots[k].max>0)}
+
+/* ================= DM: party ================= */
+function hpColor(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r>.5?"var(--hp-ok)":r>.25?"var(--hp-mid)":"var(--hp-low)"}
+function unreadFrom(cid,who){return (messages[cid]||[]).filter(m=>m.from===who&&!(who==="player"?m.readByDM:m.readByPlayer)).length}
+function renderParty(){
+  const host=$("viewParty");
+  const ids=Object.keys(chars).sort((a,b)=>(chars[a].npc?1:0)-(chars[b].npc?1:0)||String(chars[a].name||"").localeCompare(String(chars[b].name||"")));
+  let h='<div class="dmbar"><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div><div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
+  h+='<div class="grid">'+(ids.length?ids.map(id=>{
+    const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c);
+    const who=c.npc?"NPC":(c.player||""),un=unreadFrom(id,"player");
+    return '<article class="card" data-id="'+E(id)+'"><div><h3>'+E((c.name||"Unnamed").split(" ")[0])+(un?' <span class="badge ok">'+un+' new</span>':'')+'</h3><div class="who">'+E([c.race,c.cls,c.level?("Lv "+c.level):""].filter(Boolean).join(" ")||"No class yet")+(who?' · '+E(who):'')+'</div></div>'+
+      '<div class="hprow"><span class="hpnum">'+c.hp+' / '+c.hpMax+(c.hpTemp?(' (+'+c.hpTemp+')'):'')+' HP</span><span><button class="btn small" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button> <button class="btn small" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button> <button class="btn small" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button></span></div>'+
+      '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>'+
+      '<div class="stats"><div class="stat"><b>'+c.ac+'</b><span>AC</span></div><div class="stat"><b>'+passive(c)+'</b><span>Passive Perc.</span></div><div class="stat"><b>'+(st?st.dc:"–")+'</b><span>Spell DC</span></div><div class="stat"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init.</span></div></div>'+
+      '<div class="conds">'+E(c.conditions||"")+(c.inspiration?" ★ Inspiration ×"+c.inspiration:"")+'</div>'+
+      (c.updated?'<div class="sub">Updated '+E(timeStr(c.updated))+'</div>':'')+
+      '<button class="btn small" data-act="open">Open sheet</button></article>';
+  }).join(""):'<div class="empty" style="grid-column:1/-1">No characters yet. Use “Import characters (JSON)”.</div>')+'</div>';
+  const cids=ids.filter(id=>!chars[id].npc);
+  h+='<details class="codes" id="codesBox"'+(codesOpen?" open":"")+'><summary>Player names (login codes)</summary><div style="padding:6px 0"><div class="sub" style="margin-bottom:6px">Each player types their name on the sign-in screen. Change a code any time to lock out old devices.</div>'+
+    (cids.length?cids.map(id=>{const c=chars[id],code=claimByChar[id];
+      return '<div class="coderow"><div class="nm"><b>'+E((c.name||"").split(" ")[0])+'</b> <span class="sub">'+E(c.player||"no player name")+'</span></div>'+
+       (code?'<code>'+E(code)+'</code><button class="btn small" data-act="copy" data-code="'+E(code)+'">Copy</button>':'<span class="sub">no code</span>')+
+       '<button class="btn small" data-act="setcode" data-id="'+E(id)+'">Change</button></div>'}).join("")+
+      '<div style="margin-top:8px"><button class="btn small" data-act="namecodes">Set every code to the player’s name</button></div>':'<div class="sub">Import characters first.</div>')+'</div></details>';
+  host.innerHTML=h;
+}
+
+/* ================= sheet tabs ================= */
+function basicsForm(c){
+  return '<div class="pane"><h3>Edit basics</h3><div class="row cols4">'+inp("name","Name",c.name,"text")+inp("player","Played by",c.player,"text")+inp("race","Race / species",c.race,"text")+
+   inp("cls","Class",c.cls,"text")+inp("subclass","Subclass",c.subclass,"text")+inp("level","Level",c.level,"number",'min="1" max="20"')+inp("background","Background",c.background,"text")+inp("alignment","Alignment",c.alignment,"text")+
+   inp("ac","Armor class",c.ac,"number")+inp("speed","Speed (ft)",c.speed,"number")+inp("hpMax","Max HP",c.hpMax,"number")+inp("hp","Current HP",c.hp,"number")+inp("hpTemp","Temp HP",c.hpTemp,"number")+inp("hitDice","Hit dice",c.hitDice,"text")+inp("inspiration","Inspiration",c.inspiration,"number",'min="0"')+inp("conditions","Conditions",c.conditions,"text")+'</div></div>';
 }
 function lvlPanel(c){
   const nl=c.level+1,info=classInfo(c.cls),die=info?info.die:8;
   let h='<div class="lvl"><h3>Level up to '+nl+'</h3>';
   h+='<label class="f">Max HP gained<input type="number" id="lvGain" min="0" inputmode="numeric" value="'+lvlUp.gain+'"></label>';
-  h+='<div class="sub">The average for a d'+die+' with your Constitution modifier is '+hpGainDefault(c)+'. Roll your own if your DM allows it and type it in.</div>';
-  if(info&&info.caster)h+='<label class="prof"><input type="checkbox" id="lvSlots" checked> Update spell slots to match level '+nl+'</label>';
-  if([4,8,12,16,19].indexOf(nl)>=0)h+='<div class="sub">Level '+nl+' gives an Ability Score Improvement or a feat. Change your scores under Abilities, and add any feat under Class features.</div>';
+  h+='<div class="sub">The average for a d'+die+' plus your Constitution modifier is '+hpGainDefault(c)+'. If you roll, type your result instead.</div>';
+  if(info&&info.caster)h+='<label class="prof"><input type="checkbox" id="lvSlots" checked style="width:22px;height:22px"> Update spell slots to match level '+nl+'</label>';
+  if([4,8,12,16,19].indexOf(nl)>=0)h+='<div class="sub">Level '+nl+' gives an Ability Score Improvement or a feat. After confirming, switch on Edit to change your scores, and add any feat under Features.</div>';
   if([5,9,13,17].indexOf(nl)>=0)h+='<div class="sub">Your proficiency bonus rises to '+sgn(prof(nl))+'. Skills, saves and spell numbers update on their own.</div>';
-  h+='<div class="sub">Add new class features and spells yourself after levelling.</div>';
+  h+='<div class="sub">Add new features and spells yourself afterwards (use the Lookup tab to find spells).</div>';
   h+='<div style="display:flex;gap:8px"><button class="btn primary" data-act="lvlconfirm">Confirm level up</button><button class="btn" data-act="lvlcancel">Cancel</button></div></div>';
   return h;
 }
-function sheetFocused(){const a=document.activeElement;return a&&$("sheetHost").contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)}
-function autosize(t){if(t.scrollHeight>0){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}}
-function renderSheet(){
-  const host=$("sheetHost");
-  document.body.classList.toggle("sheet-open",!!(openId&&chars[openId]));
-  if(!openId||!chars[openId]){host.innerHTML="";return}
-  const c=chars[openId],ed=canEditChar(openId),dis=ed?"":" disabled",pb=prof(c.level);
-  let h='<div class="sheet" data-id="'+esc(openId)+'">';
-  h+='<div class="sbar">'+(isDM()?'<button class="btn small" data-act="close" aria-label="Back to party">‹ Back</button>':'')+
-     '<div class="sbar-title"><strong>'+esc(c.name||"Unnamed")+'</strong><span class="sub" id="sbarStat">'+esc(sbarStat(c))+'</span><span class="sub" id="sbarSave"></span></div>'+
-     (ed?'<div class="hpctl"><input type="number" id="hpAmt" min="0" inputmode="numeric" aria-label="Amount of damage or healing" value="'+esc(hpAmtVal)+'">'+
-         '<button class="btn dmg" data-act="dmg">Damage</button><button class="btn heal" data-act="heal">Heal</button></div>':'')+
-     '</div>';
-  if(isDM()&&!c.npc&&!claimByChar[openId])h+='<div class="note">No character code yet. Open “Player codes” on the party screen to create one.</div>';
-  if(ed&&lvlUp)h+=lvlPanel(c);
-  else if(ed&&c.level<20)h+='<div style="margin-bottom:12px"><button class="btn primary" data-act="lvlopen">Level up</button></div>';
-
-  h+='<div class="row cols4">'+fld("name","Name",c.name,"text",dis)+fld("player","Played by",c.player,"text",dis)+fld("race","Race / species",c.race,"text",dis)+
-    fld("cls","Class",c.cls,"text",dis)+fld("subclass","Subclass",c.subclass,"text",dis)+fld("level","Level",c.level,"number",dis,'min="1" max="20"')+
-    fld("background","Background",c.background,"text",dis)+fld("alignment","Alignment",c.alignment,"text",dis)+'</div>';
-
-  h+=sec("abilities",'Abilities <span class="sub">(prof. '+sgn(pb)+')</span>','<div class="abil">'+
-    ABIL.map(k=>'<div class="ab"><div class="nm">'+ABN[k]+'</div><div class="md">'+sgn(mod(c.abilities[k]))+'</div><input type="number" min="1" max="30" aria-label="'+ABN[k]+' score" data-path="abilities.'+k+'" value="'+c.abilities[k]+'"'+dis+'></div>').join("")+'</div>');
-
-  h+=sec("combat","Combat",'<div class="row cols4">'+
-    fld("ac","Armor class",c.ac,"number",dis)+fld("speed","Speed (ft)",c.speed,"number",dis)+fld("hpMax","Max HP",c.hpMax,"number",dis)+fld("hp","Current HP",c.hp,"number",dis)+
-    fld("hpTemp","Temp HP",c.hpTemp,"number",dis)+fld("hitDice","Hit dice",c.hitDice,"text",dis)+
-    fld("deathS","Death save successes",c.deathS,"number",dis,'min="0" max="3"')+fld("deathF","Death save failures",c.deathF,"number",dis,'min="0" max="3"')+
-    fld("inspiration","Inspiration",c.inspiration,"number",dis,'min="0"')+
-    '</div><div class="row cols2" style="margin-top:10px">'+fld("conditions","Conditions",c.conditions,"text",dis)+'</div>');
-
-  h+=sec("attacks","Attacks",(c.attacks.length?'':'<div class="sub" style="margin-bottom:6px">No attacks yet.</div>')+
-    c.attacks.map((a,i)=>'<div class="atk"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+esc(a.name)+'"'+dis+'>'+
-      '<input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+esc(a.bonus)+'"'+dis+'>'+
-      '<input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+esc(a.dmg)+'"'+dis+'>'+
-      '<button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack"'+dis+'>✕</button>'+
-      '<input type="text" placeholder="Notes (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+esc(a.notes||"")+'"'+dis+'></div>').join("")+
-    '<button class="btn small" data-act="addatk"'+dis+'>Add attack</button>');
-
-  h+=sec("actions","Actions",entryList("actions",c.actions,dis,"Add action"));
-  h+=sec("features","Class features",entryList("features",c.features,dis,"Add feature"));
-  h+=sec("traits","Traits &amp; background",entryList("traits",c.traits,dis,"Add trait"));
-
-  h+='<div class="two">'+
-    sec("saves","Saving throws",ABIL.map(k=>{const p=c.saveProf[k]?1:0;return '<div class="prof"><input type="checkbox" aria-label="'+ABN[k]+' save proficiency" data-path="saveProf.'+k+'"'+(p?" checked":"")+dis+'> '+ABN[k]+'<span class="val">'+sgn(mod(c.abilities[k])+p*pb)+'</span></div>'}).join(""))+
-    sec("skills",'Skills <span class="sub">(○ none ● prof ◉ expert)</span>',SKILLS.map(s=>{const lv=Number(c.skillProf[s[0]]||0);return '<div class="prof"><button type="button" class="btn small" style="min-width:44px" data-act="skill" data-skill="'+esc(s[0])+'"'+dis+' aria-label="'+esc(s[0])+' proficiency level">'+["○","●","◉"][lv]+'</button> '+s[0]+' <span class="sub">('+s[1]+')</span><span class="val">'+sgn(skillTotal(c,s))+'</span></div>'}).join(""))+
-    '</div>';
-
-  const sa=c.spellAbility;
-  h+=sec("spells","Spellcasting",'<div class="row cols4"><label class="f">Spellcasting ability<select data-path="spellAbility"'+dis+'><option value="">None</option>'+
-    ABIL.map(k=>'<option value="'+k+'"'+(sa===k?" selected":"")+'>'+ABN[k]+'</option>').join("")+'</select></label>'+
-    (sa?'<div class="stat"><b>'+sgn(pb+mod(c.abilities[sa]))+'</b><span>Spell attack</span></div><div class="stat"><b>'+(8+pb+mod(c.abilities[sa]))+'</b><span>Spell save DC</span></div>':'')+
-    '</div><div class="slots" style="margin:10px 0">'+
-    [1,2,3,4,5,6,7,8,9].map(l=>{
-      const s=c.slots[l]||{max:0,used:0};let pips="";
-      for(let i=0;i<s.max;i++)pips+='<button type="button" class="pip'+(i<s.used?" used":"")+'" data-act="pip" data-lvl="'+l+'" data-i="'+i+'" aria-label="Level '+l+' slot '+(i+1)+(i<s.used?" used":" available")+'"'+dis+'></button>';
-      return '<div class="slot">Level '+l+' <input type="number" min="0" max="9" style="width:54px;padding:2px 4px" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+s.max+'"'+dis+'><div class="pips">'+pips+'</div></div>';
-    }).join("")+'</div>'+
-    '<label class="f">Spells and cantrips (one per line)<textarea data-path="spellList"'+dis+'>'+esc(c.spellList)+'</textarea></label>'+
-    '<div style="margin-top:10px">'+entryList("spellInfo",c.spellInfo,dis,"Add spellcasting note")+'</div>');
-
-  h+=sec("inventory","Inventory",'<div class="row cols4" style="margin-bottom:8px">'+fld("gold","Gold (gp)",c.gold,"number",dis)+'</div><textarea data-path="inventory"'+dis+'>'+esc(c.inventory)+'</textarea>');
-  h+=sec("story","Languages, goals &amp; backstory",
-    '<label class="f">Languages<input type="text" data-path="languages" value="'+esc(c.languages)+'"'+dis+'></label>'+
-    '<label class="f" style="margin-top:8px">Goals<textarea data-path="goals"'+dis+'>'+esc(c.goals)+'</textarea></label>'+
-    '<label class="f" style="margin-top:8px">Backstory<textarea data-path="backstory"'+dis+'>'+esc(c.backstory)+'</textarea></label>');
-  h+=sec("notes","My notes",'<textarea data-path="notes"'+dis+'>'+esc(c.notes)+'</textarea>');
-  if(c.history.length)h+=sec("history","Level history",c.history.map(x=>'<div class="hist">'+esc(new Date(x.t).toLocaleDateString())+' · '+esc(x.text)+'</div>').join(""));
-  if(isDM())h+=sec("dmnotes","DM notes (players cannot see these)",'<textarea data-dm="notes">'+esc(dmNotes[openId]||"")+'</textarea>');
-  h+='<div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="signout">Sign out</button>'+(isDM()?'<button class="btn small danger" data-act="delsheet">Delete this sheet</button>':'')+'</div>';
+function hpGainDefault(c){const info=classInfo(c.cls),die=info?info.die:8;return Math.max(1,Math.floor(die/2)+1+mod(c.abilities.con))}
+function pips(n,used,act,extra,label){
+  let h='<div class="pips">';
+  for(let i=0;i<n;i++)h+='<button type="button" class="pip'+(i<used?" used":"")+'" data-act="'+act+'" data-i="'+i+'" '+(extra||"")+' aria-label="'+E(label)+' '+(i+1)+(i<used?" used":" available")+'"></button>';
+  return h+'</div>';
+}
+const RESET_LABEL={short:"Short rest",long:"Long rest",combat:"Per combat",hitdice:"Long rest (half back)",manual:"Manual"};
+function resView(r,i){
+  const left=Math.max(0,r.max-r.used);
+  let ctl;
+  if(r.max<=8)ctl=pips(r.max,r.used,"rpip",'data-r="'+i+'"',r.name);
+  else ctl='<div class="counter"><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="5">Use 5</button><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="1">Use 1</button><b>'+left+' / '+r.max+'</b><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="-1">+1</button></div>';
+  return '<div class="res"><div class="res-h"><b>'+E(r.name)+'</b><span class="sub">'+E(RESET_LABEL[r.reset]||"")+(r.max<=8?" · "+left+" left":"")+'</span></div>'+ctl+'</div>';
+}
+function resEdit(r,i){
+  return '<div class="entry-edit"><div class="h"><input type="text" aria-label="Resource name" data-path="resources.'+i+'.name" value="'+E(r.name)+'"><button class="btn small danger" data-act="delres" data-r="'+i+'" aria-label="Remove">✕</button></div>'+
+    '<div class="row cols4"><label class="f">Uses<input type="number" min="1" data-path="resources.'+i+'.max" value="'+r.max+'"></label><label class="f">Resets<select data-path="resources.'+i+'.reset">'+Object.keys(RESET_LABEL).map(k=>'<option value="'+k+'"'+(r.reset===k?" selected":"")+'>'+RESET_LABEL[k]+'</option>').join("")+'</select></label></div></div>';
+}
+function tabPlay(id){
+  const c=chars[id],pb=prof(c.level),st=spellStats(c),can=canEditChar(id);
+  let h='<div class="ident">'+E([c.race,c.cls+(c.subclass?" ("+c.subclass+")":""),c.level?"Level "+c.level:""].filter(Boolean).join(" · "))+'<br><span class="sub">'+E([c.background,c.alignment,c.player?"played by "+c.player:""].filter(Boolean).join(" · "))+'</span></div>';
+  if(lvlUp&&can)h+=lvlPanel(c);
+  if(ed())h+=basicsForm(c);
+  h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>Armor class</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile"><b>'+c.speed+'</b><span>Speed (ft)</span></div><div class="tile"><b>'+sgn(pb)+'</b><span>Proficiency</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive Perception</span></div>'+
+    (st?'<div class="tile"><b>'+st.dc+'</b><span>Spell save DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell attack</span></div>':'')+
+    '<div class="tile"><b>'+c.inspiration+'</b><span>Inspiration</span>'+(can?'<div class="ctl"><button class="btn small" data-act="insp" data-d="-1" aria-label="Use inspiration">−</button><button class="btn small" data-act="insp" data-d="1" aria-label="Gain inspiration">+</button></div>':'')+'</div></div>';
+  const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
+  h+='<div class="split"><div>';
+  h+='<div class="pane"><h3>Hit points</h3><div class="hp-big">'+c.hp+'<small> / '+c.hpMax+'</small>'+(c.hpTemp?' <span class="tmp">+'+c.hpTemp+' temp</span>':'')+'</div><div class="hpbar" style="margin:8px 0" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>';
+  if(c.hp===0)h+='<div class="res"><div class="res-h"><b>Death saves</b></div><div style="display:flex;gap:18px;flex-wrap:wrap"><div><div class="sub">Successes</div>'+pips(3,c.deathS,"death",'data-k="S"',"Death save success")+'</div><div><div class="sub">Failures</div>'+pips(3,c.deathF,"death",'data-k="F"',"Death save failure")+'</div></div></div>';
+  if(c.conditions)h+='<div class="conds" style="margin-top:6px">Conditions: '+E(c.conditions)+'</div>';
+  if(c.hitDice)h+='<div class="sub" style="margin-top:6px">Hit dice: '+E(c.hitDice)+'</div>';
   h+='</div>';
+  h+='<div class="pane"><h3>Resources &amp; rests</h3>'+(c.resources.length?c.resources.map((r,i)=>ed()?resEdit(r,i):resView(r,i)).join(""):'<div class="sub">No limited-use features tracked yet.</div>')+(ed()?'<button class="btn small" data-act="addres" style="margin-top:8px">Add resource</button>':'');
+  if(can)h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" data-act="rest" data-k="short">Short rest</button><button class="btn" data-act="rest" data-k="long">Long rest</button>'+(c.level<20?'<button class="btn primary" data-act="lvlopen">Level up</button>':'')+'</div>';
+  h+='</div></div><div>';
+  h+='<div class="pane"><h3>Attacks</h3>';
+  if(ed())h+=c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Notes (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button>';
+  else h+=c.attacks.length?c.attacks.map(a=>'<div class="atk-card"><b>'+E(a.name)+'</b><span class="hit">'+E(a.bonus)+'</span><span class="sub">'+E(a.dmg)+'</span>'+(a.notes?'<span class="sub dm2">'+E(a.notes)+'</span>':'')+'</div>').join(""):'<div class="sub">No attacks yet.</div>';
+  h+='</div><div class="pane"><h3>Actions</h3>'+entryList("actions",c.actions,"Add action")+'</div></div></div>';
+  return h;
+}
+function tabStats(id){
+  const c=chars[id],pb=prof(c.level),e=ed();
+  let h='<div class="pane"><h3>Abilities <span class="sub">proficiency '+sgn(pb)+'</span></h3><div class="abil">'+ABIL.map(k=>'<div class="ab"><div class="nm">'+ABN[k]+'</div><div class="md">'+sgn(mod(c.abilities[k]))+'</div>'+(e?'<input type="number" min="1" max="30" aria-label="'+ABN[k]+' score" data-path="abilities.'+k+'" value="'+c.abilities[k]+'">':'<div class="sc">'+c.abilities[k]+'</div>')+'</div>').join("")+'</div></div>';
+  h+='<div class="split"><div class="pane"><h3>Saving throws</h3>'+ABIL.map(k=>{const p=c.saveProf[k]?1:0;return '<div class="prof">'+(e?'<input type="checkbox" style="width:22px;height:22px" aria-label="'+ABN[k]+' save proficiency" data-path="saveProf.'+k+'"'+(p?" checked":"")+'>':'<span class="dot">'+(p?"●":"○")+'</span>')+ABN[k]+'<span class="val">'+sgn(mod(c.abilities[k])+p*pb)+'</span></div>'}).join("")+'</div>';
+  h+='<div class="pane"><h3>Skills <span class="sub">'+(e?"tap the circle to change":"● proficient ◉ expertise")+'</span></h3>'+SKILLS.map(s=>{const lv=Number(c.skillProf[s[0]]||0);return '<div class="prof">'+(e?'<button type="button" class="btn small" style="min-width:44px" data-act="skill" data-skill="'+E(s[0])+'" aria-label="'+E(s[0])+' proficiency level">'+["○","●","◉"][lv]+'</button>':'<span class="dot">'+["○","●","◉"][lv]+'</span>')+E(s[0])+' <span class="sub">'+s[1]+'</span><span class="val">'+sgn(skillTotal(c,s))+'</span></div>'}).join("")+'</div></div>';
+  return h;
+}
+function tabSpells(id){
+  const c=chars[id],e=ed(),st=spellStats(c);
+  let h='';
+  h+='<div class="pane"><h3>Spellcasting</h3>';
+  if(e)h+='<div class="row cols4"><label class="f">Spellcasting ability<select data-path="spellAbility"><option value="">None</option>'+ABIL.map(k=>'<option value="'+k+'"'+(c.spellAbility===k?" selected":"")+'>'+ABN[k]+'</option>').join("")+'</select></label></div>';
+  if(st)h+='<div class="tiles" style="margin-top:8px"><div class="tile"><b>'+st.dc+'</b><span>Spell save DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell attack</span></div><div class="tile"><b>'+ABN[c.spellAbility].slice(0,3).toUpperCase()+'</b><span>Ability</span></div></div>';
+  const lvls=[1,2,3,4,5,6,7,8,9].filter(l=>e||(c.slots[l]&&c.slots[l].max>0));
+  if(lvls.length)h+=lvls.map(l=>{const s=c.slots[l]||{max:0,used:0};return '<div class="slotrow"><span class="lv">Level '+l+'</span>'+(s.max>0?pips(s.max,s.used,"spip",'data-l="'+l+'"',"Level "+l+" slot"):'<span class="sub">none</span>')+(e?'<input type="number" min="0" max="9" style="width:64px" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+s.max+'">':'<span class="sub">'+(s.max-s.used)+" left</span>")+'</div>'}).join("");
+  else if(!st)h+='<div class="sub">No spell slots.</div>';
+  if(c.spellInfo.length)h+='<div style="margin-top:10px">'+entryList("spellInfo",c.spellInfo,"Add note")+'</div>';
+  h+='</div>';
+  const groups={};
+  c.spells.forEach((s,i)=>{const lv=s.level==null?-1:s.level;(groups[lv]=groups[lv]||[]).push({s:s,i:i})});
+  const order=Object.keys(groups).map(Number).sort((a,b)=>(a<0?99:a)-(b<0?99:b));
+  h+='<div class="pane"><h3>Spells <span class="sub">tap a spell for its rules</span></h3>';
+  if(!order.length)h+='<div class="sub">No spells yet. Find some in the Lookup tab and add them to your list.</div>';
+  order.forEach(lv=>{
+    h+='<div class="sub" style="margin:10px 0 6px;font-weight:700">'+(lv===0?"Cantrips":lv>0?"Level "+lv:"Other")+'</div>';
+    groups[lv].sort((a,b)=>a.s.name.localeCompare(b.s.name)).forEach(o=>{
+      if(e)h+='<div class="entry-edit"><div class="h"><input type="text" aria-label="Spell name" data-path="spells.'+o.i+'.name" value="'+E(o.s.name)+'"><select aria-label="Spell level" data-path="spells.'+o.i+'.level" style="width:110px">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'"'+(o.s.level===l?" selected":"")+'>'+(l===0?"Cantrip":"Lvl "+l)+'</option>').join("")+'</select><button class="btn small danger" data-act="delspell" data-i="'+o.i+'" aria-label="Remove spell">✕</button></div><textarea aria-label="Note" placeholder="Your note (optional)" data-path="spells.'+o.i+'.desc" style="min-height:48px">'+E(o.s.desc||"")+'</textarea></div>';
+      else h+='<details class="spell" data-n="'+E(o.s.name)+'" data-ci="'+E(id)+'" data-si="'+o.i+'"><summary>'+E(o.s.name)+'</summary><div class="spell-body"></div></details>';
+    });
+  });
+  if(e)h+='<div class="row cols2" style="margin-top:10px"><label class="f">Add a spell by name<input type="text" id="newSpell" placeholder="e.g. Shield"></label><label class="f">Level<select id="newSpellLv">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'">'+(l===0?"Cantrip":l)+'</option>').join("")+'</select></label></div><button class="btn small" data-act="addspellman" style="margin-top:8px">Add spell</button>';
+  h+='<div class="legal">Rules text shown is the '+lk.ver+' version. Switch versions in the Lookup tab.</div></div>';
+  return h;
+}
+function tabFeatures(id){
+  const c=chars[id];
+  return '<div class="split"><div class="pane"><h3>Class features</h3>'+entryList("features",c.features,"Add feature")+'</div><div class="pane"><h3>Traits &amp; background</h3>'+entryList("traits",c.traits,"Add trait")+'</div></div>';
+}
+function tabGear(id){
+  const c=chars[id],e=ed();
+  let h='<div class="split"><div class="pane"><h3>Inventory <span class="sub">'+c.gold+' gp</span></h3>';
+  if(e)h+='<div class="row cols4" style="margin-bottom:8px">'+inp("gold","Gold (gp)",c.gold,"number")+'</div>'+area("inventory","Items (one per line)",c.inventory);
+  else h+=c.inventory?'<ul style="margin:0;padding-left:20px">'+c.inventory.split("\n").filter(Boolean).map(l=>'<li style="margin-bottom:4px">'+E(l)+'</li>').join("")+'</ul>':'<div class="sub">Nothing carried.</div>';
+  h+='</div><div class="pane"><h3>Languages</h3>'+(e?inp("languages","Languages",c.languages,"text"):prose(c.languages))+'</div></div>';
+  h+='<div class="split"><div class="pane"><h3>Goals</h3>'+(e?area("goals","Goals (one per line)",c.goals):(c.goals?'<ul style="margin:0;padding-left:20px">'+c.goals.split("\n").filter(Boolean).map(l=>'<li style="margin-bottom:4px">'+E(l)+'</li>').join("")+'</ul>':'<div class="sub">—</div>'))+'</div>';
+  h+='<div class="pane"><h3>Backstory</h3>'+(e?area("backstory","Backstory",c.backstory):prose(c.backstory))+'</div></div>';
+  h+='<div class="pane"><h3>My notes <span class="sub">always editable</span></h3><textarea data-path="notes" aria-label="My notes" placeholder="Jot down names, clues, loot…">'+E(c.notes)+'</textarea></div>';
+  if(c.history.length)h+='<div class="pane"><h3>Level history</h3>'+c.history.map(x=>'<div class="hist">'+E(new Date(x.t).toLocaleDateString())+' · '+E(x.text)+'</div>').join("")+'</div>';
+  return h;
+}
+function tabDM(id){
+  const c=chars[id],code=claimByChar[id];
+  let h='<div class="pane"><h3>DM notes <span class="sub">players cannot see these</span></h3><textarea data-dm="notes" aria-label="DM notes" style="min-height:140px">'+E(dmNotes[id]||"")+'</textarea></div>';
+  if(!c.npc)h+='<div class="pane"><h3>Player login</h3><div class="sub" style="margin-bottom:8px">Player: <b>'+E(c.player||"not set")+'</b> · Login name: '+(code?'<code>'+E(code)+'</code>':'<b>none</b>')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="setcode" data-id="'+E(id)+'">Change login name</button><button class="btn small" data-act="matchcode" data-id="'+E(id)+'">Match player name</button></div></div>';
+  h+='<div class="pane"><h3>Danger zone</h3><button class="btn small danger" data-act="delsheet">Delete this sheet</button></div>';
+  return h;
+}
+
+/* ---- companions ---- */
+const KIND={pet:"Pet",form:"Wild Shape form",summon:"Summon",other:"Other"};
+function blankComp(){
+  const a={};ABIL.forEach(k=>a[k]=10);
+  return {name:"New creature",kind:"pet",visible:false,size:"",type:"",cr:"",ac:10,hp:1,hpMax:1,hpTemp:0,speed:"30 ft.",abilities:a,saves:"",skills:"",senses:"",languages:"",traits:[],actions:[],conditions:"",notes:"",updated:0};
+}
+function normComp(d){
+  const b=blankComp(),o=Object.assign({},b,d);
+  o.abilities=Object.assign({},b.abilities,d.abilities||{});
+  o.traits=Array.isArray(d.traits)?d.traits:[];o.actions=Array.isArray(d.actions)?d.actions:[];
+  o.visible=!!d.visible;return o;
+}
+function splitTop(s){
+  const out=[];let depth=0,cur="";
+  for(const ch of String(s||"")){
+    if(ch==="(")depth++;if(ch===")")depth=Math.max(0,depth-1);
+    if(ch===","&&depth===0){out.push(cur.trim());cur=""}else cur+=ch;
+  }
+  if(cur.trim())out.push(cur.trim());
+  return out;
+}
+function listToEntries(s){
+  return splitTop(s).map(t=>{const m=/^([^(]+?)\s*\((.*)\)\s*$/.exec(t);return m?{name:m[1].trim(),desc:m[2].trim()}:{name:t,desc:""}});
+}
+function fromMonster(m){
+  const c=blankComp();
+  c.name=m.name;c.type=m.type||"";c.cr=String(m.cr||"");c.ac=m.ac;c.hp=m.hp;c.hpMax=m.hp;c.speed=m.speed||"";
+  ABIL.forEach(k=>{c.abilities[k]=m[k]!=null?m[k]:10});
+  c.saves=m.saves||"";c.skills=m.skills||"";c.senses=m.senses||"";
+  c.traits=listToEntries(m.traits);c.actions=listToEntries(m.actions);
+  return c;
+}
+let monsterList=null;
+function loadMonsters(){
+  if(monsterList)return Promise.resolve(monsterList);
+  return fetch("monsters.json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(a=>{monsterList=a;return a});
+}
+function compHtml(cid,pid,c){
+  const dm=isDM(),key=cid+"|"+pid,edit=dm&&compEdit[key],ctl='data-ch="'+E(cid)+'" data-pid="'+E(pid)+'"';
+  const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
+  let h='<article class="comp"><div class="comp-h"><h3>'+E(c.name)+'</h3><span class="badge">'+E(KIND[c.kind]||"Creature")+'</span>'+(dm?(c.visible?'<span class="badge ok">Visible to player</span>':'<span class="badge">Hidden from player</span>'):'')+'</div>';
+  h+='<div class="sub">'+E([c.size,c.type,c.cr?"CR "+c.cr:""].filter(Boolean).join(" · "))+'</div>';
+  h+='<div class="hprow" style="margin-top:8px"><span class="hp-big" style="font-size:1.6rem">'+c.hp+'<small> / '+c.hpMax+(c.hpTemp?" +"+c.hpTemp:"")+' HP</small></span><span><button class="btn small" data-act="chp" '+ctl+' data-d="-5">−5</button> <button class="btn small" data-act="chp" '+ctl+' data-d="-1">−1</button> <button class="btn small" data-act="chp" '+ctl+' data-d="1">+1</button> <button class="btn small" data-act="chp" '+ctl+' data-d="5">+5</button></span></div>';
+  h+='<div class="hpbar" style="margin:6px 0 10px"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>';
+  h+='<div class="tiles"><div class="tile"><b>'+E(c.ac)+'</b><span>AC</span></div><div class="tile"><b style="font-size:1rem">'+E(c.speed)+'</b><span>Speed</span></div></div>';
+  h+='<div class="mini">'+ABIL.map(k=>'<div><b>'+sgn(mod(c.abilities[k]))+'</b>'+k.toUpperCase()+' '+c.abilities[k]+'</div>').join("")+'</div>';
+  [["Saves",c.saves],["Skills",c.skills],["Senses",c.senses],["Languages",c.languages]].forEach(x=>{if(x[1])h+='<div class="sub"><b>'+x[0]+':</b> '+E(x[1])+'</div>'});
+  if(c.traits.length)h+='<div class="sub" style="margin:8px 0 4px;font-weight:700">Traits</div>'+c.traits.map(t=>'<details class="entry"><summary>'+E(t.name)+'</summary><div class="body">'+prose(t.desc)+'</div></details>').join("");
+  if(c.actions.length)h+='<div class="sub" style="margin:8px 0 4px;font-weight:700">Actions</div>'+c.actions.map(t=>'<details class="entry"><summary>'+E(t.name)+'</summary><div class="body">'+prose(t.desc)+'</div></details>').join("");
+  h+='<div class="row cols2" style="margin-top:8px"><label class="f">Conditions<input type="text" data-comp="'+E(key)+'" data-path="conditions" value="'+E(c.conditions)+'"></label><label class="f">Notes<input type="text" data-comp="'+E(key)+'" data-path="notes" value="'+E(c.notes)+'"></label></div>';
+  if(dm){
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small'+(c.visible?'':' primary')+'" data-act="cvis" '+ctl+'>'+(c.visible?"Hide from player":"Show to player")+'</button><button class="btn small" data-act="cedit" '+ctl+'>'+(edit?"Done editing":"Edit stat block")+'</button><button class="btn small danger" data-act="cdel" '+ctl+'>Delete</button></div>';
+    if(edit){
+      const P=(path,label,val,type,extra)=>'<label class="f">'+label+'<input type="'+(type||"text")+'" data-comp="'+E(key)+'" data-path="'+path+'" value="'+E(val)+'"'+(extra||"")+'></label>';
+      h+='<div class="pane" style="margin-top:10px"><h3>Stat block</h3><div class="row cols4">'+P("name","Name",c.name)+'<label class="f">Kind<select data-comp="'+E(key)+'" data-path="kind">'+Object.keys(KIND).map(k=>'<option value="'+k+'"'+(c.kind===k?" selected":"")+'>'+KIND[k]+'</option>').join("")+'</select></label>'+P("size","Size",c.size)+P("type","Type",c.type)+P("cr","CR",c.cr)+P("ac","AC",c.ac,"number")+P("hpMax","Max HP",c.hpMax,"number")+P("hp","HP",c.hp,"number")+P("hpTemp","Temp HP",c.hpTemp,"number")+P("speed","Speed",c.speed)+'</div><div class="row cols4" style="margin-top:8px">'+ABIL.map(k=>P("abilities."+k,k.toUpperCase(),c.abilities[k],"number")).join("")+'</div><div class="row cols2" style="margin-top:8px">'+P("saves","Saves",c.saves)+P("skills","Skills",c.skills)+P("senses","Senses",c.senses)+P("languages","Languages",c.languages)+'</div>';
+      ["traits","actions"].forEach(list=>{
+        h+='<div class="sub" style="margin:10px 0 4px;font-weight:700">'+(list==="traits"?"Traits":"Actions")+'</div>'+c[list].map((t,i)=>'<div class="entry-edit"><div class="h"><input type="text" data-comp="'+E(key)+'" data-path="'+list+'.'+i+'.name" value="'+E(t.name)+'" aria-label="Name"><button class="btn small danger" data-act="cdelentry" '+ctl+' data-list="'+list+'" data-i="'+i+'">✕</button></div><textarea data-comp="'+E(key)+'" data-path="'+list+'.'+i+'.desc" aria-label="Description">'+E(t.desc)+'</textarea></div>').join("")+'<button class="btn small" data-act="caddentry" '+ctl+' data-list="'+list+'">Add '+(list==="traits"?"trait":"action")+'</button>';
+      });
+      h+='</div>';
+    }
+  }
+  return h+'</article>';
+}
+function compsFor(cid){return Object.keys(companions[cid]||{}).filter(pid=>isDM()||companions[cid][pid].visible).map(pid=>[pid,companions[cid][pid]])}
+function tabPets(id){
+  const list=compsFor(id);
+  let h='';
+  if(isDM()){
+    h+='<div class="pane"><h3>Add a creature for '+E((chars[id].name||"").split(" ")[0])+'</h3><div class="sub" style="margin-bottom:8px">Create it here, tweak the stat block, then press “Show to player”. Until then only you can see it.</div><div class="row cols2"><label class="f">Start from a monster<select id="cTemplate"><option value="">Loading list…</option></select></label><label class="f">Kind<select id="cKind">'+Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join("")+'</select></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="cadd" data-from="tpl">Add from monster</button><button class="btn" data-act="cadd" data-from="blank">Add blank creature</button></div></div>';
+    loadMonsters().then(a=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Choose…</option>'+a.map((m,i)=>'<option value="'+i+'">'+E(m.name)+' (CR '+E(m.cr)+')</option>').join("")}).catch(()=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Could not load monsters.json</option>'});
+  }
+  h+=list.length?list.map(x=>compHtml(id,x[0],x[1])).join(""):'<div class="empty">No creatures yet.'+(isDM()?"":" Your DM can give you a pet or a Wild Shape form.")+'</div>';
+  return h;
+}
+
+/* ---- messages ---- */
+function bubbles(cid){
+  const me=isDM()?"dm":"player",list=messages[cid]||[];
+  return list.length?list.map(m=>'<div class="bub '+(m.from===me?"me":"")+'">'+E(m.text)+'<div class="t">'+E(m.from==="dm"?"DM":"Player")+" · "+E(timeStr(m.t))+'</div></div>').join(""):'<div class="sub">No messages yet. Only you and '+(isDM()?"this player":"the DM")+' can see this conversation.</div>';
+}
+function msgPanel(cid){
+  return '<div class="pane"><h3>Private messages <span class="sub">'+(isDM()?"only this player and you":"only you and your DM")+'</span></h3><div class="thread" id="thread" data-char="'+E(cid)+'">'+bubbles(cid)+'</div><div class="composer"><textarea id="msgIn" rows="2" placeholder="Write a message…" aria-label="Message"></textarea><button class="btn primary" data-act="send" data-char="'+E(cid)+'">Send</button></div></div>';
+}
+function updateThread(){
+  const t=$("thread");if(!t)return;
+  const atEnd=t.scrollHeight-t.scrollTop-t.clientHeight<60;
+  t.innerHTML=bubbles(t.dataset.char);
+  if(atEnd)t.scrollTop=t.scrollHeight;
+  markRead(t.dataset.char);
+}
+function markRead(cid){
+  const who=isDM()?"player":"dm",flag=isDM()?"readByDM":"readByPlayer";
+  (messages[cid]||[]).forEach(m=>{
+    if(m.from===who&&!m[flag]&&!markedRead.has(m.id)){
+      markedRead.add(m.id);
+      setDoc(doc(db,"characters",cid,"messages",m.id),{[flag]:true},{merge:true}).catch(()=>markedRead.delete(m.id));
+    }
+  });
+}
+async function sendMsg(cid,text){
+  text=String(text||"").trim();if(!text)return false;
+  const from=isDM()?"dm":"player";
+  try{
+    await setDoc(doc(collection(db,"characters",cid,"messages")),{from:from,text:text,t:Date.now(),readByDM:from==="dm",readByPlayer:from==="player"});
+    return true;
+  }catch(e){setStatus("Could not send ("+(e&&e.code||"error")+")",true);return false}
+}
+function renderDMMsgs(){
+  const host=$("viewMsgs"),ids=Object.keys(chars).filter(id=>!chars[id].npc).sort((a,b)=>String(chars[a].name).localeCompare(String(chars[b].name)));
+  if(dmMsgChar&&chars[dmMsgChar]){
+    host.innerHTML='<div class="dmbar"><button class="btn small" data-act="msgback">‹ All players</button><b>'+E((chars[dmMsgChar].name||"").split(" ")[0])+'</b> <span class="sub">'+E(chars[dmMsgChar].player||"")+'</span></div>'+msgPanel(dmMsgChar);
+    const t=$("thread");if(t)t.scrollTop=t.scrollHeight;markRead(dmMsgChar);return;
+  }
+  host.innerHTML='<div class="pane"><h3>Messages</h3>'+(ids.length?ids.map(id=>{const list=messages[id]||[],last=list[list.length-1],un=unreadFrom(id,"player");
+    return '<button class="btn" style="width:100%;text-align:left;margin-bottom:8px;display:block" data-act="msgopen" data-id="'+E(id)+'"><b>'+E((chars[id].name||"").split(" ")[0])+'</b> <span class="sub">'+E(chars[id].player||"")+'</span>'+(un?' <span class="badge ok">'+un+' new</span>':'')+'<div class="sub" style="font-weight:400">'+(last?E((last.from==="dm"?"You: ":"")+last.text.slice(0,80)):"No messages yet")+'</div></button>'}).join(""):'<div class="sub">No players yet.</div>')+'</div>'+
+    '<div class="pane"><h3>Message everyone</h3><div class="composer"><textarea id="bcastIn" rows="2" placeholder="Sent privately to each player" aria-label="Message to all players"></textarea><button class="btn primary" data-act="bcast">Send to all</button></div></div>';
+}
+
+/* ================= sheet render ================= */
+function renderSheet(){
+  const host=$("viewSheet");
+  if(!openId||!chars[openId]){host.innerHTML='<div class="empty">Loading your sheet…</div>';return}
+  const c=chars[openId],can=canEditChar(openId);
+  if(!can)editMode=false;
+  let tab=sheetTab;
+  if(tab==="spells"&&!hasSpells(c)&&!editMode)tab="play";
+  let body="";
+  if(tab==="play")body=tabPlay(openId);
+  else if(tab==="stats")body=tabStats(openId);
+  else if(tab==="spells")body=tabSpells(openId);
+  else if(tab==="features")body=tabFeatures(openId);
+  else if(tab==="gear")body=tabGear(openId);
+  else if(tab==="pets")body=tabPets(openId);
+  else if(tab==="msgs")body=msgPanel(openId);
+  else if(tab==="lookup")body='<div id="lkHost"></div>';
+  else if(tab==="dm"&&isDM())body=tabDM(openId);
+  let h='<div class="sheet"><div class="sbar">'+(isDM()?'<button class="btn small" data-act="close" aria-label="Back to party">‹ Back</button>':'')+
+    '<div class="sbar-title"><strong>'+E((c.name||"Unnamed").split(" ")[0])+'</strong><span class="sub" id="sbarStat">'+E(sbarStat(c))+'</span></div>'+
+    (can&&["play","stats","spells","features","gear"].indexOf(tab)>=0?'<button class="btn small'+(editMode?" on":"")+'" data-act="edit" aria-pressed="'+editMode+'">'+(editMode?"✓ Done editing":"✎ Edit")+'</button>':'')+
+    (can&&tab==="play"?'<div class="hpctl"><input type="number" id="hpAmt" min="0" inputmode="numeric" aria-label="Amount of damage or healing" value="'+E(hpAmtVal)+'"><button class="btn dmg" data-act="dmg">Damage</button><button class="btn heal" data-act="heal">Heal</button></div>':'')+
+    '</div>'+body+'</div>';
   host.innerHTML=h;
   host.querySelectorAll("textarea").forEach(autosize);
+  if(tab==="lookup")renderLookup($("lkHost"));
+  if(tab==="msgs"){const t=$("thread");if(t){t.scrollTop=t.scrollHeight;markRead(openId)}}
 }
-$("sheetHost").addEventListener("toggle",e=>{
-  const d=e.target;
-  if(d&&d.dataset&&d.dataset.sec){secOpen[d.dataset.sec]=d.open;if(d.open)d.querySelectorAll("textarea").forEach(autosize)}
-},true);
+function sbarStat(c){return "HP "+c.hp+" / "+c.hpMax+(c.hpTemp?" (+"+c.hpTemp+")":"")+" · AC "+c.ac+" · Level "+c.level}
+function sheetFocused(){const a=document.activeElement;return !!(a&&$("app").contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
 
-/* ---------- editing ---------- */
+/* ================= nav & top-level render ================= */
+function navItems(){
+  const inSheet=!!(openId&&chars[openId]);
+  if(inSheet){
+    const c=chars[openId],items=[["play","🛡","Play"],["stats","📊","Stats"]];
+    if(hasSpells(c)||editMode)items.push(["spells","✨","Spells"]);
+    items.push(["features","📖","Features"],["gear","🎒","Gear"]);
+    if(compsFor(openId).length||isDM())items.push(["pets","🐾","Pets"]);
+    items.push(["msgs","✉️","Msgs"],["lookup","🔎","Lookup"]);
+    if(isDM())items.push(["dm","🔒","DM"]);
+    return {items:items,active:sheetTab,badge:{msgs:unreadFrom(openId,isDM()?"player":"dm")}};
+  }
+  if(isDM()){
+    let un=0;Object.keys(chars).forEach(id=>{un+=unreadFrom(id,"player")});
+    return {items:[["party","🏰","Party"],["msgs","✉️","Messages"],["lookup","🔎","Spells"],["campaign","📜","Campaign"]],active:dmTab,badge:{msgs:un}};
+  }
+  return {items:[],active:""};
+}
+function renderNav(){
+  const nav=$("bnav"),n=navItems();
+  nav.hidden=!n.items.length;
+  document.body.classList.toggle("nonav",!n.items.length);
+  const prev=nav.scrollLeft;
+  nav.innerHTML=n.items.map(i=>'<button class="'+(n.active===i[0]?"on":"")+'" data-act="nav" data-tab="'+i[0]+'" aria-label="'+i[2]+'"><span class="ico">'+i[1]+'</span>'+i[2]+(n.badge&&n.badge[i[0]]?'<span class="n">'+n.badge[i[0]]+'</span>':"")+'</button>').join("");
+  nav.scrollLeft=prev;
+  const on=nav.querySelector(".on");
+  if(on&&nav.scrollWidth>nav.clientWidth){
+    const l=on.offsetLeft,r=l+on.offsetWidth;
+    if(l<nav.scrollLeft||r>nav.scrollLeft+nav.clientWidth)nav.scrollLeft=Math.max(0,l-(nav.clientWidth-on.offsetWidth)/2);
+  }
+}
+function renderApp(){
+  if(!role)return;
+  const inSheet=!!(openId&&chars[openId]),dm=isDM();
+  const show={party:dm&&!inSheet&&dmTab==="party",msgs:dm&&!inSheet&&dmTab==="msgs",lookup:dm&&!inSheet&&dmTab==="lookup",camp:dm&&!inSheet&&dmTab==="campaign",sheet:inSheet||(!dm)};
+  $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewCampaign").hidden=!show.camp;$("viewSheet").hidden=!show.sheet;
+  document.body.classList.toggle("compact",show.sheet||show.camp);
+  if(!show.party)$("viewParty").innerHTML="";
+  if(!show.msgs)$("viewMsgs").innerHTML="";
+  if(!show.lookup)$("viewLookup").innerHTML="";
+  if(!show.sheet)$("viewSheet").innerHTML="";
+  const focused=sheetFocused();
+  if(show.party&&(!focused||!$("viewParty").firstChild))renderParty();
+  if(show.msgs){if(dmMsgChar&&$("thread"))updateThread();else if(!focused||!$("viewMsgs").firstChild)renderDMMsgs()}
+  if(show.lookup&&!$("viewLookup").firstChild)renderLookup($("viewLookup"));
+  if(show.camp)ensureCampaign();
+  if(show.sheet){
+    if(!focused||!$("viewSheet").firstChild)renderSheet();
+    else{const t=$("thread");if(t&&sheetTab==="msgs")updateThread();const sb=$("sbarStat");if(sb&&chars[openId])sb.textContent=sbarStat(chars[openId])}
+  }
+  renderNav();
+}
+
+/* ================= events ================= */
 function setPath(obj,path,val){
   const p=path.split(".");let o=obj;
   for(let i=0;i<p.length-1;i++){if(o[p[i]]==null)o[p[i]]={};o=o[p[i]]}
   o[p[p.length-1]]=val;
 }
-function commit(id,keys,rerender){queueSave(id,keys);renderParty();if(rerender)renderSheet()}
-
-$("sheetHost").addEventListener("input",e=>{
+document.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="hpAmt"){hpAmtVal=t.value;return}
+  if(t.id==="lkQ"){lk.q=t.value;lk.limit=40;renderLookupResults();return}
   if(t.dataset&&t.dataset.dm==="notes"&&isDM()&&openId){dmNotes[openId]=t.value;autosize(t);queueNote(openId);return}
-  const path=t.getAttribute("data-path");
-  if(!path||!openId||!canEditChar(openId))return;
+  const path=t.getAttribute&&t.getAttribute("data-path");
+  if(!path)return;
   let val;
   if(t.type==="checkbox")val=t.checked;
   else if(t.type==="number")val=t.value===""?0:Number(t.value);
+  else if(t.tagName==="SELECT"&&/\.level$/.test(path))val=Number(t.value);
   else val=t.value;
+  if(t.dataset.comp){
+    const parts=t.dataset.comp.split("|"),c=companions[parts[0]]&&companions[parts[0]][parts[1]];
+    if(!c)return;setPath(c,path,val);if(t.tagName==="TEXTAREA")autosize(t);
+    saveComp(parts[0],parts[1],[path.split(".")[0]]);return;
+  }
+  if(!openId||!canEditChar(openId))return;
   setPath(chars[openId],path,val);
   if(t.tagName==="TEXTAREA")autosize(t);
   const sb=$("sbarStat");if(sb)sb.textContent=sbarStat(chars[openId]);
-  commit(openId,[path.split(".")[0]],false);
+  saveChar(openId,[path.split(".")[0]]);
 });
-$("sheetHost").addEventListener("change",e=>{
-  const t=e.target,path=t.getAttribute("data-path");
-  if(!path||!openId||!canEditChar(openId))return;
-  if(/^(abilities|level|spellAbility|slots|saveProf)/.test(path)||t.type==="checkbox")renderSheet();
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.id==="lkVer"){lk.ver=t.value;lk.limit=40;loadSpells(lk.ver).then(()=>renderLookupResults()).catch(()=>{});renderLookupResults();return}
+  if(t.id==="lkCls"){lk.cls=t.value;lk.limit=40;renderLookupResults();return}
+  if(t.id==="lkSch"){lk.sch=t.value;lk.limit=40;renderLookupResults();return}
+  const path=t.getAttribute&&t.getAttribute("data-path");
+  if(!path||t.dataset.comp||!openId||!canEditChar(openId))return;
+  if(/^(abilities|level|spellAbility|slots|saveProf|resources)/.test(path)||t.type==="checkbox"||/^spells\.\d+\.level$/.test(path))renderSheet();
 });
-$("sheetHost").addEventListener("click",async e=>{
-  const b=e.target.closest("[data-act]");if(!b||!openId)return;
-  const act=b.getAttribute("data-act"),c=chars[openId];
-  if(act==="signout"){doSignOut();return}
-  if(act==="close"){openId=null;lvlUp=null;renderSheet();window.scrollTo(0,0);return}
-  if(!c)return;
-  if(act==="delsheet"&&isDM()){
-    if(!confirm("Delete “"+(c.name||"this sheet")+"” for good? This also removes its DM notes and player code."))return;
-    const id=openId;openId=null;lvlUp=null;renderSheet();window.scrollTo(0,0);
-    try{
-      await deleteDoc(doc(db,"characters",id));
-      await deleteDoc(doc(db,"dmnotes",id));
-      if(claimByChar[id])await deleteDoc(doc(db,"claims",claimByChar[id]));
-    }catch(err){setStatus("Could not delete ("+(err&&err.code||"error")+")",true)}
-    return;
-  }
-  if(!canEditChar(openId))return;
-  if(act==="dmg"||act==="heal"){
-    const amt=Math.max(0,Math.floor(Number(hpAmtVal)||0));
-    if(act==="dmg"){
-      let rem=amt;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;
-      c.hp=Math.max(0,c.hp-rem);
-    }else c.hp=Math.min(c.hpMax,c.hp+amt);
-    commit(openId,["hp","hpTemp"],true);return;
-  }
-  if(act==="skill"){const s=b.getAttribute("data-skill");c.skillProf[s]=((Number(c.skillProf[s])||0)+1)%3;commit(openId,["skillProf"],true)}
-  else if(act==="pip"){
-    const l=b.getAttribute("data-lvl"),i=Number(b.getAttribute("data-i")),sl=c.slots[l]||(c.slots[l]={max:0,used:0});
-    sl.used=(i<sl.used)?i:i+1;commit(openId,["slots"],true);
-  }
-  else if(act==="addatk"){c.attacks.push({name:"",bonus:"",dmg:"",notes:""});commit(openId,["attacks"],true)}
-  else if(act==="delatk"){c.attacks.splice(Number(b.getAttribute("data-i")),1);commit(openId,["attacks"],true)}
-  else if(act==="addentry"){const l=b.getAttribute("data-list");(c[l]=c[l]||[]).push({name:"",desc:""});commit(openId,[l],true)}
-  else if(act==="delentry"){const l=b.getAttribute("data-list");c[l].splice(Number(b.getAttribute("data-i")),1);commit(openId,[l],true)}
-  else if(act==="lvlopen"){lvlUp={gain:hpGainDefault(c)};renderSheet();$("sheetHost").scrollIntoView({block:"start"})}
-  else if(act==="lvlcancel"){lvlUp=null;renderSheet()}
-  else if(act==="lvlconfirm"){
-    const gain=Math.max(0,Math.floor(Number($("lvGain").value)||0));
-    const updSlots=$("lvSlots")?$("lvSlots").checked:false;
-    const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level;
-    c.level=nl;c.hpMax+=gain;c.hp+=gain;
-    const m=/^(\d+)d(\d+)$/.exec(String(c.hitDice||"").trim());
-    c.hitDice=nl+"d"+(m?m[2]:die);
-    if(updSlots)c.slots=slotsFor(info,nl,c.slots);
-    c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP"}].concat(c.history).slice(0,30);
-    lvlUp=null;
-    commit(openId,["level","hpMax","hp","hitDice","slots","history"],true);
-    window.scrollTo(0,0);
-  }
-});
-$("party").addEventListener("click",e=>{
-  const card=e.target.closest(".card"),b=e.target.closest("[data-act]");
-  if(!card||!b)return;
-  const id=card.getAttribute("data-id"),act=b.getAttribute("data-act");
-  if(act==="open"){
-    openId=id;lvlUp=null;renderSheet();
-    if(WIDE())$("sheetHost").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
-    else window.scrollTo(0,0);
-  }else if(act==="hp"&&canEditChar(id)){
-    const c=chars[id],d=Number(b.getAttribute("data-d"));
-    c.hp=Math.max(0,Math.min(c.hpMax,c.hp+d));
-    commit(id,["hp"],openId===id);
-  }
-});
-
-/* ---------- DM tools ---------- */
-function newCode(id){
-  const al="abcdefghjkmnpqrstuvwxyz23456789";let s="";
-  const arr=new Uint32Array(6);crypto.getRandomValues(arr);
-  arr.forEach(n=>{s+=al[n%al.length]});
-  return id+"-"+s;
-}
-async function resetCode(id){
-  const old=claimByChar[id];
-  if(old&&!confirm("Make a new code? The old one stops working and anyone using it is locked out of this sheet."))return;
-  try{
-    const code=newCode(id);
-    await setDoc(doc(db,"claims",code),{charId:id});
-    if(old)await deleteDoc(doc(db,"claims",old));
-    setStatus("New code created");
-  }catch(err){setStatus("Could not make code ("+(err&&err.code||"error")+")",true)}
-}
-$("codesList").addEventListener("click",e=>{
+document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
-  const act=b.getAttribute("data-act");
-  if(act==="copy"){
-    const code=b.getAttribute("data-code");
-    (navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).then(()=>setStatus("Copied "+code)).catch(()=>{window.prompt("Copy this code:",code)});
-  }else if(act==="reset")resetCode(b.getAttribute("data-id"));
+  const act=b.getAttribute("data-act"),c=openId?chars[openId]:null;
+  switch(act){
+    case "nav":{
+      const tab=b.dataset.tab;
+      if(openId&&chars[openId]){sheetTab=tab;lvlUp=null;renderSheet();renderNav();window.scrollTo(0,0)}
+      else{dmTab=tab;if(tab!=="msgs")dmMsgChar=null;renderApp();window.scrollTo(0,0)}
+      return}
+    case "signout":return doSignOut();
+    case "close":openId=null;lvlUp=null;sheetTab="play";editMode=false;renderApp();window.scrollTo(0,0);return;
+    case "open":{const card=b.closest(".card");openId=card.dataset.id;sheetTab="play";lvlUp=null;editMode=false;renderApp();window.scrollTo(0,0);return}
+    case "hp":{const card=b.closest(".card"),id=card.dataset.id,x=chars[id];x.hp=Math.max(0,Math.min(x.hpMax,x.hp+Number(b.dataset.d)));saveChar(id,["hp"]);renderParty();return}
+    case "edit":editMode=!editMode;renderSheet();renderNav();return;
+    case "import":$("importIn").click();return;
+    case "addnpc":return addNpc();
+    case "copy":{const code=b.dataset.code;(navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).then(()=>setStatus("Copied "+code)).catch(()=>window.prompt("Copy this:",code));return}
+    case "setcode":return changeCode(b.dataset.id);
+    case "matchcode":return setCodeTo(b.dataset.id,slugName(chars[b.dataset.id].player||chars[b.dataset.id].name));
+    case "namecodes":return allNameCodes();
+    case "msgopen":dmMsgChar=b.dataset.id;renderDMMsgs();return;
+    case "msgback":dmMsgChar=null;renderDMMsgs();return;
+    case "send":{const ta=$("msgIn");if(await sendMsg(b.dataset.char,ta.value)){ta.value=""}return}
+    case "bcast":{const ta=$("bcastIn"),txt=ta.value.trim();if(!txt)return;for(const id of Object.keys(chars).filter(i=>!chars[i].npc))await sendMsg(id,txt);ta.value="";setStatus("Sent to everyone");return}
+    case "lklv":lk.lv=b.dataset.v;lk.limit=40;renderLookup(b.closest("#viewLookup")||$("lkHost"));return;
+    case "lkconc":lk.conc=!lk.conc;lk.limit=40;renderLookup(b.closest("#viewLookup")||$("lkHost"));return;
+    case "lkrit":lk.rit=!lk.rit;lk.limit=40;renderLookup(b.closest("#viewLookup")||$("lkHost"));return;
+    case "lkmore":lk.limit+=40;renderLookupResults();return;
+    case "savecs":return saveCustomSpell();
+    case "delcs":{if(confirm("Delete the custom spell “"+b.dataset.n+"”?"))deleteDoc(doc(db,"customSpells",slugId(b.dataset.n))).catch(()=>setStatus("Could not delete",true));return}
+    case "addspell":{const ch=chars[charId];if(!ch)return;ch.spells.push({name:b.dataset.n,level:Number(b.dataset.l),desc:""});saveChar(charId,["spells"]);b.outerHTML='<span class="sub">Added to your spells.</span>';return}
+    case "campParty":return sendParty(true);
+    case "cadd":return addComp(b);
+    case "cvis":{const x=companions[b.dataset.ch][b.dataset.pid];x.visible=!x.visible;saveComp(b.dataset.ch,b.dataset.pid,["visible"]);renderSheet();return}
+    case "cedit":{const k=b.dataset.ch+"|"+b.dataset.pid;compEdit[k]=!compEdit[k];renderSheet();return}
+    case "cdel":{if(confirm("Delete this creature?"))deleteDoc(doc(db,"characters",b.dataset.ch,"companions",b.dataset.pid)).catch(()=>setStatus("Could not delete",true));return}
+    case "chp":{const x=companions[b.dataset.ch]&&companions[b.dataset.ch][b.dataset.pid];if(!x)return;x.hp=Math.max(0,Math.min(x.hpMax,x.hp+Number(b.dataset.d)));saveComp(b.dataset.ch,b.dataset.pid,["hp"]);renderSheet();return}
+    case "caddentry":{const x=companions[b.dataset.ch][b.dataset.pid];x[b.dataset.list].push({name:"",desc:""});saveComp(b.dataset.ch,b.dataset.pid,[b.dataset.list]);renderSheet();return}
+    case "cdelentry":{const x=companions[b.dataset.ch][b.dataset.pid];x[b.dataset.list].splice(Number(b.dataset.i),1);saveComp(b.dataset.ch,b.dataset.pid,[b.dataset.list]);renderSheet();return}
+  }
+  if(!c||!canEditChar(openId)){if(act==="delsheet"&&isDM()&&c)return delSheet();return}
+  const id=openId;
+  switch(act){
+    case "dmg":case "heal":{
+      const amt=Math.max(0,Math.floor(Number(hpAmtVal)||0));
+      if(act==="dmg"){let rem=amt;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem)}
+      else{if(c.hp===0&&amt>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+amt)}
+      saveChar(id,["hp","hpTemp","deathS","deathF"]);renderSheet();return}
+    case "insp":c.inspiration=Math.max(0,c.inspiration+Number(b.dataset.d));saveChar(id,["inspiration"]);renderSheet();return;
+    case "death":{const k=b.dataset.k,i=Number(b.dataset.i),f=k==="S"?"deathS":"deathF";c[f]=(i<c[f])?i:i+1;saveChar(id,[f]);renderSheet();return}
+    case "rpip":{const r=c.resources[Number(b.dataset.r)],i=Number(b.dataset.i);r.used=(i<r.used)?i:i+1;saveChar(id,["resources"]);renderSheet();return}
+    case "rcnt":{const r=c.resources[Number(b.dataset.r)];r.used=Math.max(0,Math.min(r.max,r.used+Number(b.dataset.d)));saveChar(id,["resources"]);renderSheet();return}
+    case "spip":{const l=b.dataset.l,s=c.slots[l],i=Number(b.dataset.i);s.used=(i<s.used)?i:i+1;saveChar(id,["slots"]);renderSheet();return}
+    case "addres":c.resources.push({name:"New resource",max:1,used:0,reset:"long"});saveChar(id,["resources"]);renderSheet();return;
+    case "delres":c.resources.splice(Number(b.dataset.r),1);saveChar(id,["resources"]);renderSheet();return;
+    case "rest":return doRest(b.dataset.k);
+    case "skill":{const s=b.dataset.skill;c.skillProf[s]=((Number(c.skillProf[s])||0)+1)%3;saveChar(id,["skillProf"]);renderSheet();return}
+    case "addatk":c.attacks.push({name:"",bonus:"",dmg:"",notes:""});saveChar(id,["attacks"]);renderSheet();return;
+    case "delatk":c.attacks.splice(Number(b.dataset.i),1);saveChar(id,["attacks"]);renderSheet();return;
+    case "addentry":{const l=b.dataset.list;(c[l]=c[l]||[]).push({name:"",desc:""});saveChar(id,[l]);renderSheet();return}
+    case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}
+    case "delspell":c.spells.splice(Number(b.dataset.i),1);saveChar(id,["spells"]);renderSheet();return;
+    case "addspellman":{const n=$("newSpell").value.trim();if(!n)return;c.spells.push({name:n,level:Number($("newSpellLv").value),desc:""});saveChar(id,["spells"]);renderSheet();return}
+    case "lvlopen":lvlUp={gain:hpGainDefault(c)};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvlcancel":lvlUp=null;renderSheet();return;
+    case "lvlconfirm":return confirmLevelUp(c);
+    case "delsheet":return delSheet();
+  }
 });
-$("npcBtn").addEventListener("click",async()=>{
-  const id="npc"+Math.random().toString(36).slice(2,8);
-  const c=blank();c.name="New NPC";c.npc=true;c.updated=Date.now();
-  try{await setDoc(doc(db,"characters",id),c);chars[id]=c;openId=id;renderParty();renderSheet();window.scrollTo(0,0)}
+document.addEventListener("keydown",e=>{
+  if(e.target.id==="codeIn"&&e.key==="Enter")$("joinBtn").click();
+  if(e.target.id==="msgIn"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){const b=document.querySelector('[data-act="send"]');if(b)b.click()}
+});
+function doRest(kind){
+  const c=chars[openId],info=classInfo(c.cls),pact=info&&info.caster==="pact";
+  const msg=kind==="long"?"Take a long rest? This restores your HP, spell slots and all limited-use features.":"Take a short rest? This restores short-rest features"+(pact?" and your pact slots":"")+".";
+  if(!confirm(msg))return;
+  const keys=["resources"];
+  c.resources.forEach(r=>{
+    if(kind==="long"){if(r.reset==="hitdice")r.used=Math.max(0,r.used-Math.ceil(r.max/2));else if(r.reset!=="manual")r.used=0}
+    else if(r.reset==="short"||r.reset==="combat")r.used=0;
+  });
+  if(kind==="long"){c.hp=c.hpMax;c.hpTemp=0;c.deathS=0;c.deathF=0;Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("hp","hpTemp","deathS","deathF","slots")}
+  else if(pact){Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("slots")}
+  saveChar(openId,keys);renderSheet();setStatus(kind==="long"?"Long rest taken":"Short rest taken");
+}
+function confirmLevelUp(c){
+  const gain=Math.max(0,Math.floor(Number($("lvGain").value)||0));
+  const updSlots=$("lvSlots")?$("lvSlots").checked:false;
+  const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level;
+  c.level=nl;c.hpMax+=gain;c.hp+=gain;
+  const m=/^(\d+)d(\d+)$/.exec(String(c.hitDice||"").trim());
+  c.hitDice=nl+"d"+(m?m[2]:die);
+  c.resources.forEach(r=>{if(r.reset==="hitdice"){r.max=nl}});
+  if(updSlots)c.slots=slotsFor(info,nl,c.slots);
+  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP"}].concat(c.history).slice(0,30);
+  lvlUp=null;
+  saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources"]);
+  renderSheet();window.scrollTo(0,0);
+}
+
+/* ================= DM tools ================= */
+const slugId=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||("s"+Date.now());
+async function addNpc(){
+  const id="npc"+Math.random().toString(36).slice(2,8),c=blank();c.name="New NPC";c.npc=true;c.updated=Date.now();
+  try{await setDoc(doc(db,"characters",id),c);chars[id]=c;openId=id;sheetTab="play";editMode=true;renderApp();window.scrollTo(0,0)}
   catch(err){setStatus("Could not add NPC ("+(err&&err.code||"error")+")",true)}
-});
-$("importBtn").addEventListener("click",()=>$("importIn").click());
-$("importIn").addEventListener("change",async e=>{
+}
+async function delSheet(){
+  const c=chars[openId];if(!c)return;
+  if(!confirm("Delete “"+(c.name||"this sheet")+"” for good? This also removes its DM notes, creatures, messages and login name."))return;
+  const id=openId;openId=null;lvlUp=null;renderApp();
+  try{
+    for(const pid of Object.keys(companions[id]||{}))await deleteDoc(doc(db,"characters",id,"companions",pid));
+    for(const m of (messages[id]||[]))await deleteDoc(doc(db,"characters",id,"messages",m.id));
+    await deleteDoc(doc(db,"characters",id));
+    await deleteDoc(doc(db,"dmnotes",id));
+    if(claimByChar[id])await deleteDoc(doc(db,"claims",claimByChar[id]));
+  }catch(err){setStatus("Could not delete ("+(err&&err.code||"error")+")",true)}
+}
+async function setCodeTo(id,code){
+  code=slugName(code);
+  if(code.length<2){setStatus("A login name needs at least 2 letters or numbers",true);return false}
+  const taken=Object.keys(claimByChar).filter(k=>claimByChar[k]===code&&k!==id)[0];
+  if(taken){setStatus("“"+code+"” is already used by another character",true);return false}
+  const old=claimByChar[id];if(old===code)return true;
+  try{
+    await setDoc(doc(db,"claims",code),{charId:id});
+    claimByChar[id]=code;
+    if(old)await deleteDoc(doc(db,"claims",old));
+    setStatus("Login name set to “"+code+"”");return true;
+  }catch(err){setStatus("Could not set login name ("+(err&&err.code||"error")+")",true);return false}
+}
+function changeCode(id){
+  const cur=claimByChar[id]||slugName(chars[id].player||chars[id].name);
+  const v=window.prompt("Login name for "+(chars[id].player||chars[id].name)+" (letters and numbers only). Anyone who knows it can open this sheet, so use something harder to guess if you like.",cur);
+  if(v)setCodeTo(id,v).then(()=>renderApp());
+}
+async function allNameCodes(){
+  const ids=Object.keys(chars).filter(id=>!chars[id].npc);
+  for(const id of ids){await setCodeTo(id,slugName(chars[id].player||chars[id].name))}
+  renderApp();
+}
+async function saveCustomSpell(){
+  const name=$("csName").value.trim();if(!name){setStatus("Give the spell a name",true);return}
+  const s={n:name,l:Number($("csLevel").value),s:$("csSchool").value.trim(),t:$("csTime").value.trim(),r:$("csRange").value.trim(),c:$("csComp").value.trim(),d:$("csDur").value.trim(),k:$("csConc").checked?1:0,i:$("csRit").checked?1:0,cl:$("csCls").value.split(",").map(x=>x.trim()).filter(Boolean),x:$("csText").value,h:$("csHigh").value};
+  try{await setDoc(doc(db,"customSpells",slugId(name)),s);lk.csOpen=false;setStatus("Custom spell saved");renderLookup($("viewLookup").hidden?$("lkHost"):$("viewLookup"))}
+  catch(err){setStatus("Could not save spell ("+(err&&err.code||"error")+")",true)}
+}
+async function addComp(b){
+  const cid=openId;let c;
+  if(b.dataset.from==="tpl"){
+    const i=$("cTemplate").value;if(i==="")return;
+    const list=await loadMonsters();c=fromMonster(list[Number(i)]);
+  }else c=blankComp();
+  c.kind=$("cKind").value;c.updated=Date.now();
+  try{await setDoc(doc(collection(db,"characters",cid,"companions")),c);setStatus("Creature added (hidden from the player until you show it)")}
+  catch(err){setStatus("Could not add ("+(err&&err.code||"error")+")",true)}
+}
+document.addEventListener("change",async e=>{
+  if(e.target.id!=="importIn")return;
   const files=Array.from(e.target.files||[]);e.target.value="";
-  const msg=$("importMsg");msg.hidden=false;msg.textContent="Importing…";
+  const setMsg=t=>{importMsg=t;const m=$("importMsg");if(m){m.hidden=!t;m.textContent=t}};
+  setMsg("Importing…");
+  try{await loadSpells("2014")}catch(err){}
+  const levelOf=n=>{const s=findSpellIn("2014",n);return s?s.l:null};
   const done=[],skipped=[];
   for(const f of files){
     try{
       const j=JSON.parse(await f.text());
-      const r=convert(j),id=slugify(r.sheet.name);
-      if(chars[id]&&!confirm("A sheet for “"+chars[id].name+"” already exists. Replace it with "+f.name+"? This overwrites everything on that sheet."))
+      const r=convert(j,levelOf),id=slugify(r.sheet.name);
+      if(chars[id]&&!confirm("A sheet for “"+(chars[id].name||id).split(" ")[0]+"” already exists. Replace it with "+f.name+"? This overwrites everything on that sheet (HP, notes, level-ups)."))
         {skipped.push(f.name);continue}
       await setDoc(doc(db,"characters",id),r.sheet);
       await setDoc(doc(db,"dmnotes",id),{text:r.dm});
-      if(!claimByChar[id])await setDoc(doc(db,"claims",newCode(id)),{charId:id});
+      const have=(companions[id]||{}),names=Object.keys(have).map(k=>have[k].name);
+      for(const comp of r.companions){if(names.indexOf(comp.name)<0)await setDoc(doc(collection(db,"characters",id,"companions")),normComp(comp))}
+      chars[id]=normalize(r.sheet);
+      const want=slugName(r.sheet.player||r.sheet.name);
+      if(want)await setCodeTo(id,want);
       done.push(r.sheet.name.split(" ")[0]);
     }catch(err){skipped.push(f.name+" ("+(err&&err.code||err&&err.message||"error")+")")}
   }
-  msg.textContent=(done.length?"Imported: "+done.join(", ")+". Codes are under “Player codes”. ":"")+(skipped.length?"Skipped: "+skipped.join(", ")+".":"");
-  if(done.length)$("codesBox").open=true;
+  setMsg((done.length?"Imported: "+done.join(", ")+". Login names are under “Player names”. ":"")+(skipped.length?"Skipped: "+skipped.join(", ")+".":""));
+  if(done.length){codesOpen=true;const cb=$("codesBox");if(cb)cb.open=true}
 });
-
-/* ---------- live data ---------- */
-function mergeIncoming(remote){
-  const next={};
-  Object.keys(remote).forEach(id=>{
-    const r=normalize(remote[id]),p=pending[id];
-    if(p&&p.keys&&p.keys.size&&chars[id])p.keys.forEach(k=>{r[k]=chars[id][k]});
-    next[id]=r;
-  });
-  return next;
+function findSpellIn(ver,name){
+  const idx=spellIdx[ver];if(!idx)return null;
+  const n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
+  return idx.get(n)||idx.get(ALIAS[n]||"")||null;
 }
-function afterData(){
-  if(openId&&!chars[openId])openId=null;
-  renderParty();renderCodes();
-  if(openId&&!sheetFocused())renderSheet();
-  else if(!openId)renderSheet();
+
+/* ================= campaign tool (DM only) ================= */
+let campInit=false, campSent="";
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
+async function pack(str){
+  if(typeof CompressionStream==="undefined")return {enc:"raw",data:str};
+  const cs=new CompressionStream("gzip"),w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();
+  const buf=new Uint8Array(await new Response(cs.readable).arrayBuffer());let bin="";
+  for(let i=0;i<buf.length;i+=8192)bin+=String.fromCharCode.apply(null,buf.subarray(i,i+8192));
+  return {enc:"gzip",data:btoa(bin)};
+}
+async function unpack(enc,data){
+  if(enc!=="gzip"||!data)return data||"";
+  const bin=atob(data),buf=Uint8Array.from(bin,c=>c.charCodeAt(0)),ds=new DecompressionStream("gzip"),w=ds.writable.getWriter();
+  w.write(buf);w.close();return await new Response(ds.readable).text();
+}
+const campMeta=()=>{try{return JSON.parse(localStorage.getItem("lazy-dm-sync")||"{}")}catch(e){return {}}};
+function campStatus(t,err){const s=$("campStatus");if(s){s.textContent=t;s.className="sub"+(err?" err":"")}}
+async function pushCampaign(){
+  const v3=localStorage.getItem("lazy-dm-v3")||"",web=localStorage.getItem("lazy-dm-web")||"";
+  const a=await pack(v3),b=await pack(web);
+  if(a.data.length+b.data.length>900000){campStatus("Campaign data is too big to sync (over 900 KB). Export a session and clear old history.",true);return}
+  const updated=Date.now();
+  await setDoc(doc(db,"dmdata","lazydm"),{enc:a.enc,v3:a.data,web:b.data,updated:updated});
+  localStorage.setItem("lazy-dm-sync",JSON.stringify({updated:updated,v3:hash(v3),web:hash(web)}));
+  campStatus("Campaign saved to the cloud "+new Date(updated).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}));
+}
+async function pullCampaign(){
+  try{
+    const snap=await getDoc(doc(db,"dmdata","lazydm"));
+    const v3=localStorage.getItem("lazy-dm-v3"),web=localStorage.getItem("lazy-dm-web"),m=campMeta();
+    const localDirty=(v3||web)&&(hash(v3||"")!==m.v3||hash(web||"")!==m.web);
+    if(snap.exists()){
+      const d=snap.data(),cloudNewer=(d.updated||0)>(m.updated||0);
+      if(cloudNewer&&(!localDirty||confirm("The cloud copy of your campaign is newer than this device's copy. OK uses the cloud copy. Cancel keeps this device's copy and overwrites the cloud."))){
+        const a=await unpack(d.enc,d.v3),b=await unpack(d.enc,d.web);
+        if(a)localStorage.setItem("lazy-dm-v3",a);else localStorage.removeItem("lazy-dm-v3");
+        if(b)localStorage.setItem("lazy-dm-web",b);else localStorage.removeItem("lazy-dm-web");
+        localStorage.setItem("lazy-dm-sync",JSON.stringify({updated:d.updated,v3:hash(a||""),web:hash(b||"")}));
+        campStatus("Loaded your campaign from the cloud");
+      }else if(localDirty)await pushCampaign();
+      else campStatus("Campaign is up to date");
+    }else if(v3||web)await pushCampaign();
+    else campStatus("New campaign. It saves to the cloud automatically.");
+  }catch(e){campStatus("Could not reach the cloud copy ("+(e&&e.code||"error")+"). Changes stay on this device.",true)}
+}
+async function syncCampaignTick(){
+  if(!isDM()||!campInit)return;
+  const v3=localStorage.getItem("lazy-dm-v3")||"",web=localStorage.getItem("lazy-dm-web")||"",m=campMeta();
+  if(hash(v3)!==m.v3||hash(web)!==m.web){try{await pushCampaign()}catch(e){campStatus("Could not save to the cloud ("+(e&&e.code||"error")+")",true)}}
+}
+function toLegacy(id){
+  const c=chars[id],st=spellStats(c),pb=prof(c.level);
+  const spellNames=c.spells.map(s=>s.name+(s.level===0?" (cantrip)":""));
+  const out={name:c.name,player:c.player,size:c.size,race:c.race,type:"humanoid",class:c.cls,subclass:c.subclass,alignment:c.alignment,level:c.level,
+    ac:c.ac,hp:c.hpMax,hp_max:c.hpMax,hp_current:c.hp,hp_temp:c.hpTemp,hit_dice:c.hitDice,speed:c.speed+" ft.",stats:ABIL.map(k=>c.abilities[k]),
+    saves:ABIL.filter(k=>c.saveProf[k]).map(k=>k[0].toUpperCase()+k.slice(1)+" "+sgn(mod(c.abilities[k])+pb)),
+    skills:SKILLS.filter(s=>c.skillProf[s[0]]||c.skillExtra[s[0]]).map(s=>s[0]+" "+sgn(skillTotal(c,s))),
+    languages:String(c.languages||"").split(",").map(x=>x.trim()).filter(Boolean),proficiency:pb,passive_perception:passive(c),background:c.background,inspiration:c.inspiration,
+    equipment:String(c.inventory||"").split("\n").filter(Boolean).concat(c.gold?[c.gold+" gp"]:[]),spells:spellNames,
+    spellcasting:(st?[{name:"Spellcasting",desc:"Spell save DC "+st.dc+"; spell attack "+sgn(st.atk)+"."}]:[]).concat(c.spellInfo),
+    actions:c.attacks.map(a=>({name:a.name,desc:"Weapon Attack: "+a.bonus+" to hit. Hit: "+a.dmg+"."+(a.notes?" "+a.notes:"")})).concat(c.actions),
+    class_features:c.features,traits:c.traits,goals:String(c.goals||"").split("\n").filter(Boolean),backstory:c.backstory,notes:dmNotes[id]||""};
+  return out;
+}
+function sendParty(force){
+  const f=$("campFrame");if(!f||!f.contentWindow)return;
+  const sheets=Object.keys(chars).filter(id=>!chars[id].npc).map(toLegacy);
+  const json=JSON.stringify(sheets);
+  if(!force&&json===campSent)return;
+  campSent=json;f.contentWindow.postMessage({type:"party",sheets:sheets},location.origin);
+  campStatus("Party sheets sent to the campaign tool");
+}
+async function ensureCampaign(){
+  const host=$("viewCampaign");
+  if(campInit){sendParty(false);return}
+  campInit=true;
+  host.innerHTML='<div class="camp-bar"><span id="campStatus" class="sub">Loading your campaign…</span><button class="btn small" data-act="campParty">Refresh party sheets</button></div><iframe id="campFrame" title="Campaign tool"></iframe>';
+  await pullCampaign();
+  const f=$("campFrame");
+  f.addEventListener("load",()=>setTimeout(()=>sendParty(true),500));
+  f.src="campaign.html";
+  setInterval(syncCampaignTick,5000);
+  window.addEventListener("pagehide",()=>{syncCampaignTick()});
+}
+
+/* ================= live data ================= */
+function subscribeChar(id){
+  if(charSubs[id]||chars[id]&&chars[id].npc)return;
+  charSubs[id]=[
+    onSnapshot(collection(db,"characters",id,"companions"),snap=>{
+      const m={};snap.docs.forEach(d=>{m[d.id]=keepLocal("p:"+id+"/",d.id,normComp(d.data()||{}),companions[id]&&companions[id][d.id])});
+      companions[id]=m;renderApp();
+    },()=>{}),
+    onSnapshot(query(collection(db,"characters",id,"messages"),orderBy("t")),snap=>{
+      messages[id]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));renderApp();
+    },()=>{})
+  ];
 }
 function startApp(){
   $("gate").hidden=true;$("app").hidden=false;
-  unsubs.forEach(u=>u());unsubs=[];chars={};dmNotes={};claimByChar={};lvlUp=null;
-  $("who").innerHTML=(isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>');
-  $("dmBar").hidden=!isDM();$("partySec").hidden=!isDM();$("outBtn").hidden=false;
+  unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
+  chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;
+  $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
+  $("outBtn").hidden=false;
+  unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
-    openId=null;
+    openId=null;dmTab="party";sheetTab="play";
     unsubs.push(onSnapshot(collection(db,"characters"),snap=>{
-      const remote={};snap.docs.forEach(d=>{remote[d.id]=d.data()||{}});
-      chars=mergeIncoming(remote);afterData();setStatus("Live");
+      const next={};snap.docs.forEach(d=>{next[d.id]=keepLocal("c:",d.id,normalize(d.data()||{}),chars[d.id])});
+      chars=next;if(openId&&!chars[openId])openId=null;
+      Object.keys(chars).forEach(subscribeChar);
+      renderApp();setStatus("Live");
     },e=>setStatus("Sync problem ("+(e&&e.code||"error")+")",true)));
-    unsubs.push(onSnapshot(collection(db,"claims"),snap=>{
-      claimByChar={};snap.docs.forEach(d=>{const cid=(d.data()||{}).charId;if(cid&&!claimByChar[cid])claimByChar[cid]=d.id});
-      renderCodes();
-    },()=>{}));
+    unsubs.push(onSnapshot(collection(db,"claims"),snap=>{claimByChar={};snap.docs.forEach(d=>{const cid=(d.data()||{}).charId;if(cid)claimByChar[cid]=d.id});renderApp()},()=>{}));
     unsubs.push(onSnapshot(collection(db,"dmnotes"),snap=>{
       const next={};snap.docs.forEach(d=>{next[d.id]=(d.data()||{}).text||""});
-      const ta=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.dm;
-      if(!ta){dmNotes=next;if(openId&&!sheetFocused())renderSheet()}
+      const a=document.activeElement;if(!(a&&a.dataset&&a.dataset.dm))dmNotes=next;
     },()=>{}));
   }else{
-    openId=charId;
+    openId=charId;sheetTab="play";
     unsubs.push(onSnapshot(doc(db,"characters",charId),snap=>{
-      if(!snap.exists()){chars={};$("notice").innerHTML='<div class="note">Your sheet isn’t set up yet. Ask your DM.</div>';renderSheet();return}
+      if(!snap.exists()){chars={};$("notice").innerHTML='<div class="note">Your sheet isn’t set up yet. Ask your DM.</div>';renderApp();return}
       $("notice").innerHTML="";
-      const remote={};remote[charId]=snap.data()||{};
-      chars=mergeIncoming(remote);
-      if(!sheetFocused()||!$("sheetHost").firstChild)renderSheet();
-      setStatus("Live");
+      chars[charId]=keepLocal("c:",charId,normalize(snap.data()||{}),chars[charId]);
+      renderApp();setStatus("Live");
     },e=>{
-      if(e&&e.code==="permission-denied")showGate("Your code no longer works. Ask your DM for a new one.");
+      if(e&&e.code==="permission-denied")showGate("Your login no longer works. Type your name again, or ask your DM.");
       else setStatus("Sync problem ("+(e&&e.code||"error")+")",true);
     }));
+    unsubs.push(onSnapshot(query(collection(db,"characters",charId,"companions"),where("visible","==",true)),snap=>{
+      const m={};snap.docs.forEach(d=>{m[d.id]=keepLocal("p:"+charId+"/",d.id,normComp(d.data()||{}),companions[charId]&&companions[charId][d.id])});
+      companions[charId]=m;renderApp();
+    },()=>{}));
+    unsubs.push(onSnapshot(query(collection(db,"characters",charId,"messages"),orderBy("t")),snap=>{
+      messages[charId]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));renderApp();
+    },()=>{}));
   }
+  renderApp();
 }
 
-/* ---------- auth flow ---------- */
+/* ================= auth flow ================= */
 function showGate(msg){
-  unsubs.forEach(u=>u());unsubs=[];
+  unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
   chars={};openId=null;role=null;lvlUp=null;
-  document.body.classList.remove("sheet-open");
-  $("app").hidden=true;$("gate").hidden=false;$("sheetHost").innerHTML="";
+  $("app").hidden=true;$("gate").hidden=false;$("bnav").hidden=true;document.body.classList.add("nonav");document.body.classList.remove("compact");
   $("who").textContent="Not signed in";$("outBtn").hidden=!uid;
   const m=$("gateMsg");m.className="msg"+(msg?" err":"");m.textContent=msg||"";
 }
@@ -743,37 +1302,36 @@ async function enter(user){
     try{const m=await getDoc(doc(db,"members",uid));if(m.exists()&&m.data().charId){role="player";charId=m.data().charId}}catch(e){}
   }
   if(tok!==enterTok)return;
-  if(!role){showGate(isAnon?"":"That Google account isn’t the DM account. Players: enter your character code.");return}
+  if(!role){showGate(isAnon?"":"That Google account isn’t the DM account. Players: type your name.");return}
   startApp();
 }
 onAuthStateChanged(auth,user=>{enter(user)});
-
 $("joinBtn").addEventListener("click",async()=>{
-  const code=$("codeIn").value.trim().toLowerCase(),msg=$("gateMsg");
-  const i=code.lastIndexOf("-");
-  if(i<1){msg.className="msg err";msg.textContent="That doesn’t look like a character code. It looks like name-abc123.";return}
+  const code=slugName($("codeIn").value),msg=$("gateMsg");
+  if(code.length<2){msg.className="msg err";msg.textContent="Type your first name.";return}
   msg.className="msg";msg.textContent="Opening…";
   try{
     if(!auth.currentUser)await signInAnonymously(auth);
-    await setDoc(doc(db,"members",auth.currentUser.uid),{code:code,charId:code.slice(0,i),joinedAt:serverTimestamp()});
+    const claim=await getDoc(doc(db,"claims",code));
+    if(!claim.exists()){msg.className="msg err";msg.textContent="That name isn’t right. Check it with your DM.";return}
+    const cid=claim.data().charId;
+    await setDoc(doc(db,"members",auth.currentUser.uid),{code:code,charId:cid,joinedAt:serverTimestamp()});
     msg.textContent="";
     await enter(auth.currentUser);
   }catch(e){
     msg.className="msg err";
-    msg.textContent=(e&&e.code==="permission-denied")?"That code isn’t right. Check it with your DM.":"Could not open ("+(e&&e.code||"error")+").";
+    msg.textContent=(e&&e.code==="permission-denied")?"That name isn’t right. Check it with your DM.":"Could not open ("+(e&&e.code||"error")+").";
   }
 });
-$("codeIn").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinBtn").click()});
 $("googleBtn").addEventListener("click",async()=>{
   const msg=$("gateMsg2");msg.className="msg";msg.textContent="";
   try{await signInWithPopup(auth,new GoogleAuthProvider())}
   catch(e){msg.className="msg err";msg.textContent="Google sign-in failed ("+(e&&e.code||"error")+")."}
 });
 async function doSignOut(){
-  if(isAnon&&!confirm("Sign out? You’ll need your character code to open your sheet again."))return;
+  if(isAnon&&!confirm("Sign out? You can get back in any time by typing your name."))return;
   await signOut(auth);
 }
-$("outBtn").addEventListener("click",doSignOut);
 </script>
 </body>
 </html>

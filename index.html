@@ -12,13 +12,13 @@
 :root{
   --bg:#eef1ee; --panel:#fbfcfb; --ink:#17231f; --muted:#4f625c; --line:#c5d1cc;
   --accent:#17665d; --accent-ink:#ffffff; --brass:#8f6212;
-  --hp-ok:#23804d; --hp-mid:#b87a0c; --hp-low:#b3312a; --chip:#e1eae6; --field:#ffffff;
+  --hp-ok:#23804d; --hp-mid:#b87a0c; --hp-low:#b3312a; --chip:#e1eae6; --field:#ffffff; --react:#6b4aa8;
 }
 @media (prefers-color-scheme: dark){
   :root{
     --bg:#101614; --panel:#19231f; --ink:#e8f0ed; --muted:#a3b5af; --line:#2f3e39;
     --accent:#52bdb0; --accent-ink:#071210; --brass:#e0aa4a;
-    --hp-ok:#52cc87; --hp-mid:#e6ad45; --hp-low:#ee7068; --chip:#243029; --field:#121a17;
+    --hp-ok:#52cc87; --hp-mid:#e6ad45; --hp-low:#ee7068; --chip:#243029; --field:#121a17; --react:#b9a0f0;
   }
 }
 html{font-size:100%;-webkit-text-size-adjust:100%}
@@ -150,7 +150,7 @@ input[type=checkbox]{width:1.4rem;height:1.4rem;accent-color:var(--accent)}
 .res-h{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;margin-bottom:.4rem}
 .res-h b{font-weight:700;font-size:1.05rem}
 .counter{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.counter b{min-width:5rem;text-align:center;font-variant-numeric:tabular-nums;font-size:1.2rem}
+.counter b{min-width:3.6rem;text-align:center;font-variant-numeric:tabular-nums;font-size:1.2rem}
 .atk-card{display:grid;grid-template-columns:1fr auto;gap:.1rem .8rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
 .atk-card b{font-size:1.1rem}
 .atk-card .hit{font-weight:700;font-size:1.6rem;font-family:Georgia,serif;text-align:right;line-height:1}
@@ -158,9 +158,9 @@ input[type=checkbox]{width:1.4rem;height:1.4rem;accent-color:var(--accent)}
 .atkedit{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:.4rem;margin-bottom:.7rem}
 .atkedit>:nth-child(5){grid-column:1/-1}
 details.entry,details.spell{border:1px solid var(--line);border-radius:.8rem;margin-bottom:.5rem;background:var(--field)}
-details.entry>summary,details.spell>summary{list-style:none;cursor:pointer;padding:.6rem .9rem;min-height:3rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-weight:700;font-size:1.05rem}
+details.entry>summary,details.spell>summary{list-style:none;cursor:pointer;padding:.7rem .9rem;min-height:3rem;display:block;font-weight:700;font-size:1.05rem;line-height:1.35}
 details.entry>summary::-webkit-details-marker,details.spell>summary::-webkit-details-marker{display:none}
-details.entry>summary::before,details.spell>summary::before{content:"▸";color:var(--brass);transition:transform .15s}
+details.entry>summary::before,details.spell>summary::before{content:"▸";color:var(--brass);transition:transform .15s;display:inline-block;margin-right:.5rem}
 details[open].entry>summary::before,details[open].spell>summary::before{transform:rotate(90deg)}
 details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .prose{white-space:pre-wrap;overflow-wrap:anywhere}
@@ -235,8 +235,58 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
   .atkedit>:nth-child(2){grid-column:1;grid-row:2}
   .atkedit>:nth-child(3){grid-column:2/4;grid-row:2}
   .atkedit>:nth-child(5){grid-column:1/-1;grid-row:3}
+  .atkedit>:nth-child(n+6){grid-column:1/-1;grid-row:auto}
   .cols4{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ---------- Play tab: your turn ---------- */
+.play-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:.9rem;align-items:start}
+@media (max-width:900px){.play-grid{grid-template-columns:1fr}}
+.turn{background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:1rem;margin-bottom:.9rem}
+.turn>h3{font-size:1.4rem}
+.turn-sum{color:var(--muted);font-size:.98rem;margin:.2rem 0 .4rem}
+.tsec{border-left:7px solid var(--accent);padding:.1rem 0 .2rem .8rem;margin:1.1rem 0}
+.tsec.bonus{border-left-color:var(--brass)}
+.tsec.reaction{border-left-color:var(--react)}
+.tsec.free{border-left-color:var(--muted)}
+.tsec.other{border-left-color:var(--line)}
+.tsec-h{display:flex;align-items:baseline;gap:.2rem .7rem;flex-wrap:wrap;margin-bottom:.3rem}
+.tsec-h b{font-family:Georgia,serif;font-size:1.45rem}
+.tsec.action .tsec-h b{color:var(--accent)}
+.tsec.bonus .tsec-h b{color:var(--brass)}
+.tsec.reaction .tsec-h b{color:var(--react)}
+.tsec-h span{font-size:.88rem;color:var(--muted)}
+.tsub{font-weight:700;font-size:1.05rem;margin:.8rem 0 .15rem}
+.tsub .sub{font-weight:400;font-size:.9rem}
+.atk{background:var(--field);border:1px solid var(--line);border-radius:.9rem;padding:.7rem .85rem;margin:.55rem 0}
+.atk-top{display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+.atk-top b{font-size:1.2rem;line-height:1.2}
+.atk .hit{font-family:Georgia,serif;font-weight:700;font-size:2rem;line-height:1;text-align:right;flex:0 0 auto}
+.atk .hit small{display:block;font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.atk-dmg{font-weight:700;font-size:1.15rem;margin:.1rem 0 .3rem}
+.atk-meta{color:var(--muted);font-size:.93rem;display:flex;flex-wrap:wrap;gap:.3rem .7rem;align-items:center}
+.wm{background:var(--brass);color:#fff;border-radius:99px;padding:.02rem .65rem;font-weight:700;font-size:.85rem}
+.atk-fx{margin-top:.45rem;padding:.45rem .65rem;border-radius:.6rem;background:var(--chip);font-size:1rem;line-height:1.4}
+.atk-rules{margin:.55rem 0 0}
+.fx{padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.fx:last-child{border-bottom:0}
+.fx-top{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+.fx-top b{font-size:1.12rem}
+.fx-left{font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.fx-left .sub{font-weight:400}
+.fx-desc{margin:.2rem 0 .45rem;line-height:1.4}
+.empty-hint{color:var(--muted);font-size:.95rem;padding:.2rem 0}
+.slotbox{background:var(--chip);border-radius:.8rem;padding:.4rem .8rem;margin:.4rem 0 .6rem}
+.slotbox .slotrow:last-child{border-bottom:0}
+.refresher{margin-top:1rem}
+.tsec{scroll-margin-top:5rem}
+.jump{display:flex;gap:.45rem;flex-wrap:wrap;margin:.4rem 0 .2rem}
+.jump .chip{min-height:2.5rem;padding:.2rem .85rem}
+details.more{margin:.1rem 0 .4rem}
+details.more>summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.92rem;min-height:2.4rem;display:flex;align-items:center}
+details.more>.prose{padding:.2rem 0}
+.atkedit>:nth-child(n+6){grid-column:1/-1}
+
 @media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
 </style>
 </head>
@@ -500,12 +550,18 @@ function area(path,label,val,attrs){
 }
 const prose=t=>t?'<div class="prose">'+E(t)+'</div>':'<div class="sub">Nothing here yet.</div>';
 function autosize(t){if(t.scrollHeight>0){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}}
+function actionFields(list,e,i){
+  if(list!=="actions")return "";
+  const c=chars[openId]||{resources:[]};
+  return '<div class="row cols2" style="margin-top:.5rem"><label class="f">When you use it<select data-path="actions.'+i+'.act">'+ACT_OPTS.map(o=>'<option value="'+o[0]+'"'+(actType(e)===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></label>'+
+    '<label class="f">Shows the uses of<select data-path="actions.'+i+'.res"><option value="">Nothing</option>'+c.resources.map(r=>'<option'+(e.res===r.name?" selected":"")+'>'+E(r.name)+'</option>').join("")+'</select></label></div>';
+}
 function entryList(list,arr,label,attrs){
   const edit=ed()&&!attrs;
   if(!edit)return (arr.length?arr.map(e=>'<details class="entry"><summary>'+E(e.name||"Untitled")+'</summary><div class="body">'+prose(e.desc)+'</div></details>').join(""):'<div class="sub">Nothing here yet.</div>');
   return arr.map((e,i)=>'<div class="entry-edit"><div class="h"><input type="text" placeholder="Name" aria-label="Name" data-path="'+list+'.'+i+'.name" value="'+E(e.name)+'">'+
     '<button class="btn small danger" data-act="delentry" data-list="'+list+'" data-i="'+i+'" aria-label="Remove '+E(e.name)+'">✕</button></div>'+
-    '<textarea aria-label="Description" data-path="'+list+'.'+i+'.desc">'+E(e.desc)+'</textarea></div>').join("")+
+    '<textarea aria-label="Description" data-path="'+list+'.'+i+'.desc">'+E(e.desc)+'</textarea>'+actionFields(list,e,i)+'</div>').join("")+
     '<button class="btn small" data-act="addentry" data-list="'+list+'">'+E(label)+'</button>';
 }
 
@@ -710,6 +766,160 @@ function slotRows(c,e){
   const pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact";
   return lvls.map(l=>{const t=c.slots[l]||{max:0,used:0};return '<div class="slotrow"><span class="lv">Level '+l+(pact?" pact":"")+'</span>'+(t.max>0?pips(t.max,t.used,"spip",'data-l="'+l+'"',"Level "+l+" slot"):'<span class="sub">none</span>')+(e?'<input type="number" min="0" max="9" style="width:5rem" aria-label="Level '+l+' max slots" data-path="slots.'+l+'.max" value="'+t.max+'">':'<span class="sub">'+(t.max-t.used)+" left</span>")+'</div>'}).join("");
 }
+
+/* ===== 2024 reference data: weapons, properties and masteries (SRD 5.2, CC BY 4.0) ===== */
+const WREF={"weapons":{"Battleaxe":{"c":"Martial","r":"Melee","d":"1d8","t":"Slashing","p":["Versatile (1d10)"],"m":"Topple"},"Blowgun":{"c":"Martial","r":"Ranged","d":"1","t":"Piercing","p":["Ammunition (range 25/100)","Loading"],"m":"Vex"},"Club":{"c":"Simple","r":"Melee","d":"1d4","t":"Bludgeoning","p":["Light"],"m":"Slow"},"Dagger":{"c":"Simple","r":"Melee","d":"1d4","t":"Piercing","p":["Finesse","Light","Thrown (range 20/60)"],"m":"Nick"},"Dart":{"c":"Simple","r":"Ranged","d":"1d4","t":"Piercing","p":["Finesse","Thrown (range 20/60)"],"m":"Vex"},"Flail":{"c":"Martial","r":"Melee","d":"1d8","t":"Bludgeoning","p":[],"m":"Sap"},"Glaive":{"c":"Martial","r":"Melee","d":"1d10","t":"Slashing","p":["Heavy","Reach","Two-Handed"],"m":"Graze"},"Greataxe":{"c":"Martial","r":"Melee","d":"1d12","t":"Slashing","p":["Heavy","Two-Handed"],"m":"Cleave"},"Greatclub":{"c":"Simple","r":"Melee","d":"1d8","t":"Bludgeoning","p":["Two-Handed"],"m":"Push"},"Greatsword":{"c":"Martial","r":"Melee","d":"2d6","t":"Slashing","p":["Heavy","Two-Handed"],"m":"Graze"},"Halberd":{"c":"Martial","r":"Melee","d":"1d10","t":"Slashing","p":["Heavy","Reach","Two-Handed"],"m":"Cleave"},"Hand Crossbow":{"c":"Martial","r":"Ranged","d":"1d6","t":"Piercing","p":["Ammunition (range 30/120)","Light","Loading"],"m":"Vex"},"Handaxe":{"c":"Simple","r":"Melee","d":"1d6","t":"Slashing","p":["Light","Thrown (range 20/60)"],"m":"Vex"},"Heavy Crossbow":{"c":"Martial","r":"Ranged","d":"1d10","t":"Piercing","p":["Ammunition (range 100/400)","Heavy","Loading","Two-Handed"],"m":"Push"},"Javelin":{"c":"Simple","r":"Melee","d":"1d6","t":"Piercing","p":["Thrown (range 30/120)"],"m":"Slow"},"Lance":{"c":"Martial","r":"Melee","d":"1d10","t":"Piercing","p":["Heavy","Reach","Two-Handed"],"m":"Topple"},"Light Crossbow":{"c":"Simple","r":"Ranged","d":"1d8","t":"Piercing","p":["Ammunition (range 80/320)","Loading","Two-Handed"],"m":"Slow"},"Light Hammer":{"c":"Simple","r":"Melee","d":"1d4","t":"Bludgeoning","p":["Light","Thrown (range 20/60)"],"m":"Nick"},"Longbow":{"c":"Martial","r":"Ranged","d":"1d8","t":"Piercing","p":["Ammunition (range 150/600)","Heavy","Two-Handed"],"m":"Slow"},"Longsword":{"c":"Martial","r":"Melee","d":"1d8","t":"Slashing","p":["Versatile (1d10)"],"m":"Sap"},"Mace":{"c":"Simple","r":"Melee","d":"1d6","t":"Bludgeoning","p":[],"m":"Sap"},"Maul":{"c":"Martial","r":"Melee","d":"2d6","t":"Bludgeoning","p":["Heavy","Two-Handed"],"m":"Topple"},"Morningstar":{"c":"Martial","r":"Melee","d":"1d8","t":"Piercing","p":[],"m":"Sap"},"Musket":{"c":"Martial","r":"Ranged","d":"1d12","t":"Piercing","p":["Ammunition (range 40/120)","Loading","Two-Handed"],"m":"Slow"},"Pike":{"c":"Martial","r":"Melee","d":"1d10","t":"Piercing","p":["Heavy","Reach","Two-Handed"],"m":"Push"},"Pistol":{"c":"Martial","r":"Ranged","d":"1d10","t":"Piercing","p":["Ammunition (range 30/90)","Loading"],"m":"Vex"},"Quarterstaff":{"c":"Simple","r":"Melee","d":"1d6","t":"Bludgeoning","p":["Versatile (1d8)"],"m":"Topple"},"Rapier":{"c":"Martial","r":"Melee","d":"1d8","t":"Piercing","p":["Finesse"],"m":"Vex"},"Scimitar":{"c":"Martial","r":"Melee","d":"1d6","t":"Slashing","p":["Finesse","Light"],"m":"Nick"},"Shortbow":{"c":"Simple","r":"Ranged","d":"1d6","t":"Piercing","p":["Ammunition (range 80/320)","Two-Handed"],"m":"Vex"},"Shortsword":{"c":"Martial","r":"Melee","d":"1d6","t":"Piercing","p":["Finesse","Light"],"m":"Vex"},"Sickle":{"c":"Simple","r":"Melee","d":"1d4","t":"Slashing","p":["Light"],"m":"Nick"},"Sling":{"c":"Simple","r":"Ranged","d":"1d4","t":"Piercing","p":["Ammunition (range 30/120)"],"m":"Slow"},"Spear":{"c":"Simple","r":"Melee","d":"1d6","t":"Piercing","p":["Thrown (range 20/60)","Versatile (1d8)"],"m":"Sap"},"Trident":{"c":"Martial","r":"Melee","d":"1d6","t":"Piercing","p":["Thrown (range 20/60)","Versatile (1d8)"],"m":"Topple"},"Warhammer":{"c":"Martial","r":"Melee","d":"1d8","t":"Bludgeoning","p":["Versatile (1d10)"],"m":"Push"},"War Pick":{"c":"Martial","r":"Melee","d":"1d8","t":"Piercing","p":["Versatile (1d10)"],"m":"Sap"},"Whip":{"c":"Martial","r":"Melee","d":"1d4","t":"Slashing","p":["Finesse","Reach"],"m":"Slow"}},"mastery":{"Cleave":"If you hit a creature with a melee attack roll using this weapon, you can make a melee attack roll with the weapon against a second creature within 5 feet of the first that is also within your reach. On a hit, the second creature takes the weapon's damage, but don't add your ability modifier to that damage unless that modifier is negative. You can make this extra attack only once per turn.","Graze":"If your attack roll with this weapon misses a creature, you can deal damage to that creature equal to the ability modifier you used to make the attack roll. This damage is the same type dealt by the weapon, and the damage can be increased only by increasing the ability modifier.","Nick":"When you make the extra attack of the Light property, you can make it as part of the Attack action instead of as a Bonus Action. You can make this extra attack only once per turn.","Push":"If you hit a creature with this weapon, you can push the creature up to 10 feet straight away from yourself if it is Large or smaller.","Sap":"If you hit a creature with this weapon, that creature has Disadvantage on its next attack roll before the start of your next turn.","Slow":"If you hit a creature with this weapon and deal damage to it, you can reduce its Speed by 10 feet until the start of your next turn. If the creature is hit more than once by weapons that have this property, the Speed reduction doesn't exceed 10 feet.","Topple":"If you hit a creature with this weapon, you can force the creature to make a Constitution saving throw (DC 8 plus the ability modifier used to make the attack roll and your Proficiency Bonus). On a failed save, the creature has the Prone condition.","Vex":"If you hit a creature with this weapon and deal damage to the creature, you have Advantage on your next attack roll against that creature before the end of your next turn."},"props":{"Ammunition":"You can use a weapon that has the Ammunition property to make a ranged attack only if you have ammunition to fire from it. The type of ammunition required is specified with the weapon's range. Each attack expends one piece of ammunition. Drawing the ammunition is part of the attack (you need a free hand to load a one-handed weapon). After a fight, you can spend 1 minute to recover half the ammunition (round down) you used in the fight; the rest is lost.","Finesse":"When making an attack with a Finesse weapon, use your choice of your Strength or Dexterity modifier for the attack and damage rolls. You must use the same modifier for both rolls.","Heavy":"You have Disadvantage on attack rolls with a Heavy weapon if it's a Melee weapon and your Strength score isn't at least 13 or if it's a Ranged weapon and your Dexterity score isn't at least 13.","Light":"When you take the Attack action on your turn and attack with a Light weapon, you can make one extra attack as a Bonus Action later on the same turn. That extra attack must be made with a different Light weapon, and you don't add your ability modifier to the extra attack's damage unless that modifier is negative. For example, you can attack with a Shortsword in one hand and a Dagger in the other using the Attack action and a Bonus Action, but you don't add your Strength or Dexterity modifier to the damage roll of the Bonus Action unless that modifier is negative.","Loading":"You can fire only one piece of ammunition from a Loading weapon when you use an action, a Bonus Action, or a Reaction to fire it, regardless of the number of attacks you can normally make.","Range":"A Range weapon has a range in parentheses after the Ammunition or Thrown property. The range lists two numbers. The first is the weapon's normal range in feet, and the second is the weapon's long range. When attacking a target beyond normal range, you have Disadvantage on the attack roll. You can't attack a target beyond the long range.","Reach":"A Reach weapon adds 5 feet to your reach when you attack with it, as well as when determining your reach for Opportunity Attacks with it.","Thrown":"If a weapon has the Thrown property, you can throw the weapon to make a ranged attack, and you can draw that weapon as part of the attack. If the weapon is a Melee weapon, use the same ability modifier for the attack and damage rolls that you use for a melee attack with that weapon.","Two-Handed":"A Two-Handed weapon requires two hands when you attack with it.","Versatile":"A Versatile weapon can be used with one or two hands. A damage value in parentheses appears with the property. The weapon deals that damage when used with two hands to make a melee attack."}};
+const WM_CLASSES=/barbarian|fighter|paladin|ranger|rogue/i;
+const WALIAS={"wooden staff":"Quarterstaff","staff":"Quarterstaff","druidic focus":"Quarterstaff"};
+function weaponRef(name){
+  const n=String(name||"").toLowerCase();let best=null;
+  Object.keys(WALIAS).forEach(k=>{if(n.indexOf(k)>=0&&(!best||k.length>best.l))best={w:WALIAS[k],l:k.length}});
+  Object.keys(WREF.weapons||{}).forEach(w=>{if(n.indexOf(w.toLowerCase())>=0&&(!best||w.length>best.l))best={w:w,l:w.length}});
+  return best?Object.assign({name:best.w},WREF.weapons[best.w]):null;
+}
+const STD_ACTIONS=[
+  ["Attack","Make one attack with a weapon or an Unarmed Strike."],
+  ["Dash","Gain extra movement equal to your Speed for this turn."],
+  ["Disengage","Your movement doesn’t provoke Opportunity Attacks for the rest of this turn."],
+  ["Dodge","Until the start of your next turn, attack rolls against you have Disadvantage (if you can see the attacker) and you have Advantage on Dexterity saves. You lose this if you’re Incapacitated or your Speed is 0."],
+  ["Help","Give an ally Advantage on their next ability check for a task, or on their next attack roll against a creature within 5 ft of you."],
+  ["Hide","Make a DC 15 Dexterity (Stealth) check while Heavily Obscured or behind cover and out of enemy sight. On a success you’re Invisible until you’re found, make noise louder than a whisper, attack, or cast a spell with a Verbal component."],
+  ["Influence","Make a Charisma (Deception, Intimidation, Performance or Persuasion) or Wisdom (Animal Handling) check to sway a monster. The DM sets the DC."],
+  ["Magic","Cast a spell that takes an action, or use a magic item that needs the Magic action."],
+  ["Ready","Pick a trigger and an action (or move) to take as your Reaction when it happens. A readied spell uses its slot now and needs Concentration until the trigger."],
+  ["Search","Make a Wisdom check (Insight, Medicine, Perception or Survival) to find something."],
+  ["Study","Make an Intelligence check (Arcana, History, Investigation, Nature or Religion) to recall or work something out."],
+  ["Utilize","Use a nonmagical object, for example opening a stuck door or working a lever."]
+];
+const ACT_META={
+  action:["Action","One per turn"],
+  bonus:["Bonus action","One per turn, only if a feature or spell gives you one"],
+  reaction:["Reaction","One per round, on any creature’s turn. It comes back at the start of your turn"],
+  free:["Free · on a hit","Part of an attack or another action, no action of its own"],
+  other:["Rests & out of combat","Not part of a turn"]
+};
+const ACT_OPTS=[["action","Action"],["bonus","Bonus action"],["reaction","Reaction"],["free","Free / on a hit"],["other","Rests & other"]];
+function actType(e){
+  if(e.act&&ACT_META[e.act])return e.act;
+  const t=(e.name+" "+(e.desc||"")).toLowerCase();
+  if(/bonus action/.test(t))return "bonus";
+  if(/\breaction\b/.test(t))return "reaction";
+  if(/\b(as an action|use your action|one action|an action to)\b/.test(t))return "action";
+  return "other";
+}
+function resIndex(c,name){
+  if(!name)return -1;const n=String(name).toLowerCase();
+  let i=c.resources.findIndex(r=>String(r.name).toLowerCase()===n);
+  if(i<0)i=c.resources.findIndex(r=>String(r.name).toLowerCase().indexOf(n)===0);
+  return i;
+}
+function resCtl(r,i){
+  const left=Math.max(0,r.max-r.used);
+  if(r.max<=8)return pips(r.max,r.used,"rpip",'data-r="'+i+'"',r.name);
+  return '<div class="counter"><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="5">Use 5</button><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="1">Use 1</button><b>'+left+' / '+r.max+'</b><button class="btn small" data-act="rcnt" data-r="'+i+'" data-d="-1">+1</button></div>';
+}
+function fxRow(c,e){
+  const ri=resIndex(c,e.res),r=ri>=0?c.resources[ri]:null;
+  let h='<div class="fx"><div class="fx-top"><b>'+E(e.name||"Untitled")+'</b>';
+  if(r)h+='<span class="fx-left">'+Math.max(0,r.max-r.used)+' / '+r.max+' left <span class="sub">· '+E(RESET_LABEL[r.reset]||"")+'</span></span>';
+  h+='</div>';
+  if(e.desc){
+    const d=String(e.desc),m=/^(.{40,230}?[.!?])\s+([\s\S]+)$/.exec(d);
+    if(d.length>240&&m)h+='<div class="fx-desc prose">'+E(m[1])+'</div><details class="more"><summary>Full text</summary><div class="prose">'+E(m[2])+'</div></details>';
+    else h+='<div class="fx-desc prose">'+E(d)+'</div>';
+  }
+  if(r)h+=resCtl(r,ri);
+  return h+'</div>';
+}
+function attackCard(c,a){
+  const ref=weaponRef(a.name);
+  const kind=a.kind||(ref?ref.c+" "+ref.r.toLowerCase()+" weapon":"");
+  const wm=ref&&ref.m&&(WM_CLASSES.test(c.cls)||/mastery/i.test((a.notes||"")+" "+(a.props||"")))?ref.m:"";
+  const props=a.props||(ref?ref.p.join(", "):"");
+  let h='<div class="atk"><div class="atk-top"><b>'+E(a.name||"Attack")+'</b><span class="hit">'+E(a.bonus)+'<small>to hit</small></span></div>';
+  h+='<div class="atk-dmg">'+E(a.dmg)+'</div>';
+  const meta=[kind,props].filter(Boolean).join(" · ");
+  if(meta||wm)h+='<div class="atk-meta"><span>'+E(meta)+'</span>'+(wm?'<span class="wm">Mastery: '+E(wm)+'</span>':'')+'</div>';
+  String(a.extra||"").split("\n").map(x=>x.trim()).filter(Boolean).forEach(l=>{
+    const m=/^([^:]{2,40}):\s*(.+)$/.exec(l);
+    h+='<div class="atk-fx">'+(m?'<b>'+E(m[1])+'.</b> '+E(m[2]):E(l))+'</div>';
+  });
+  if(a.notes)h+='<div class="atk-fx">'+E(a.notes)+'</div>';
+  const rules=[];
+  if(a.flavor)rules.push('<p><i>'+E(a.flavor)+'</i></p>');
+  if(ref){
+    ref.p.forEach(p=>{const nm=p.replace(/\s*\(.*$/,"");if(WREF.props&&WREF.props[nm])rules.push('<p><b>'+E(p)+'.</b> '+E(WREF.props[nm])+'</p>')});
+    if(ref.m&&WREF.mastery&&WREF.mastery[ref.m])rules.push('<p><b>Mastery: '+E(ref.m)+'.</b> '+E(WREF.mastery[ref.m])+(wm?' You can use it only if you have chosen to master this weapon.':' Only characters with Weapon Mastery can use this.')+'</p>');
+  }
+  if(rules.length)h+='<details class="entry atk-rules"><summary>How this weapon works</summary><div class="body">'+rules.join("")+'<div class="legal">Weapon rules: System Reference Document 5.2, CC BY 4.0.</div></div></details>';
+  return h+'</div>';
+}
+function unarmedCard(c){
+  const m=mod(c.abilities.str),pb=prof(c.level),dc=8+m+pb;
+  return '<details class="entry"><summary>Unarmed Strike <span class="sub">'+sgn(m+pb)+' to hit · '+Math.max(0,1+m)+' bludgeoning</span></summary><div class="body"><p>Hit or Grapple/Shove instead of damage. To hit: Strength modifier + proficiency ('+sgn(m+pb)+'). Damage: 1 + Strength modifier ('+Math.max(0,1+m)+' bludgeoning).</p><p>Grapple or Shove: the target makes a Strength or Dexterity save (its choice) against <b>DC '+dc+'</b> (8 + Strength modifier + proficiency). Grapple: it has the Grappled condition. Shove: it is pushed 5 ft or knocked Prone (target must be no more than one size larger).</p></div></details>';
+}
+function spellBuckets(c){
+  const b={action:[],bonus:[],reaction:[],long:[]};
+  c.spells.forEach((s,i)=>{
+    const sp=findSpell(s.name),t=sp?String(sp.t||"").toLowerCase():"";
+    let k="action";
+    if(t.indexOf("bonus")===0)k="bonus";else if(t.indexOf("reaction")===0)k="reaction";else if(t&&t.indexOf("action")!==0)k="long";
+    b[k].push({i:i,s:s,sp:sp});
+  });
+  Object.keys(b).forEach(k=>b[k].sort((x,y)=>(x.s.level||0)-(y.s.level||0)||String(x.s.name).localeCompare(String(y.s.name))));
+  return b;
+}
+function spellItem(id,x){
+  const sp=x.sp,lv=x.s.level===0?"Cantrip":"Level "+x.s.level;
+  const tags=[lv,sp&&sp.r?sp.r:"",sp&&sp.k?"Concentration":"",sp&&sp.i?"Ritual":""].filter(Boolean).join(" · ");
+  return '<details class="spell" data-n="'+E(x.s.name)+'" data-ci="'+E(id)+'" data-si="'+x.i+'"><summary>'+E(x.s.name)+' <span class="sub">'+E(tags)+'</span></summary><div class="spell-body"></div></details>';
+}
+function spellList(id,arr,empty){return arr.length?arr.map(x=>spellItem(id,x)).join(""):(empty?'<div class="empty-hint">'+E(empty)+'</div>':"")}
+function tsec(type,inner){
+  const m=ACT_META[type];
+  return '<section class="tsec '+type+'" id="tsec-'+type+'"><div class="tsec-h"><b>'+m[0]+'</b><span>'+E(m[1])+'</span></div>'+inner+'</section>';
+}
+function turnCard(c,id,st,pb){
+  const acts={action:[],bonus:[],reaction:[],free:[],other:[]};
+  c.actions.forEach(e=>{acts[actType(e)].push(e)});
+  const bk=spellBuckets(c),hasMagic=c.spells.length>0||Object.keys(c.slots).some(k=>c.slots[k].max>0)||!!st;
+  const nB=acts.bonus.length+bk.bonus.length,nR=1+acts.reaction.length+bk.reaction.length;
+  let h='<div class="turn"><h3>Your turn</h3><div class="turn-sum">1 action · 1 bonus action · move up to <b>'+c.speed+' ft</b> · 1 free object interaction. Plus 1 reaction per round.</div>'+
+    '<div class="jump" role="group" aria-label="Jump to"><button class="chip" data-act="jump" data-to="action">Action</button><button class="chip" data-act="jump" data-to="bonus">Bonus'+(nB?' ('+nB+')':'')+'</button><button class="chip" data-act="jump" data-to="reaction">Reaction ('+nR+')</button>'+(acts.free.length?'<button class="chip" data-act="jump" data-to="free">On a hit ('+acts.free.length+')</button>':'')+'</div>';
+  /* ACTION */
+  let a='<div class="tsub">Attack <span class="sub">make one attack with a weapon or Unarmed Strike</span></div>';
+  a+=c.attacks.length?c.attacks.map(x=>attackCard(c,x)).join(""):'<div class="empty-hint">No weapons listed. Use Edit to add one.</div>';
+  a+=unarmedCard(c);
+  if(hasMagic){
+    a+='<div class="tsub">Magic <span class="sub">cast a spell</span></div>';
+    if(st)a+='<div class="chiprow" style="margin:.3rem 0 .5rem"><span class="rchip">Spell save DC <b>'+st.dc+'</b> · spell attack <b>'+sgn(st.atk)+'</b></span></div>';
+    const sr=slotRows(c,false);if(sr)a+='<div class="slotbox"><div class="sub" style="font-weight:700">Spell slots (tap one to spend it)</div>'+sr+'</div>';
+    a+=spellList(id,bk.action,spellDB?"No spells that take an action.":"Loading spells…");
+    if(c.spellInfo.length)a+=c.spellInfo.map(e=>'<details class="entry"><summary>'+E(e.name||"Spellcasting")+'</summary><div class="body">'+prose(e.desc)+'</div></details>').join("");
+  }
+  if(acts.action.length){a+='<div class="tsub">Class and race actions</div>'+acts.action.map(e=>fxRow(c,e)).join("")}
+  h+=tsec("action",a);
+  /* BONUS */
+  let b=acts.bonus.map(e=>fxRow(c,e)).join("")+spellList(id,bk.bonus,"");
+  if(!b)b='<div class="empty-hint">Nothing right now. You only get a bonus action from a feature or spell.</div>';
+  h+=tsec("bonus",b);
+  /* REACTION */
+  let r='<div class="fx"><div class="fx-top"><b>Opportunity Attack</b></div><div class="fx-desc">When a creature you can see leaves your reach, make one melee attack against it. It doesn’t trigger if the creature Disengages or is moved without using its own movement.</div></div>';
+  r+=acts.reaction.map(e=>fxRow(c,e)).join("")+spellList(id,bk.reaction,"");
+  h+=tsec("reaction",r);
+  /* FREE */
+  if(acts.free.length)h+=tsec("free",acts.free.map(e=>fxRow(c,e)).join(""));
+  /* OTHER */
+  const oth=acts.other.map(e=>fxRow(c,e)).join("")+spellList(id,bk.long,"");
+  if(oth)h+=tsec("other",oth);
+  /* refresher */
+  h+='<details class="entry refresher"><summary>2024 rules refresher: what anyone can do</summary><div class="body">'+
+    STD_ACTIONS.map(x=>'<div class="fx"><div class="fx-top"><b>'+x[0]+'</b></div><div class="fx-desc">'+E(x[1])+'</div></div>').join("")+
+    '<div class="fx"><div class="fx-top"><b>Movement</b></div><div class="fx-desc">Move up to your Speed, split however you like before, between or after actions. Standing up from Prone costs half your Speed. Difficult terrain, climbing and swimming cost extra.</div></div>'+
+    '<div class="fx"><div class="fx-top"><b>Object interaction</b></div><div class="fx-desc">One free interaction per turn, such as drawing a weapon or opening a door. More than that uses the Utilize action.</div></div>'+
+    '<div class="legal">Summarised from the System Reference Document 5.2, CC BY 4.0, © Wizards of the Coast.</div></div></details>';
+  return h+'</div>';
+}
 function tabPlay(id){
   const c=chars[id],pb=prof(c.level),st=spellStats(c),can=canEditChar(id);
   const pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0;
@@ -726,17 +936,22 @@ function tabPlay(id){
   h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>AC</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile"><b>'+c.speed+'</b><span>Speed</span></div><div class="tile"><b>'+sgn(pb)+'</b><span>Prof.</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive</span></div>'+
     (st?'<div class="tile"><b>'+st.dc+'</b><span>Spell DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell atk</span></div>':'')+
     '<div class="tile"><b>'+c.inspiration+'</b><span>Inspiration</span>'+(can?'<div class="ctl"><button class="btn small" data-act="insp" data-d="-1" aria-label="Use inspiration">−</button><button class="btn small" data-act="insp" data-d="1" aria-label="Gain inspiration">+</button></div>':'')+'</div></div>';
-  h+='<div class="split"><div>';
-  const rows=slotRows(c,false);
-  if(rows)h+='<div class="pane"><h3>Spell slots</h3>'+rows+'</div>';
-  h+='<div class="pane"><h3>Resources</h3>'+(c.resources.length?c.resources.map((r,i)=>ed()?resEdit(r,i):resView(r,i)).join(""):'<div class="sub">No limited-use features tracked yet.</div>')+(ed()?'<button class="btn small" data-act="addres" style="margin-top:.6rem">Add resource</button>':'');
+  if(!spellDB&&c.spells.length)loadSpells().then(()=>{if(openId===id&&sheetTab==="play"&&!ed()&&!sheetFocused())renderSheet()}).catch(()=>{});
+  if(ed()){
+    h+='<div class="split"><div>';
+    h+='<div class="pane"><h3>Resources</h3>'+c.resources.map((r,i)=>resEdit(r,i)).join("")+'<button class="btn small" data-act="addres" style="margin-top:.6rem">Add resource</button></div>';
+    h+='</div><div>';
+    h+='<div class="pane"><h3>Attacks</h3>'+c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Type and properties, e.g. Martial melee weapon · Finesse, Light" aria-label="Weapon type and properties" data-path="attacks.'+i+'.kind" value="'+E(a.kind||"")+'"><textarea placeholder="Special effects, one per line, like  Moonlit Bloom: +1 radiant in dim light" aria-label="Special effects" data-path="attacks.'+i+'.extra" style="min-height:3.5rem">'+E(a.extra||"")+'</textarea><input type="text" placeholder="Other note (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button></div>';
+    h+='<div class="pane"><h3>Actions and features in play</h3><div class="sub" style="margin-bottom:.5rem">Pick when each one is used so it shows under the right heading on your turn, and link it to a resource to show its uses there.</div>'+entryList("actions",c.actions,"Add action")+'</div></div></div>';
+    return h;
+  }
+  const linked=new Set();c.actions.forEach(e=>{const i=resIndex(c,e.res);if(i>=0)linked.add(i)});
+  const rest=c.resources.map((r,i)=>[r,i]).filter(x=>!linked.has(x[1]));
+  h+='<div class="play-grid"><div>'+turnCard(c,id,st,pb)+'</div><div>';
+  h+='<div class="pane"><h3>'+(linked.size?"Other resources":"Resources")+'</h3>'+(rest.length?rest.map(x=>resView(x[0],x[1])).join(""):'<div class="sub">Everything you track is under Your turn.</div>');
   if(c.hitDice&&!c.resources.some(r=>r.reset==="hitdice"))h+='<div class="sub" style="margin-top:.5rem">Hit dice: '+E(c.hitDice)+'</div>';
   if(can)h+='<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.9rem"><button class="btn" data-act="rest" data-k="short">Short rest</button><button class="btn" data-act="rest" data-k="long">Long rest</button>'+(c.level<20?'<button class="btn primary" data-act="lvlopen">Level up</button>':'')+'</div>';
-  h+='</div></div><div>';
-  h+='<div class="pane"><h3>Attacks</h3>';
-  if(ed())h+=c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Notes (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button>';
-  else h+=c.attacks.length?c.attacks.map(a=>'<div class="atk-card"><b>'+E(a.name)+'</b><span class="hit">'+E(a.bonus)+'</span><span class="sub">'+E(a.dmg)+'</span>'+(a.notes?'<span class="sub dm2">'+E(a.notes)+'</span>':'')+'</div>').join(""):'<div class="sub">No attacks yet.</div>';
-  h+='</div><div class="pane"><h3>Actions</h3>'+entryList("actions",c.actions,"Add action")+'</div></div></div>';
+  h+='</div></div></div>';
   return h;
 }
 function tabStats(id){
@@ -937,7 +1152,13 @@ function renderSheet(){
     '<div class="sbar-title"><strong>'+E((c.name||"Unnamed").split(" ")[0])+'</strong><span class="sub" id="sbarStat">'+E(sbarStat(c))+'</span></div>'+
     (can&&["play","stats","spells","features","gear"].indexOf(tab)>=0?'<button class="btn small'+(editMode?" on":"")+'" data-act="edit" aria-pressed="'+editMode+'">'+(editMode?"✓ Done":"✎ Edit")+'</button>':'')+
     '</div>'+body+'</div>';
+  const rkey=openId+"|"+tab,same=host.dataset.rt===rkey,sy=window.scrollY;
+  const keyOf=d=>d.dataset.n?"s:"+d.dataset.n:"t:"+((d.querySelector("summary")||{}).textContent||"").trim().slice(0,48);
+  const openKeys=same?Array.from(host.querySelectorAll("details[open]")).map(keyOf):[];
+  host.dataset.rt=rkey;
   host.innerHTML=h;
+  if(openKeys.length)host.querySelectorAll("details").forEach(d=>{if(openKeys.indexOf(keyOf(d))>=0)d.open=true});
+  if(same)window.scrollTo(0,sy);
   host.querySelectorAll("textarea").forEach(autosize);
   if(tab==="lookup")renderLookup($("lkHost"));
   if(tab==="msgs"){const t=$("thread");if(t){t.scrollTop=t.scrollHeight;markRead(openId)}}
@@ -1127,7 +1348,8 @@ document.addEventListener("click",async e=>{
     case "delres":c.resources.splice(Number(b.dataset.r),1);saveChar(id,["resources"]);renderSheet();return;
     case "rest":return doRest(b.dataset.k);
     case "skill":{const s=b.dataset.skill;c.skillProf[s]=((Number(c.skillProf[s])||0)+1)%3;saveChar(id,["skillProf"]);renderSheet();return}
-    case "addatk":c.attacks.push({name:"",bonus:"",dmg:"",notes:""});saveChar(id,["attacks"]);renderSheet();return;
+    case "jump":{const t=document.getElementById("tsec-"+b.dataset.to);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
+    case "addatk":c.attacks.push({name:"",bonus:"",dmg:"",notes:"",kind:"",extra:""});saveChar(id,["attacks"]);renderSheet();return;
     case "delatk":c.attacks.splice(Number(b.dataset.i),1);saveChar(id,["attacks"]);renderSheet();return;
     case "addentry":{const l=b.dataset.list;(c[l]=c[l]||[]).push({name:"",desc:""});saveChar(id,[l]);renderSheet();return}
     case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}

@@ -1,6 +1,6 @@
 /* Party Sheets service worker: keeps the app and rules data on the phone so it opens without a connection.
    Change VERSION whenever you upload new files so phones pick them up. */
-const VERSION = "party-2026-10-02-c";
+const VERSION = "party-2026-10-02-d";
 const SHELL = ["./", "index.html", "tome.css", "tome.html", "tome.js", "spells-2024.json", "monsters-2024.json",
   "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 const FB = "https://www.gstatic.com/firebasejs/10.14.1/";

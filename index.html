@@ -460,6 +460,8 @@ textarea{overflow-y:hidden;resize:none}
   <button type="button" class="bn-arrow r" id="bnR" aria-label="Scroll tabs right" hidden>›</button>
   <div class="sb-track bn-track" id="bnTrack" hidden><i></i></div>
 </nav>
+<input type="file" id="importIn" accept=".json,application/json" multiple hidden>
+<input type="file" id="restoreIn" accept=".json,application/json" hidden>
 <script>
 if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
 </script>
@@ -1069,7 +1071,7 @@ function renderParty(){
   let h='<div class="seg two" role="group" aria-label="Party view"><button class="'+(partyView==="cards"?"on":"")+'" data-act="pview" data-v="cards" aria-pressed="'+(partyView==="cards")+'">Cards</button><button class="'+(partyView==="compare"?"on":"")+'" data-act="pview" data-v="compare" aria-pressed="'+(partyView==="compare")+'">Compare</button></div>';
   h+='<div class="ptools"><button class="btn" data-act="restall" data-k="short">☕ Short rest · all</button><button class="btn" data-act="restall" data-k="long">🌙 Long rest · all</button></div>';
   if(partyView==="cards")h+='<div class="abtog"><button class="chip'+(showAbil?" on":"")+'" data-act="abiltoggle" aria-pressed="'+showAbil+'">'+(showAbil?"✓ Showing abilities":"Show abilities")+'</button></div>';
-  h+='<details class="manage"><summary>Manage party (backup, import, NPCs)</summary><div class="inner"><button class="btn primary" data-act="backup">⬇ Download backup</button><button class="btn" data-act="restorebk">⬆ Restore from backup</button><input type="file" id="restoreIn" accept=".json,application/json" hidden><div class="sub" style="flex-basis:100%">Last backup: '+ago(lastBackup())+'</div><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
+  h+='<details class="manage"><summary>Manage party (backup, import, NPCs)</summary><div class="inner"><button class="btn primary" data-act="backup">⬇ Download backup</button><button class="btn" data-act="restorebk">⬆ Restore from backup</button><div class="sub" style="flex-basis:100%">Last backup: '+ago(lastBackup())+'</div><button class="btn" data-act="import">Import characters (JSON)</button><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
   if(ids.length&&(!lastBackup()||Date.now()-lastBackup()>14*86400000))h+='<div class="note" id="bkNudge"><span>'+(lastBackup()?"Your last backup was "+ago(lastBackup())+".":"You haven’t backed up your party yet.")+'</span><button class="btn small primary" data-act="backup">Back up now</button></div>';
   h+='<div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
   if(partyView==="compare")h+=partyStatus(ids)+compareView(ids);
@@ -1948,7 +1950,7 @@ function shareLabel(){if(window.__tomeShareLabel)window.__tomeShareLabel(shareOn
 function pushShare(force){
   clearTimeout(shareT);
   shareT=setTimeout(async()=>{
-    if(!isDM()||tomeState!=="ready"||typeof window.__tomeCombatPayload!=="function")return;
+    if(!isDM()||tomeState!=="ready"||!fightReady||typeof window.__tomeCombatPayload!=="function")return;
     const p=window.__tomeCombatPayload();
     const data=shareOn?{on:true,round:p.round,turn:p.turn,unseen:!!p.unseen,started:!!p.started,order:p.order,fid:p.fid||"",upd:Date.now()}
       :{on:false,round:0,turn:-1,unseen:false,started:false,order:[],upd:Date.now()};
@@ -1982,6 +1984,9 @@ window.__tomeFightChanged=()=>{if(!fightReady)return;clearTimeout(fightT);fightT
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){clearTimeout(fightT);saveFightNow()}});
 window.addEventListener("pagehide",()=>{clearTimeout(fightT);saveFightNow()});
 async function restoreFight(){
+  try{await restoreFight2()}finally{fightReady=true;if(shareOn)pushShare(true)}
+}
+async function restoreFight2(){
   let best=null;
   try{const l=JSON.parse(localStorage.getItem(FIGHT_KEY)||"null");if(l&&l.upd)best=l}catch(e){}
   try{const sn=await getDoc(doc(db,"dmdata","fight"));if(sn.exists()){const c=JSON.parse(sn.data().json||"null");if(c&&c.upd&&(!best||c.upd>best.upd))best=c}}catch(e){}
@@ -2056,24 +2061,50 @@ let combat=null,cbOpen=false,cbFirst=true,lastCbKey="",cbDraft="";
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="cbInit")cbDraft=e.target.value},true);
 const cbIcon={pc:"🧙",npc:"🧑",monster:"👹"};
 function cbNext(o,t){if(t<0)return null;for(let k=1;k<=o.length;k++){const e=o[(t+k)%o.length];if(!e.d)return e}return null}
+let cbWasLive=false;
+function cbBuild(el){
+  el.innerHTML='<button type="button" class="cb-main" data-act="cbtoggle" aria-expanded="false"><span class="cb-r"></span><span class="cb-t"></span><span class="cb-n"></span><span class="cb-x">▾</span></button>'+
+    '<div class="cb-panel" hidden><div class="cb-init" hidden><label for="cbInit">Your initiative roll <small></small></label><div class="cb-ir"><input id="cbInit" type="number" inputmode="numeric" min="-10" max="60" autocomplete="off"><button type="button" class="btn primary" data-act="cbinit">Send</button></div><div class="sub cb-sent" hidden></div></div><div class="cb-list"></div><div class="cb-foot"></div></div>';
+}
 function renderCombatBar(){
   const el=$("combatBar");if(!el)return;
-  const live=role==="player"&&combat&&combat.on&&combat.order&&combat.order.length;
-  if(!live){el.hidden=true;el.innerHTML="";document.documentElement.style.setProperty("--cbh","0px");return}
-  const o=combat.order,t=combat.turn,cur=t>=0?o[t]:null,mine=!!cur&&cur.k===charId,nx=cbNext(o,t),nextMine=!mine&&!!nx&&nx.k===charId;
+  const live=role==="player"&&!!combat&&!!combat.on;
+  if(!live){
+    if(cbWasLive&&role==="player")hostToast("Your DM stopped sharing the fight.",5000);
+    cbWasLive=false;el.hidden=true;document.documentElement.style.setProperty("--cbh","0px");return;
+  }
+  cbWasLive=true;
+  if(!el.querySelector(".cb-main"))cbBuild(el);
+  const q=sel=>el.querySelector(sel);
+  const o=combat.order||[],t=combat.turn,cur=t>=0?o[t]:null,mine=!!cur&&cur.k===charId,nx=cbNext(o,t),nextMine=!mine&&!!nx&&nx.k===charId;
   const when=combat.upd?new Date(combat.upd):null,stale=when&&(Date.now()-combat.upd>20*60*1000);
-  const turnTxt=!combat.started?"The fight is starting":combat.unseen?"Something unseen acts":mine?"YOUR TURN":cur?(cur.g!=null?cur.n+" ×"+cur.g+" act":cur.n+"’s turn"):"";
   const meE=o.filter(e=>e.k===charId)[0],mc=chars[charId];
   const sent=!!(mc&&mc.initRoll&&combat.fid&&mc.initRoll.fid===combat.fid),needInit=!!meE&&!!combat.fid&&!sent&&!meE.i;
-  const nextTxt=needInit?"Tap here to enter your initiative roll":!combat.started?"Order is set":nextMine?"You’re up next!":nx?"Next: "+nx.n:"";
-  const hadFocus=document.activeElement&&document.activeElement.id==="cbInit";
+  const turnTxt=!o.length?"The fight is being set up":!combat.started?"The fight is starting":combat.unseen?"Something unseen acts":mine?"YOUR TURN":cur?(cur.g!=null?cur.n+" ×"+cur.g+" act":cur.n+"’s turn"):"";
+  const nextTxt=!o.length?"":needInit?"Tap here to enter your initiative roll":!combat.started?"Order is set":nextMine?"You’re up next!":nx?"Next: "+nx.n:"";
   el.hidden=false;
   el.className="combat-bar"+(mine?" me":"")+(nextMine?" nxt":"")+(needInit?" ask":"");
-  el.innerHTML='<button type="button" class="cb-main" data-act="cbtoggle" aria-expanded="'+cbOpen+'"><span class="cb-r">⚔ Round '+E(combat.round)+'</span><span class="cb-t">'+E(turnTxt)+'</span><span class="cb-n">'+E(nextTxt)+'</span><span class="cb-x">'+(cbOpen?"▴":"▾")+'</span></button>'+
-    (cbOpen?'<div class="cb-panel">'+(meE&&combat.fid&&mc?'<div class="cb-init"><label for="cbInit">Your initiative roll <small>(d20 + your modifier '+sgn(mod(mc.abilities.dex))+')</small></label><div class="cb-ir"><input id="cbInit" type="number" inputmode="numeric" min="-10" max="60" value="'+E(cbDraft!==""?cbDraft:(sent?mc.initRoll.v:""))+'"><button type="button" class="btn primary" data-act="cbinit">'+(sent?"Update":"Send")+'</button></div>'+(sent?'<div class="sub">Sent: '+mc.initRoll.v+'. Your DM can see it.</div>':'')+'</div>':'')+o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("")+
-      '<div class="cb-foot">'+(stale?"This may be out of date. Last update "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+". ":"")+'You can see the order, names and conditions. Your DM keeps the rest private.</div></div>':'');
-  document.documentElement.style.setProperty("--cbh",el.querySelector(".cb-main").offsetHeight+"px");
-  if(hadFocus&&$("cbInit"))$("cbInit").focus();
+  q(".cb-r").textContent="⚔ Round "+combat.round;
+  q(".cb-t").textContent=turnTxt;
+  q(".cb-n").textContent=nextTxt;q(".cb-n").hidden=!nextTxt;
+  q(".cb-x").textContent=cbOpen?"▴":"▾";
+  q(".cb-main").setAttribute("aria-expanded",String(cbOpen));
+  q(".cb-panel").hidden=!cbOpen;
+  /* the initiative box is only touched when the player isn't typing in it */
+  const ib=q(".cb-init"),inp=q("#cbInit"),show=!!meE&&!!combat.fid&&!!mc;
+  ib.hidden=!show;
+  if(show){
+    q(".cb-init small").textContent="(d20 + your modifier "+sgn(mod(mc.abilities.dex))+")";
+    q('[data-act="cbinit"]').textContent=sent?"Update":"Send";
+    const sn=q(".cb-sent");sn.hidden=!sent;if(sent)sn.textContent="Sent: "+mc.initRoll.v+". Your DM can see it.";
+    if(document.activeElement!==inp){const want=cbDraft!==""?cbDraft:(sent?String(mc.initRoll.v):"");if(inp.value!==want)inp.value=want}
+  }
+  /* the list only changes when the order does */
+  const list=o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("");
+  const lb=q(".cb-list");if(lb.dataset.h!==list){lb.innerHTML=list;lb.dataset.h=list}
+  const ft="You can see the order, names and conditions. Your DM keeps the rest private."+(stale?" This may be out of date. Last update "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+".":"");
+  if(q(".cb-foot").textContent!==ft)q(".cb-foot").textContent=ft;
+  document.documentElement.style.setProperty("--cbh",q(".cb-main").offsetHeight+"px");
 }
 function cbNotify(){
   if(!combat||!combat.on||!combat.started)return;
@@ -2210,7 +2241,7 @@ async function ensureTome(){
     window.__tomeGoLibrary=()=>{dmTab="monsters";subMons="lib";openId=null;renderApp();window.scrollTo(0,0)};
     window.__tomeGoPrepared=()=>{dmTab="monsters";subMons="prep";openId=null;renderApp();window.scrollTo(0,0)};
     document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
-    tomeState="ready";tomeSent="";shareLabel();if(shareOn)pushShare(true);restoreFight();
+    tomeState="ready";tomeSent="";shareLabel();restoreFight();
     sendParty();
     setInterval(syncCampaignTick,5000);
     window.addEventListener("pagehide",()=>{syncCampaignTick()});
@@ -2248,7 +2279,7 @@ function subscribeChar(id){
 function startApp(){
   $("gate").hidden=true;$("app").hidden=false;
   unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
-  chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";
+  chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";cbWasLive=false;{const b=document.getElementById("combatBar");if(b){b.innerHTML="";b.hidden=true}}
   $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
   $("outBtn").hidden=false;
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));

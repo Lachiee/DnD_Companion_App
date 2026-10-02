@@ -195,6 +195,7 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .bnav .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
 .subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;padding:.35rem 0 .5rem;margin-bottom:.4rem;background:var(--bg)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.5rem}
+.seg.two{grid-template-columns:repeat(2,1fr);margin-bottom:.7rem}
 .seg button{min-height:3rem;border-radius:.8rem;border:2px solid var(--line);background:var(--panel);font-weight:700;font-size:1.02rem}
 .seg button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .chips-row{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem}
@@ -286,6 +287,47 @@ details.more{margin:.1rem 0 .4rem}
 details.more>summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.92rem;min-height:2.4rem;display:flex;align-items:center}
 details.more>.prose{padding:.2rem 0}
 .atkedit>:nth-child(n+6){grid-column:1/-1}
+
+
+/* ---------- DM party: abilities at a glance ---------- */
+.pstatus{display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;background:var(--panel);border:1px solid var(--line);border-radius:.9rem;padding:.65rem .9rem;margin-bottom:.9rem;font-size:1rem}
+.pstatus .k,.cmp .k{color:var(--muted);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-right:.25rem}
+.pstatus .wide{flex-basis:100%}
+.abtog{margin:-.2rem 0 .8rem}
+.pc-abil{display:flex;flex-direction:column;gap:.5rem;border-top:1px dashed var(--line);padding-top:.7rem}
+.ab-row{display:grid;grid-template-columns:5.2rem 1fr;gap:.5rem;align-items:start}
+.ab-k{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);padding-top:.3rem}
+.ab-row.r-bonus .ab-k{color:var(--brass)}
+.ab-row.r-react .ab-k{color:var(--react)}
+.ab-row.r-act .ab-k,.ab-row.r-atk .ab-k{color:var(--accent)}
+.ab-v{display:flex;flex-wrap:wrap;gap:.3rem .35rem;align-items:center}
+.ab-row.r-atk .ab-v{display:block}
+.ab-atk{font-size:1rem;line-height:1.4}
+.ab-hit{font-weight:700;font-family:Georgia,serif;font-size:1.1rem;color:var(--accent)}
+.ab-chip{display:inline-block;background:var(--chip);border-radius:.5rem;padding:.12rem .55rem;font-size:.95rem;line-height:1.35}
+.ab-chip b{font-variant-numeric:tabular-nums}
+.ab-chip.out{opacity:.5;text-decoration:line-through}
+.ab-chip.sp{background:transparent;border:1px solid var(--line)}
+.ab-chip.plain{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.ab-chip sup{font-size:.68rem;font-weight:700;color:var(--brass);margin-left:.1rem}
+.cmp{margin:0 0 1.1rem}
+.cmp h3{font-size:1.2rem;margin-bottom:.4rem}
+.cmp-s{overflow-x:auto;border:1px solid var(--line);border-radius:.9rem;background:var(--panel)}
+.cmp-t{border-collapse:separate;border-spacing:0;width:100%;min-width:19rem}
+.cmp-t th,.cmp-t td{padding:.5rem .12rem;text-align:center;border-bottom:1px solid var(--line);font-size:.95rem;white-space:nowrap}
+.cmp-t thead th{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0;font-family:inherit}
+.cmp-t tbody tr:last-child th,.cmp-t tbody tr:last-child td{border-bottom:0}
+.cmp-t th:first-child{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1;padding-left:.6rem}
+.cmp-t tbody th:first-child{font-family:Georgia,serif;font-size:1.02rem}
+.cmp-t td b{font-family:Georgia,serif;font-size:1.15rem}
+.cmp-t small{color:var(--muted)}
+.sv{display:inline-block;min-width:1.85rem;padding:.12rem .15rem;border-radius:.5rem;font-variant-numeric:tabular-nums}
+.sv.p{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.sv sup{font-size:.65rem;font-weight:700;margin-left:.05rem}
+.cmp-note{margin-top:.4rem}
+.cmp-line{background:var(--panel);border:1px solid var(--line);border-radius:.8rem;padding:.6rem .8rem;margin-bottom:.5rem;line-height:1.4}
+.cmp-line>b{font-family:Georgia,serif;font-size:1.15rem;display:block}
+@media (max-width:700px){.ab-row{grid-template-columns:4.4rem 1fr}}
 
 @media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
 </style>
@@ -687,6 +729,70 @@ function slotLines(c){
 function resChips(c){
   return c.resources.map(r=>{const left=Math.max(0,r.max-r.used);return '<span class="rchip'+(left?"":" empty")+'">'+E(shortRes(r.name))+' <b>'+left+'/'+r.max+'</b></span>'}).join("");
 }
+/* ---- DM party: abilities at a glance ---- */
+const ABIL_UP={str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA"};
+let partyView="cards", showAbil=true;
+try{partyView=localStorage.getItem("partyView")||"cards";showAbil=localStorage.getItem("showAbil")!=="0"}catch(e){}
+function saveInfo(c){
+  const pb=prof(c.level),adv={};
+  const txt=(c.traits||[]).concat(c.features||[]).map(e=>(e.name||"")+" "+(e.desc||"")).join(" ").toLowerCase();
+  if(txt.indexOf("gnomish cunning")>=0){adv.int=adv.wis=adv.cha=true}
+  if(txt.indexOf("danger sense")>=0)adv.dex=true;
+  return ABIL.map(k=>({k:k,v:mod(c.abilities[k])+(c.saveProf[k]?pb:0),p:!!c.saveProf[k],a:!!adv[k]}));
+}
+function sensesOf(c){
+  const texts=(c.traits||[]).concat(c.features||[]).concat(c.actions||[]).map(e=>(e.name||"")+" "+(e.desc||""));
+  let dv=0;
+  texts.forEach(t=>{const re=/darkvision/ig;let m;while((m=re.exec(t))){const n=/(\d+)\s*(?:ft|feet)/i.exec(t.slice(m.index,m.index+90));if(n)dv=Math.max(dv,Number(n[1]))}});
+  const devil=(c.features||[]).some(e=>/devil.s sight/i.test(e.name||""));
+  return (dv?dv+" ft":"none")+(devil?" + Devil’s Sight 120 ft":"");
+}
+const passiveOf=(c,name)=>{const s=SKILLS.filter(x=>x[0]===name)[0];return 10+skillTotal(c,s)};
+function profSkills(c){return SKILLS.filter(s=>(Number(c.skillProf[s[0]])||0)>0||(Number(c.skillExtra[s[0]])||0)>0).map(s=>s[0]+" "+sgn(skillTotal(c,s))).join(", ")||"none"}
+const HEALRE=/^(cure wounds|healing word|mass healing word|mass cure wounds|prayer of healing|heal|goodberry|aid|lesser restoration|greater restoration|regenerate|revivify|healing spirit|life transference)$/i;
+function spellMark(sp){
+  if(!sp)return "";
+  const t=String(sp.t||"").toLowerCase();
+  return (t.indexOf("bonus")===0?"B":t.indexOf("reaction")===0?"R":"")+(sp.k?"C":"");
+}
+function abChip(txt,left,max){
+  const out=max!=null&&left<=0;
+  return '<span class="ab-chip'+(out?" out":"")+'">'+E(txt)+(max!=null?' <b>'+left+'/'+max+'</b>':"")+'</span>';
+}
+function abilityBlock(c,id){
+  const rows=[];
+  const row=(cls,k,inner)=>{if(inner)rows.push('<div class="ab-row r-'+cls+'"><span class="ab-k">'+k+'</span><div class="ab-v">'+inner+'</div></div>')};
+  row("atk","Attacks",c.attacks.map(a=>{
+    const fx=String(a.extra||"").split("\n").map(x=>(/^([^:]{2,40}):/.exec(x.trim())||[])[1]).filter(Boolean);
+    return '<div class="ab-atk"><b>'+E(a.name||"Attack")+'</b> <span class="ab-hit">'+E(a.bonus)+'</span> '+E(a.dmg)+(fx.length?' <span class="sub">('+E(fx.join(", "))+')</span>':"")+'</div>';
+  }).join(""));
+  const by={action:[],bonus:[],reaction:[],free:[],other:[]};
+  c.actions.forEach(e=>{by[actType(e)].push(e)});
+  const chip=e=>{const ri=resIndex(c,e.res),r=ri>=0?c.resources[ri]:null;return abChip(String(e.name).replace(/\s*\((Channel Divinity|Chef|free cast)\)\s*$/i,""),r?Math.max(0,r.max-r.used):0,r?r.max:null)};
+  const bk=spellBuckets(c);
+  const sp=(arr)=>arr.map(x=>'<span class="ab-chip sp">'+E(x.s.name)+(spellMark(x.sp)?'<sup>'+spellMark(x.sp)+'</sup>':"")+'</span>').join("");
+  row("act","Action",by.action.map(chip).join(""));
+  row("bonus","Bonus",by.bonus.map(chip).join("")+sp(bk.bonus.filter(x=>x.s.level>=0)));
+  row("react","Reaction",by.reaction.map(chip).join("")+sp(bk.reaction));
+  row("free","On a hit",by.free.map(chip).join(""));
+  row("oth","Rests",by.other.map(chip).join(""));
+  const lv={};
+  c.spells.forEach(s=>{(lv[s.level]=lv[s.level]||[]).push({s:s,sp:findSpell(s.name)})});
+  Object.keys(lv).map(Number).sort((a,b)=>a-b).forEach(l=>{
+    row("spl",l===0?"Cantrips":"Level "+l,lv[l].map(x=>'<span class="ab-chip sp">'+E(x.s.name)+(spellMark(x.sp)?'<sup>'+spellMark(x.sp)+'</sup>':"")+'</span>').join(""));
+  });
+  const named=new Set(c.actions.map(e=>String(e.name).toLowerCase()));
+  const feats=(c.features||[]).filter(f=>!/ability score|^personality|special notes/i.test(f.name)).map(f=>String(f.name).replace(/\s*\(.*?\)\s*$/,"").replace(/^[^:]+:\s*/,""))
+    .filter(n=>!Array.from(named).some(x=>x.indexOf(n.toLowerCase().slice(0,10))>=0||n.toLowerCase().indexOf(x.slice(0,10))>=0));
+  if(feats.length)row("feat","Also has",feats.slice(0,9).map(n=>'<span class="ab-chip plain">'+E(n)+'</span>').join("")+(feats.length>9?' <span class="sub">+'+(feats.length-9)+' more</span>':""));
+  const comps=Object.keys(companions[id]||{}).map(pid=>companions[id][pid]);
+  if(comps.length)row("comp","Pets",comps.map(p=>'<span class="ab-chip">'+E(p.name)+' <b>'+p.hp+'/'+p.hpMax+'</b> · AC '+E(p.ac)+(p.visible?"":" (hidden)")+'</span>').join(""));
+  return rows.length?'<div class="pc-abil">'+rows.join("")+'</div>':"";
+}
+function applyHpDelta(c,d){
+  if(d<0){let rem=-d;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem)}
+  else{if(c.hp===0&&d>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+d)}
+}
 function pcard(id){
   const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c),un=unreadFrom(id,"player");
   const first=(c.name||"Unnamed").split(" ")[0];
@@ -696,26 +802,63 @@ function pcard(id){
   if(c.hp===0&&!c.npc)flags+='<span class="flag bad">Down · saves ✓'+c.deathS+' ✗'+c.deathF+'</span>';
   if(c.conditions)flags+='<span class="flag bad">'+E(c.conditions)+'</span>';
   if(c.inspiration)flags+='<span class="flag good">★ Inspiration'+(c.inspiration>1?" ×"+c.inspiration:"")+'</span>';
-  const slots=slotLines(c),chips=resChips(c);
+  const slots=slotLines(c);
+  const linked=new Set();c.actions.forEach(e=>{const i=resIndex(c,e.res);if(i>=0)linked.add(i)});
+  const chips=c.resources.map((r,i)=>[r,i]).filter(x=>!(showAbil&&linked.has(x[1]))).map(x=>{const left=Math.max(0,x[0].max-x[0].used);return '<span class="rchip'+(left?"":" empty")+'">'+E(shortRes(x[0].name))+' <b>'+left+'/'+x[0].max+'</b></span>'}).join("");
   return '<article class="pcard '+hpClass(c)+'" data-id="'+E(id)+'">'+
-    '<button class="pc-head" data-act="open" aria-label="Open '+E(first)+'’s sheet"><div><div class="pc-name">'+E(first)+(un?' <span class="badge ok">'+un+' new</span>':'')+'</div><div class="pc-sub">'+E(sub||"No class yet")+'</div></div><span class="pc-open">Open ›</span></button>'+
+    '<button class="pc-head" data-act="open" aria-label="Open '+E(first)+'’s sheet"><div><div class="pc-name">'+E(first)+(un?' <span class="badge ok">'+un+' new</span>':'')+'</div><div class="pc-sub">'+E(sub||"No class yet")+'</div></div><span class="pc-open">Full sheet ›</span></button>'+
     '<div class="pc-hp"><div class="pc-hprow"><div class="pc-hpnum">'+c.hp+'<span> / '+c.hpMax+'</span>'+(c.hpTemp?'<small>+'+c.hpTemp+' temp</small>':'')+'</div>'+
     '<div class="pc-hpbtns"><button class="btn" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button><button class="btn" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button><button class="btn" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button><button class="btn" data-act="hp" data-d="5" aria-label="Gain 5 HP">+5</button></div></div>'+
     '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div></div>'+
     '<div class="pc-stats"><div><b>'+c.ac+'</b><span>AC</span></div><div><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init</span></div><div><b>'+passive(c)+'</b><span>Passive</span></div><div><b>'+(st?st.dc:"–")+'</b><span>DC</span></div><div><b>'+c.speed+'</b><span>Speed</span></div></div>'+
     (flags?'<div class="pc-flags">'+flags+'</div>':'')+
+    (showAbil?abilityBlock(c,id):"")+
     ((slots||chips)?'<div class="pc-res">'+slots+(chips?'<div class="chiprow">'+chips+'</div>':'')+'</div>':'')+
     (c.updated?'<div class="pc-upd">Updated '+E(timeStr(c.updated))+'</div>':'')+
     '</article>';
+}
+function partyStatus(ids){
+  const pcs=ids.filter(id=>!chars[id].npc);if(!pcs.length)return "";
+  const tot=pcs.reduce((a,id)=>a+chars[id].hp,0),max=pcs.reduce((a,id)=>a+chars[id].hpMax,0);
+  const low=pcs.slice().sort((a,b)=>chars[a].hp/Math.max(1,chars[a].hpMax)-chars[b].hp/Math.max(1,chars[b].hpMax))[0];
+  const heal=[];
+  pcs.forEach(id=>{
+    const c=chars[id],bits=[];
+    c.spells.forEach(s=>{if(HEALRE.test(s.name))bits.push(s.name)});
+    c.actions.forEach(e=>{if(/lay on hands/i.test(e.name)){const ri=resIndex(c,e.res),r=ri>=0?c.resources[ri]:null;bits.push("Lay On Hands"+(r?" "+Math.max(0,r.max-r.used)+" left":""))}});
+    if(bits.length)heal.push('<b>'+E((c.name||"").split(" ")[0])+'</b> '+E(bits.join(", ")));
+  });
+  const lc=chars[low];
+  return '<div class="pstatus"><div><span class="k">Party HP</span> <b>'+tot+' / '+max+'</b></div><div><span class="k">Lowest</span> <b>'+E((lc.name||"").split(" ")[0])+' '+lc.hp+'/'+lc.hpMax+'</b></div>'+(heal.length?'<div class="wide"><span class="k">Healing</span> '+heal.join(" · ")+'</div>':'')+'</div>';
+}
+function compareView(ids){
+  const pcs=ids;if(!pcs.length)return '<div class="empty">No characters yet.</div>';
+  const nm=id=>E((chars[id].name||"").split(" ")[0]);
+  const tbl=(title,head,rowFn,note)=>'<section class="cmp"><h3>'+title+'</h3><div class="cmp-s"><table class="cmp-t"><thead><tr><th>Name</th>'+head.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+pcs.map(id=>'<tr><th scope="row">'+nm(id)+'</th>'+rowFn(chars[id],id).map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+(note?'<div class="sub cmp-note">'+note+'</div>':"")+'</section>';
+  let h="";
+  h+=tbl("Essentials",["HP","AC","Speed","Init","DC"],c=>{const st=spellStats(c);return ['<b>'+c.hp+'</b>/'+c.hpMax+(c.hpTemp?'<small> +'+c.hpTemp+'</small>':""),'<b>'+c.ac+'</b>',c.speed,sgn(mod(c.abilities.dex)),st?'<b>'+st.dc+'</b>':'–']},"Speed is in feet. DC is the spell save DC. +N after the HP is temporary HP.");
+  h+=tbl("What they notice (passive scores)",["Percep.","Insight","Invest."],c=>['<b>'+passive(c)+'</b>',passiveOf(c,"Insight"),passiveOf(c,"Investigation")]);
+  h+=tbl("Saving throws",ABIL.map(k=>ABIL_UP[k]),c=>saveInfo(c).map(x=>'<span class="sv'+(x.p?" p":"")+'">'+sgn(x.v)+(x.a?'<sup>A</sup>':"")+'</span>'),"Shaded = proficient. A = advantage from Gnomish Cunning (Int, Wis, Cha) or Danger Sense (Dex). Rage also gives Advantage on Strength saves while raging.");
+  h+='<section class="cmp"><h3>Senses, skills and languages</h3>'+pcs.map(id=>{const c=chars[id];return '<div class="cmp-line"><b>'+nm(id)+'</b><div><span class="k">Darkvision</span> '+E(sensesOf(c))+'</div><div><span class="k">Skills</span> '+E(profSkills(c))+'</div><div><span class="k">Languages</span> '+E(c.languages||"not recorded")+'</div></div>'}).join("")+'</section>';
+  h+='<section class="cmp"><h3>Weapons</h3>'+pcs.map(id=>{const c=chars[id];return '<div class="cmp-line"><b>'+nm(id)+'</b>'+(c.attacks.length?c.attacks.map(a=>'<div>'+E(a.name)+' <b>'+E(a.bonus)+'</b> · '+E(a.dmg)+'</div>').join(""):'<div class="sub">none</div>')+'</div>'}).join("")+'</section>';
+  return h;
 }
 function renderParty(){
   const host=$("viewParty");
   const ids=Object.keys(chars).sort((a,b)=>(chars[a].npc?1:0)-(chars[b].npc?1:0)||String(chars[a].name||"").localeCompare(String(chars[b].name||"")));
   const pcs=ids.filter(id=>!chars[id].npc);
-  let h='<div class="ptools"><span class="sub" style="width:100%;font-weight:700">Whole party</span><button class="btn" data-act="restall" data-k="short">☕ Short rest</button><button class="btn" data-act="restall" data-k="long">🌙 Long rest</button></div>';
+  if(!spellDB&&!renderParty._loading){renderParty._loading=true;loadSpells().then(()=>{renderParty._loading=false;if(!openId&&dmTab==="party"&&!sheetFocused())renderParty()}).catch(()=>{renderParty._loading=false})}
+  let h='<div class="seg two" role="group" aria-label="Party view"><button class="'+(partyView==="cards"?"on":"")+'" data-act="pview" data-v="cards" aria-pressed="'+(partyView==="cards")+'">Cards</button><button class="'+(partyView==="compare"?"on":"")+'" data-act="pview" data-v="compare" aria-pressed="'+(partyView==="compare")+'">Compare</button></div>';
+  h+='<div class="ptools"><button class="btn" data-act="restall" data-k="short">☕ Short rest · all</button><button class="btn" data-act="restall" data-k="long">🌙 Long rest · all</button></div>';
+  if(partyView==="cards")h+='<div class="abtog"><button class="chip'+(showAbil?" on":"")+'" data-act="abiltoggle" aria-pressed="'+showAbil+'">'+(showAbil?"✓ Showing abilities":"Show abilities")+'</button></div>';
   h+='<details class="manage"><summary>Manage party (import, NPCs)</summary><div class="inner"><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
   h+='<div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
-  h+='<div class="pgrid">'+(ids.length?ids.map(pcard).join(""):'<div class="empty" style="grid-column:1/-1">No characters yet. Open “Manage party” and import your character files.</div>')+'</div>';
+  if(partyView==="compare")h+=partyStatus(ids)+compareView(ids);
+  else{
+    h+=partyStatus(ids);
+    h+='<div class="pgrid">'+(ids.length?ids.map(pcard).join(""):'<div class="empty" style="grid-column:1/-1">No characters yet. Open “Manage party” and import your character files.</div>')+'</div>';
+    if(showAbil&&ids.length)h+='<div class="legal" style="margin-top:.7rem">Spell marks: <b>B</b> bonus action · <b>R</b> reaction · <b>C</b> concentration. Numbers like 2/3 are uses left. Tap Full sheet for the details.</div>';
+  }
   const cids=pcs;
   h+='<details class="codes" id="codesBox"'+(codesOpen?" open":"")+'><summary>Player names (login codes)</summary><div style="padding:.4rem 0 .8rem"><div class="sub" style="margin-bottom:.5rem">Each player types their name on the sign-in screen. Change a code any time to lock out old devices.</div>'+
     (cids.length?cids.map(id=>{const c=chars[id],code=claimByChar[id];
@@ -1301,7 +1444,9 @@ document.addEventListener("click",async e=>{
     case "signout":return doSignOut();
     case "close":openId=null;lvlUp=null;sheetTab="play";editMode=false;renderApp();window.scrollTo(0,0);return;
     case "open":{const card=b.closest(".pcard");openId=card.dataset.id;sheetTab="play";lvlUp=null;editMode=false;renderApp();window.scrollTo(0,0);return}
-    case "hp":{const card=b.closest(".pcard"),id=card.dataset.id,x=chars[id];x.hp=Math.max(0,Math.min(x.hpMax,x.hp+Number(b.dataset.d)));saveChar(id,["hp"]);renderParty();return}
+    case "hp":{const card=b.closest(".pcard"),id=card.dataset.id,x=chars[id];applyHpDelta(x,Number(b.dataset.d));saveChar(id,["hp","hpTemp","deathS","deathF"]);renderParty();return}
+    case "pview":{partyView=b.dataset.v;try{localStorage.setItem("partyView",partyView)}catch(e){}renderParty();return}
+    case "abiltoggle":{showAbil=!showAbil;try{localStorage.setItem("showAbil",showAbil?"1":"0")}catch(e){}renderParty();return}
     case "edit":editMode=!editMode;renderSheet();renderNav();return;
     case "import":$("importIn").click();return;
     case "addnpc":return addNpc();
@@ -1578,7 +1723,7 @@ function slotKey(key){const m=/^slot(\d)$/.exec(key);return m?m[1]:null}
 window.PartyBridge={
   pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF}},
   setHP(short,hp){const id=bid(short);if(!id)return;const c=chars[id];hp=Math.max(0,Math.min(c.hpMax,Math.round(Number(hp)||0)));if(c.hp===hp)return;
-    if(hp>0&&c.hp===0){c.deathS=0;c.deathF=0}c.hp=hp;saveChar(id,["hp","deathS","deathF"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
+    applyHpDelta(c,hp-c.hp);saveChar(id,["hp","hpTemp","deathS","deathF"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   setDeath(short,s,f){const id=bid(short);if(!id)return;const c=chars[id];c.deathS=Math.max(0,Math.min(3,s));c.deathF=Math.max(0,Math.min(3,f));saveChar(id,["deathS","deathF"])},
   trackers(short){
     const id=bid(short);if(!id)return [];const c=chars[id],pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact",t=[];

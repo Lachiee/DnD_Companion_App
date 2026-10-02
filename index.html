@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f6f66">
+<meta name="theme-color" content="#17665d" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101614" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Party Sheets">
@@ -25,7 +29,7 @@ html{font-size:100%;-webkit-text-size-adjust:100%}
 @media (min-width:701px) and (max-width:1100px){html{font-size:106.25%}}
 @media (max-width:700px){html{font-size:112.5%}}
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 "Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 calc(5.2rem + env(safe-area-inset-bottom,0))}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 "Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 calc(5.7rem + env(safe-area-inset-bottom,0))}
 body.nonav{padding-bottom:env(safe-area-inset-bottom,0)}
 h1,h2,h3{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;margin:0;font-weight:700;letter-spacing:.01em}
 button,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -183,16 +187,16 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .msg.err{color:var(--hp-low)}
 
 /* ---------- bottom nav ---------- */
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:3px solid var(--brass);display:flex;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom,0);scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.bnav::-webkit-scrollbar{display:none}
-.bnav.fade{-webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}
-.bnav button{flex:1 0 4.3rem;min-height:4.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:none;border:0;border-right:1px solid var(--line);font-size:.82rem;font-weight:700;color:var(--muted);position:relative;padding:.3rem .2rem}
-.bnav button:last-child{border-right:0}
-.bnav button.on{color:var(--accent-ink);background:var(--accent)}
-.bnav.fit{overflow:hidden}
-.bnav.fit button{flex:1 1 0;min-width:0}
-.bnav .ico{font-size:1.7rem;line-height:1.1}
-.bnav .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:3px solid var(--brass);padding-bottom:env(safe-area-inset-bottom,0)}
+.bn-scroll{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative}
+.bn-scroll::-webkit-scrollbar{display:none}
+.bn-scroll.fit{overflow:hidden}
+.bn-scroll.fit button{flex:1 1 0;min-width:0}
+.bn-scroll button{flex:1 0 4.3rem;min-height:4.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:none;border:0;border-right:1px solid var(--line);font-size:.82rem;font-weight:700;color:var(--muted);position:relative;padding:.3rem .2rem}
+.bn-scroll button:last-child{border-right:0}
+.bn-scroll button.on{color:var(--accent-ink);background:var(--accent)}
+.bn-scroll .ico{font-size:1.7rem;line-height:1.1}
+.bn-scroll .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
 .subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;padding:.35rem 0 .5rem;margin-bottom:.4rem;background:var(--bg)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.5rem}
 .seg.two{grid-template-columns:repeat(2,1fr);margin-bottom:.7rem}
@@ -329,6 +333,48 @@ details.more>.prose{padding:.2rem 0}
 .cmp-line>b{font-family:Georgia,serif;font-size:1.15rem;display:block}
 @media (max-width:700px){.ab-row{grid-template-columns:4.4rem 1fr}}
 
+
+/* ---------- scroll hints, status, offline, textareas ---------- */
+.sb-track{height:.4rem;border-radius:99px;background:var(--chip);position:relative;overflow:hidden;margin:.25rem .6rem .1rem}
+.sb-track>i{position:absolute;top:0;bottom:0;left:0;width:30%;border-radius:99px;background:var(--accent);opacity:.85}
+.bn-track{margin:.2rem .8rem .25rem}
+.bn-arrow{position:absolute;top:0;bottom:.9rem;width:2.1rem;z-index:3;border:0;padding:0;font-size:2rem;font-weight:700;color:var(--accent);line-height:1}
+.bn-arrow.l{left:0;background:linear-gradient(to right,var(--panel) 55%,transparent)}
+.bn-arrow.r{right:0;background:linear-gradient(to left,var(--panel) 55%,transparent)}
+textarea{overflow-y:hidden;resize:none}
+.composer textarea{max-height:10rem;overflow-y:auto}
+.pill{display:inline-block;padding:.1rem .65rem;border-radius:99px;font-size:.82rem;font-weight:700}
+.pill.off{background:var(--hp-low);color:#fff}
+#htoast{position:fixed;left:.8rem;right:.8rem;bottom:calc(6.4rem + env(safe-area-inset-bottom,0px));z-index:70;display:none;max-width:36rem;margin:0 auto;padding:.8rem 1rem;border-radius:.9rem;background:var(--ink);color:var(--bg);font-weight:700;line-height:1.4;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+#htoast.on{display:block}
+.stat{display:flex;flex-direction:column;gap:.5rem;background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:.8rem .9rem;margin-bottom:.9rem}
+.cstat .stat{border:0;padding:.3rem 0 0;margin:0;background:none}
+.cstat{border:1px dashed var(--line);border-radius:.8rem;background:var(--field)}
+.cstat>summary{list-style:none;cursor:pointer;min-height:2.8rem;display:flex;align-items:center;padding:.3rem .8rem;font-weight:700}
+.cstat>summary::-webkit-details-marker{display:none}
+.cstat>summary::after{content:"▾";margin-left:auto;color:var(--muted)}
+.cstat>.stat{padding:.2rem .8rem .8rem}
+.stat-row{display:grid;grid-template-columns:6.4rem 1fr;gap:.5rem;align-items:center}
+.stat-k{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+.stat-v{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.cchip{border:2px solid var(--line);background:var(--field);border-radius:99px;padding:.2rem .8rem;font-size:.98rem;font-weight:700;min-height:2.5rem}
+.cchip.on{background:var(--hp-low);color:#fff;border-color:var(--hp-low)}
+.cchip.conc{background:var(--react);color:#fff;border-color:var(--react)}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem;padding:.2rem 0 .3rem}
+.cgrid .cchip{text-align:left;border-radius:.7rem;font-size:.88rem;padding:.2rem .5rem;overflow-wrap:anywhere;line-height:1.25}
+.cpick{border:1px solid var(--line);border-radius:.8rem;background:var(--field)}
+.cpick>summary{list-style:none;cursor:pointer;min-height:2.8rem;display:flex;align-items:center;padding:.3rem .8rem;font-weight:700;color:var(--accent)}
+.cpick>summary::-webkit-details-marker{display:none}
+.cpick>.cgrid{padding:.3rem .6rem .7rem}
+.ceff{font-size:.98rem;line-height:1.45;background:var(--chip);border-radius:.7rem;padding:.5rem .7rem}
+.stepper{display:flex;align-items:center;gap:.7rem}
+.stepper b{min-width:4.6rem;text-align:center;font-size:1.1rem}
+.flag.conc{background:var(--react);color:#fff}
+.turn-ban{background:var(--hp-low);color:#fff;font-weight:700;border-radius:.7rem;padding:.6rem .8rem;margin:.4rem 0}
+.tile.warn b{color:var(--hp-low)}
+.tnote{display:block;font-size:.7rem;color:var(--hp-low);font-weight:700}
+.stat select{min-width:0;flex:1 1 9rem}
+
 @media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
 </style>
 </head>
@@ -340,7 +386,9 @@ details.more>.prose{padding:.2rem 0}
       <div class="sub" id="who">Loading…</div>
     </div>
     <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+      <span class="pill off" id="offPill" hidden>Offline</span>
       <span class="status" id="status"></span>
+      <button class="btn small" data-act="install" id="installBtn" hidden>📲 Install</button>
       <button class="btn small" data-act="signout" id="outBtn" hidden>Sign out</button>
     </div>
   </header>
@@ -371,12 +419,20 @@ details.more>.prose{padding:.2rem 0}
     <section id="viewSheet" hidden aria-live="polite"></section>
   </main>
 </div>
-<nav class="bnav" id="bnav" aria-label="Sections" hidden></nav>
+<nav class="bnav" id="bnav" aria-label="Sections" hidden>
+  <button type="button" class="bn-arrow l" id="bnL" aria-label="Scroll tabs left" hidden>‹</button>
+  <div class="bn-scroll" id="bnScroll"></div>
+  <button type="button" class="bn-arrow r" id="bnR" aria-label="Scroll tabs right" hidden>›</button>
+  <div class="sb-track bn-track" id="bnTrack" hidden><i></i></div>
+</nav>
+<script>
+if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYnsx30sdSSQm9Khjdc8gJ_BJLjHMhL4g",
@@ -388,7 +444,8 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+let db;
+try{db = initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}catch(e){db = getFirestore(app)}
 
 /*IMPORT_START*/
 const ABIL=["str","dex","con","int","wis","cha"];
@@ -429,7 +486,7 @@ function blank(){
   const a={};ABIL.forEach(k=>a[k]=10);
   return {name:"New adventurer",player:"",race:"",cls:"",subclass:"",alignment:"",size:"",level:1,background:"",
     abilities:a,saveProf:{},skillProf:{},skillExtra:{},ac:10,speed:30,hpMax:10,hp:10,hpTemp:0,hitDice:"",
-    deathS:0,deathF:0,inspiration:0,conditions:"",spellAbility:"",slots:{},spells:[],spellInfo:[],
+    deathS:0,deathF:0,inspiration:0,conditions:"",exhaustion:0,concentrating:"",spellAbility:"",slots:{},spells:[],spellInfo:[],
     attacks:[],actions:[],features:[],traits:[],resources:[],inventory:"",gold:0,languages:"",goals:"",backstory:"",notes:"",
     history:[],npc:false,updated:0};
 }
@@ -439,6 +496,7 @@ function normalize(d){
   ["saveProf","skillProf","skillExtra","slots"].forEach(k=>{o[k]=(d[k]&&typeof d[k]==="object")?d[k]:{}});
   ["spells","spellInfo","attacks","actions","features","traits","resources","history"].forEach(k=>{o[k]=Array.isArray(d[k])?d[k]:[]});
   o.inspiration=Number(d.inspiration)||0;
+  o.exhaustion=Math.max(0,Math.min(6,Number(d.exhaustion)||0));o.concentrating=String(d.concentrating||"");
   return o;
 }
 function slugify(name){
@@ -536,7 +594,7 @@ const $=id=>document.getElementById(id);
 const E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const WIDE=()=>matchMedia("(min-width:701px)").matches;
 const isDM=()=>role==="dm";
-function setStatus(t,err){const s=$("status");if(s){s.textContent=t||"";s.className="status"+(err?" err":"")}}
+function setStatus(t,err){const s=$("status");if(s){if(!navigator.onLine&&!err&&(t==="Live"||t==="Saved"||t==="Saving…"))t="Offline: changes are saved on this device and will sync later";s.textContent=t||"";s.className="status"+(err?" err":"")}}
 function canEditChar(id){return !!chars[id]&&(isDM()||id===charId)}
 const ed=()=>editMode&&openId&&canEditChar(openId);
 function skillTotal(c,s){return mod(c.abilities[s[1]])+(Number(c.skillProf[s[0]])||0)*prof(c.level)+(Number(c.skillExtra[s[0]])||0)}
@@ -563,7 +621,13 @@ async function flush(key){
   if(p.busy){p.timer=setTimeout(()=>flush(key),300);return}
   const keys=Array.from(p.keys);p.keys=new Set();p.busy=true;
   const data={};keys.forEach(k=>{data[k]=o[k]===undefined?null:o[k]});
-  try{await setDoc(p.ref,data,{mergeFields:keys});if(!p.keys.size)setStatus("Saved")}
+  try{
+    const pr=setDoc(p.ref,data,{mergeFields:keys});
+    if(!navigator.onLine){pr.catch(()=>{});setStatus("Offline: saved on this device, will sync later");return}
+    const r=await Promise.race([pr,new Promise(res=>setTimeout(()=>res("slow"),8000))]);
+    if(r==="slow"){pr.catch(()=>{});setStatus("Slow connection: saved here, syncing…");return}
+    if(!p.keys.size)setStatus("Saved");
+  }
   catch(e){keys.forEach(k=>p.keys.add(k));setStatus("Could not save ("+(e&&e.code||"error")+")",true)}
   finally{p.busy=false}
 }
@@ -591,7 +655,26 @@ function area(path,label,val,attrs){
   return '<label class="f">'+E(label)+'<textarea data-path="'+path+'"'+(attrs||"")+'>'+E(val)+'</textarea></label>';
 }
 const prose=t=>t?'<div class="prose">'+E(t)+'</div>':'<div class="sub">Nothing here yet.</div>';
-function autosize(t){if(t.scrollHeight>0){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}}
+function autosize(t){
+  if(!t||t.tagName!=="TEXTAREA"||t.hasAttribute("data-fixed"))return;
+  if(!t.getClientRects().length)return;
+  t._lv=t.value;
+  const cs=getComputedStyle(t),y=window.scrollY;
+  t.style.height="auto";
+  t.style.height=Math.ceil(t.scrollHeight+(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0))+"px";
+  if(window.scrollY!==y)window.scrollTo(0,y);
+}
+let growT;
+function growAll(){
+  cancelAnimationFrame(growT);
+  growT=requestAnimationFrame(()=>{document.querySelectorAll("textarea").forEach(t=>{if(t.getClientRects().length&&(t._lv!==t.value||!t.style.height||t.scrollHeight>t.clientHeight+1))autosize(t)})});
+}
+window.__growAll=growAll;
+document.addEventListener("input",e=>{if(e.target&&e.target.tagName==="TEXTAREA")autosize(e.target)},true);
+document.addEventListener("toggle",growAll,true);
+window.addEventListener("resize",growAll);
+window.addEventListener("orientationchange",growAll);
+new MutationObserver(growAll).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","open"]});
 function actionFields(list,e,i){
   if(list!=="actions")return "";
   const c=chars[openId]||{resources:[]};
@@ -702,6 +785,7 @@ function renderLookup(host){
   h+='</div>';
   if(isDM())h+=csForm();
   host.innerHTML=h;
+  host.querySelectorAll(".chips").forEach(addTrack);
   loadSpells().then(()=>{if($("lkResults")){renderLookupResults()}}).catch(()=>{if($("lkResults"))$("lkResults").innerHTML='<div class="sub err">Could not load the spell list. Check your connection and try again.</div>'});
   renderLookupResults();
 }
@@ -715,6 +799,98 @@ function csForm(){
 }
 function hasSpells(c){return c.spells.length>0||!!c.spellAbility||Object.keys(c.slots).some(k=>c.slots[k].max>0)}
 
+/* ================= conditions, exhaustion and concentration (2024 rules, SRD 5.2) ================= */
+const CONDS=[{"n":"Blinded","i":"👁","s":"Can't see and fail any check that needs sight. Attacks against you have Advantage, and your attacks have Disadvantage.","e":["Can't See. You can't see and automatically fail any ability check that requires sight.","Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage."]},{"n":"Charmed","i":"💕","s":"Can't attack the charmer or target them with harmful effects. The charmer has Advantage on social checks against you.","e":["Can't Harm the Charmer. You can't attack the charmer or target the charmer with damaging abilities or magical effects.","Social Advantage. The charmer has Advantage on ability checks to interact socially with you."]},{"n":"Deafened","i":"🔇","s":"Can't hear and fail any check that needs hearing.","e":["Can't Hear. You can't hear and automatically fail any ability check that requires hearing."]},{"n":"Exhaustion","i":"😴","s":"Each level: −2 to every D20 Test and −5 ft Speed. Level 6 is death. A long rest removes 1 level.","e":["Exhaustion Levels. This condition is cumulative. Each time you receive it, you gain 1 Exhaustion level. You die if your Exhaustion level is 6.","D20 Tests Affected. When you make a D20 Test, the roll is reduced by 2 times your Exhaustion level.","Speed Reduced. Your Speed is reduced by a number of feet equal to 5 times your Exhaustion level.","Removing Exhaustion Levels. Finishing a Long Rest removes 1 of your Exhaustion levels. When your Exhaustion level reaches 0, the condition ends."]},{"n":"Frightened","i":"😨","s":"Disadvantage on checks and attacks while you can see the source of fear. You can't willingly move closer to it.","e":["Ability Checks and Attacks Affected. You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.","Can't Approach. You can't willingly move closer to the source of your fear."]},{"n":"Grappled","i":"🤼","s":"Speed 0. Disadvantage on attacks against anyone except the grappler, who can drag you along.","e":["Speed 0. Your Speed is 0 and can't increase.","Attacks Affected. You have Disadvantage on attack rolls against any target other than the grappler.","Movable. The grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller."]},{"n":"Incapacitated","i":"💫","s":"No actions, bonus actions or reactions. Concentration breaks. You can't speak.","e":["Inactive. You can't take any action, Bonus Action, or Reaction.","No Concentration. Your Concentration is broken.","Speechless. You can't speak.","Surprised. If you're Incapacitated when you roll Initiative, you have Disadvantage on the roll."]},{"n":"Invisible","i":"👻","s":"Attacks against you have Disadvantage and yours have Advantage. Effects that need to see you can't target you. Advantage on initiative.","e":["Surprise. If you're Invisible when you roll Initiative, you have Advantage on the roll.","Concealed. You aren't affected by any effect that requires its target to be seen unless the effect's creator can somehow see you. Any equipment you are wearing or carrying is also concealed.","Attacks Affected. Attack rolls against you have Disadvantage, and your attack rolls have Advantage. If a creature can somehow see you, you don't gain this benefit against that creature."]},{"n":"Paralyzed","i":"⚡","s":"Incapacitated, Speed 0. Auto-fail Str and Dex saves. Attacks against you have Advantage, and hits from within 5 ft are critical hits.","e":["Incapacitated. You have the Incapacitated condition.","Speed 0. Your Speed is 0 and can't increase.","Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.","Attacks Affected. Attack rolls against you have Advantage.","Automatic Critical Hits. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you."]},{"n":"Petrified","i":"🗿","s":"Turned to stone: Incapacitated, Speed 0, Resistance to all damage, immune to Poisoned. Auto-fail Str and Dex saves. Attacks against you have Advantage.","e":["Turned to Inanimate Substance. You are transformed, along with any nonmagical objects you are wearing and carrying, into a solid inanimate substance (usually stone). Your weight increases by a factor of ten, and you cease aging.","Incapacitated. You have the Incapacitated condition.","Speed 0. Your Speed is 0 and can't increase.","Attacks Affected. Attack rolls against you have Advantage.","Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.","Resist Damage. You have Resistance to all damage.","Poison Immunity. You have Immunity to the Poisoned condition.","Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.","Resist Damage. You have Resistance to all damage.","Poison Immunity. You have Immunity to the Poisoned condition."]},{"n":"Poisoned","i":"☠","s":"Disadvantage on attack rolls and ability checks.","e":["Ability Checks and Attacks Affected. You have Disadvantage on attack rolls and ability checks."]},{"n":"Prone","i":"🛌","s":"You crawl, or spend half your Speed to stand up. Disadvantage on your attacks. Attacks against you have Advantage from within 5 ft, otherwise Disadvantage.","e":["Restricted Movement. Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can't right yourself.","Attacks Affected. You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage."]},{"n":"Restrained","i":"⛓","s":"Speed 0. Attacks against you have Advantage and yours have Disadvantage. Disadvantage on Dex saves.","e":["Speed 0. Your Speed is 0 and can't increase.","Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.","Saving Throws Affected. You have Disadvantage on Dexterity saving throws."]},{"n":"Stunned","i":"😵","s":"Incapacitated. Auto-fail Str and Dex saves. Attacks against you have Advantage.","e":["Incapacitated. You have the Incapacitated condition.","Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.","Attacks Affected. Attack rolls against you have Advantage."]},{"n":"Unconscious","i":"💤","s":"Incapacitated and Prone, you drop what you hold, Speed 0, unaware. Auto-fail Str and Dex saves. Attacks have Advantage, and hits from within 5 ft are critical hits.","e":["Inert. You have the Incapacitated and Prone conditions, and you drop whatever you're holding.","**When this condition ends, you remain Prone.","Speed 0. Your Speed is 0 and can't increase.","Attacks Affected. Attack rolls against you have Advantage.","Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.","Automatic Critical Hits. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.","Unaware. You're unaware of your surroundings."]}];
+const INCAP=["Incapacitated","Paralyzed","Petrified","Stunned","Unconscious"];
+const SPEED0=["Grappled","Restrained","Paralyzed","Petrified","Unconscious"];
+let statOpen={};
+const condDef=n=>CONDS.filter(x=>x.n===n)[0];
+const canonCond=n=>{const d=CONDS.filter(x=>x.n.toLowerCase()===String(n).trim().toLowerCase())[0];return d?d.n:null};
+const condList=c=>String(c.conditions||"").split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
+const activeStd=c=>condList(c).map(canonCond).filter(n=>n&&n!=="Exhaustion").filter((v,i,a)=>a.indexOf(v)===i);
+const customConds=c=>condList(c).filter(x=>!canonCond(x));
+function effSpeed(c){
+  const z=activeStd(c).filter(x=>SPEED0.indexOf(x)>=0)[0];
+  if(z)return {v:0,why:z};
+  const ex=Number(c.exhaustion)||0;
+  return {v:Math.max(0,(Number(c.speed)||0)-5*ex),why:ex?"Exhaustion "+ex:""};
+}
+function noActionsWhy(c){
+  const a=activeStd(c).filter(x=>INCAP.indexOf(x)>=0)[0];
+  if(a)return "You are "+a+": you can’t take actions, bonus actions or reactions, and your Concentration is broken.";
+  if(c.hp===0&&!c.npc)return "You are at 0 HP and Unconscious: no actions. Make a death save at the start of your turn.";
+  if((c.exhaustion||0)>=6)return "Exhaustion level 6 is death.";
+  return "";
+}
+const conSave=c=>mod(c.abilities.con)+(c.saveProf&&c.saveProf.con?prof(c.level):0);
+let htT;
+function hostToast(msg,ms){
+  let t=$("htoast");
+  if(!t){t=document.createElement("div");t.id="htoast";t.setAttribute("role","status");document.body.appendChild(t)}
+  t.textContent=msg;t.classList.add("on");clearTimeout(htT);htT=setTimeout(()=>t.classList.remove("on"),ms||8000);
+}
+/* call after damage was applied. Ends concentration at 0 HP, otherwise shows the save to make. */
+function concAfter(id,taken){
+  const c=chars[id];if(!c||!c.concentrating||!(taken>0))return;
+  const nm=(c.name||"").split(" ")[0];
+  if(c.hp===0){const sp=c.concentrating;c.concentrating="";hostToast(nm+" dropped to 0 HP, so concentration on "+sp+" ends.");return}
+  const dc=Math.min(30,Math.max(10,Math.floor(taken/2)));
+  hostToast("Concentration check: "+nm+" took "+taken+" damage. Constitution save DC "+dc+" ("+sgn(conSave(c))+" for "+nm+") or lose "+c.concentrating+".",10000);
+}
+function concSpellOptions(c){
+  const all=c.spells.filter(s=>s.level>0);
+  const conc=spellDB?all.filter(s=>{const sp=findSpell(s.name);return sp&&sp.k}):[];
+  const list=(conc.length?conc:all).map(s=>s.name);
+  return list;
+}
+function statusPanel(id,c,can,compact){
+  const act=activeStd(c),cust=customConds(c),ex=Number(c.exhaustion)||0;
+  let h='<div class="stat" data-id="'+E(id)+'">';
+  /* conditions */
+  h+='<div class="stat-row"><b class="stat-k">Conditions</b><div class="stat-v">';
+  if(!act.length&&!cust.length)h+='<span class="sub">None right now.</span>';
+  act.forEach(n=>{h+=(can?'<button type="button" class="cchip on" data-act="ctoggle" data-n="'+n+'" aria-label="Remove '+n+'">'+condDef(n).i+' '+n+' ✕</button>':'<span class="cchip on">'+condDef(n).i+' '+n+'</span>')});
+  cust.forEach(n=>{h+='<span class="cchip on">'+E(n)+'</span>'});
+  h+='</div></div>';
+  if(can){
+    h+='<details class="cpick"><summary>＋ Add or remove a condition</summary><div class="cgrid">'+
+      CONDS.filter(x=>x.n!=="Exhaustion").map(x=>'<button type="button" class="cchip'+(act.indexOf(x.n)>=0?" on":"")+'" data-act="ctoggle" data-n="'+x.n+'" aria-pressed="'+(act.indexOf(x.n)>=0)+'">'+x.i+' '+x.n+'</button>').join("")+'</div></details>';
+  }
+  act.forEach(n=>{
+    const d=condDef(n);
+    h+='<div class="ceff"><b>'+E(n)+'.</b> '+E(d.s)+(compact?"":'<details class="more"><summary>Full rules</summary><div class="prose">'+d.e.map(E).join("\n\n")+'</div></details>')+'</div>';
+  });
+  /* exhaustion */
+  h+='<div class="stat-row"><b class="stat-k">Exhaustion</b><div class="stat-v"><div class="stepper">'+
+    (can?'<button type="button" class="btn small" data-act="exh" data-d="-1" aria-label="Remove one level of exhaustion"'+(ex<=0?" disabled":"")+'>−</button>':"")+
+    '<b>Level '+ex+'</b>'+
+    (can?'<button type="button" class="btn small" data-act="exh" data-d="1" aria-label="Add one level of exhaustion"'+(ex>=6?" disabled":"")+'>+</button>':"")+'</div></div></div>';
+  if(ex>0)h+='<div class="ceff"><b>Exhaustion '+ex+'.</b> Every D20 Test (attack, check or save) is reduced by <b>'+(2*ex)+'</b>. Speed is reduced by <b>'+(5*ex)+' ft</b>'+(ex>=6?'. <b>Level 6 is death.</b>':'. A long rest removes 1 level.')+'</div>';
+  /* concentration */
+  h+='<div class="stat-row"><b class="stat-k">Concentration</b><div class="stat-v">';
+  if(c.concentrating){
+    h+='<span class="cchip conc">◉ '+E(c.concentrating)+'</span>'+(can?'<button type="button" class="btn small" data-act="concend">End it</button>':"");
+  }else if(can){
+    const opts=concSpellOptions(c);
+    h+='<select data-conc-pick aria-label="Spell you are concentrating on">'+opts.map(n=>'<option>'+E(n)+'</option>').join("")+'<option value="__other">Other…</option></select><button type="button" class="btn small" data-act="conc">Start</button>';
+  }else h+='<span class="sub">Not concentrating.</span>';
+  h+='</div></div>';
+  if(c.concentrating)h+='<div class="ceff"><b>Remember.</b> Every time you take damage, make a Constitution save (<b>'+sgn(conSave(c))+'</b> for you). The DC is 10 or half the damage, whichever is higher. You lose the spell on a fail, if you are Incapacitated or die, or if you start concentrating on another spell.</div>';
+  return h+'</div>';
+}
+
+function remoteNotes(p,c){
+  if(!p||!c)return;
+  if(c.hp<p.hp&&p.concentrating&&c.concentrating){
+    const taken=(p.hp-c.hp)+Math.max(0,(p.hpTemp||0)-(c.hpTemp||0)),dc=Math.min(30,Math.max(10,Math.floor(taken/2)));
+    hostToast("You took "+taken+" damage. Concentration check on "+c.concentrating+": Constitution save DC "+dc+" ("+sgn(conSave(c))+").",12000);
+  }else if(p.concentrating&&!c.concentrating)hostToast("Concentration on "+p.concentrating+" has ended.");
+  if(p.conditions!==c.conditions||p.exhaustion!==c.exhaustion){
+    const l=activeStd(c).concat(customConds(c)).concat(c.exhaustion?["Exhaustion "+c.exhaustion]:[]);
+    hostToast("Your status changed: "+(l.length?l.join(", "):"no conditions")+".",9000);
+  }
+}
+document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.classList&&d.classList.contains("cstat"))statOpen[d.dataset.id]=d.open},true);
 /* ================= DM: party ================= */
 function hpColor(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r>.5?"var(--hp-ok)":r>.25?"var(--hp-mid)":"var(--hp-low)"}
 function hpClass(c){const r=c.hpMax>0?c.hp/c.hpMax:0;return r<=.25?"low":r<=.5?"mid":""}
@@ -790,8 +966,8 @@ function abilityBlock(c,id){
   return rows.length?'<div class="pc-abil">'+rows.join("")+'</div>':"";
 }
 function applyHpDelta(c,d){
-  if(d<0){let rem=-d;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem)}
-  else{if(c.hp===0&&d>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+d)}
+  if(d<0){let rem=-d;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem);return -d}
+  else{if(c.hp===0&&d>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+d);return 0}
 }
 function pcard(id){
   const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c),un=unreadFrom(id,"player");
@@ -800,7 +976,10 @@ function pcard(id){
   const sub=[c.race,(c.cls||"")+(c.level?" "+c.level:"")].filter(Boolean).join(" · ")+(who?" · "+who:"");
   let flags="";
   if(c.hp===0&&!c.npc)flags+='<span class="flag bad">Down · saves ✓'+c.deathS+' ✗'+c.deathF+'</span>';
-  if(c.conditions)flags+='<span class="flag bad">'+E(c.conditions)+'</span>';
+  activeStd(c).forEach(n=>{flags+='<span class="flag bad" title="'+E(condDef(n).s)+'">'+condDef(n).i+' '+n+'</span>'});
+  customConds(c).forEach(n=>{flags+='<span class="flag bad">'+E(n)+'</span>'});
+  if(c.exhaustion)flags+='<span class="flag bad">😴 Exhaustion '+c.exhaustion+'</span>';
+  if(c.concentrating)flags+='<span class="flag conc">◉ '+E(c.concentrating)+'</span>';
   if(c.inspiration)flags+='<span class="flag good">★ Inspiration'+(c.inspiration>1?" ×"+c.inspiration:"")+'</span>';
   const slots=slotLines(c);
   const linked=new Set();c.actions.forEach(e=>{const i=resIndex(c,e.res);if(i>=0)linked.add(i)});
@@ -810,8 +989,9 @@ function pcard(id){
     '<div class="pc-hp"><div class="pc-hprow"><div class="pc-hpnum">'+c.hp+'<span> / '+c.hpMax+'</span>'+(c.hpTemp?'<small>+'+c.hpTemp+' temp</small>':'')+'</div>'+
     '<div class="pc-hpbtns"><button class="btn" data-act="hp" data-d="-5" aria-label="Lose 5 HP">−5</button><button class="btn" data-act="hp" data-d="-1" aria-label="Lose 1 HP">−1</button><button class="btn" data-act="hp" data-d="1" aria-label="Gain 1 HP">+1</button><button class="btn" data-act="hp" data-d="5" aria-label="Gain 5 HP">+5</button></div></div>'+
     '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div></div>'+
-    '<div class="pc-stats"><div><b>'+c.ac+'</b><span>AC</span></div><div><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init</span></div><div><b>'+passive(c)+'</b><span>Passive</span></div><div><b>'+(st?st.dc:"–")+'</b><span>DC</span></div><div><b>'+c.speed+'</b><span>Speed</span></div></div>'+
+    '<div class="pc-stats"><div><b>'+c.ac+'</b><span>AC</span></div><div><b>'+sgn(mod(c.abilities.dex))+'</b><span>Init</span></div><div><b>'+passive(c)+'</b><span>Passive</span></div><div><b>'+(st?st.dc:"–")+'</b><span>DC</span></div><div><b>'+effSpeed(c).v+'</b><span>Speed</span></div></div>'+
     (flags?'<div class="pc-flags">'+flags+'</div>':'')+
+    '<details class="cstat" data-id="'+E(id)+'"'+(statOpen[id]?" open":"")+'><summary>Conditions &amp; concentration</summary>'+statusPanel(id,c,true,true)+'</details>'+
     (showAbil?abilityBlock(c,id):"")+
     ((slots||chips)?'<div class="pc-res">'+slots+(chips?'<div class="chiprow">'+chips+'</div>':'')+'</div>':'')+
     (c.updated?'<div class="pc-upd">Updated '+E(timeStr(c.updated))+'</div>':'')+
@@ -829,14 +1009,16 @@ function partyStatus(ids){
     if(bits.length)heal.push('<b>'+E((c.name||"").split(" ")[0])+'</b> '+E(bits.join(", ")));
   });
   const lc=chars[low];
-  return '<div class="pstatus"><div><span class="k">Party HP</span> <b>'+tot+' / '+max+'</b></div><div><span class="k">Lowest</span> <b>'+E((lc.name||"").split(" ")[0])+' '+lc.hp+'/'+lc.hpMax+'</b></div>'+(heal.length?'<div class="wide"><span class="k">Healing</span> '+heal.join(" · ")+'</div>':'')+'</div>';
+  const cs=pcs.filter(id=>activeStd(chars[id]).length||customConds(chars[id]).length||chars[id].exhaustion).map(id=>'<b>'+E((chars[id].name||"").split(" ")[0])+'</b> '+E(activeStd(chars[id]).concat(customConds(chars[id])).concat(chars[id].exhaustion?["Exhaustion "+chars[id].exhaustion]:[]).join(", ")));
+  const cc=pcs.filter(id=>chars[id].concentrating).map(id=>'<b>'+E((chars[id].name||"").split(" ")[0])+'</b> '+E(chars[id].concentrating));
+  return '<div class="pstatus"><div><span class="k">Party HP</span> <b>'+tot+' / '+max+'</b></div><div><span class="k">Lowest</span> <b>'+E((lc.name||"").split(" ")[0])+' '+lc.hp+'/'+lc.hpMax+'</b></div>'+(cs.length?'<div class="wide"><span class="k">Conditions</span> '+cs.join(" · ")+'</div>':'')+(cc.length?'<div class="wide"><span class="k">Concentrating</span> '+cc.join(" · ")+'</div>':'')+(heal.length?'<div class="wide"><span class="k">Healing</span> '+heal.join(" · ")+'</div>':'')+'</div>';
 }
 function compareView(ids){
   const pcs=ids;if(!pcs.length)return '<div class="empty">No characters yet.</div>';
   const nm=id=>E((chars[id].name||"").split(" ")[0]);
   const tbl=(title,head,rowFn,note)=>'<section class="cmp"><h3>'+title+'</h3><div class="cmp-s"><table class="cmp-t"><thead><tr><th>Name</th>'+head.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+pcs.map(id=>'<tr><th scope="row">'+nm(id)+'</th>'+rowFn(chars[id],id).map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+(note?'<div class="sub cmp-note">'+note+'</div>':"")+'</section>';
   let h="";
-  h+=tbl("Essentials",["HP","AC","Speed","Init","DC"],c=>{const st=spellStats(c);return ['<b>'+c.hp+'</b>/'+c.hpMax+(c.hpTemp?'<small> +'+c.hpTemp+'</small>':""),'<b>'+c.ac+'</b>',c.speed,sgn(mod(c.abilities.dex)),st?'<b>'+st.dc+'</b>':'–']},"Speed is in feet. DC is the spell save DC. +N after the HP is temporary HP.");
+  h+=tbl("Essentials",["HP","AC","Speed","Init","DC"],c=>{const st=spellStats(c);return ['<b>'+c.hp+'</b>/'+c.hpMax+(c.hpTemp?'<small> +'+c.hpTemp+'</small>':""),'<b>'+c.ac+'</b>',effSpeed(c).v,sgn(mod(c.abilities.dex)),st?'<b>'+st.dc+'</b>':'–']},"Speed is in feet. DC is the spell save DC. +N after the HP is temporary HP.");
   h+=tbl("What they notice (passive scores)",["Percep.","Insight","Invest."],c=>['<b>'+passive(c)+'</b>',passiveOf(c,"Insight"),passiveOf(c,"Investigation")]);
   h+=tbl("Saving throws",ABIL.map(k=>ABIL_UP[k]),c=>saveInfo(c).map(x=>'<span class="sv'+(x.p?" p":"")+'">'+sgn(x.v)+(x.a?'<sup>A</sup>':"")+'</span>'),"Shaded = proficient. A = advantage from Gnomish Cunning (Int, Wis, Cha) or Danger Sense (Dex). Rage also gives Advantage on Strength saves while raging.");
   h+='<section class="cmp"><h3>Senses, skills and languages</h3>'+pcs.map(id=>{const c=chars[id];return '<div class="cmp-line"><b>'+nm(id)+'</b><div><span class="k">Darkvision</span> '+E(sensesOf(c))+'</div><div><span class="k">Skills</span> '+E(profSkills(c))+'</div><div><span class="k">Languages</span> '+E(c.languages||"not recorded")+'</div></div>'}).join("")+'</section>';
@@ -1028,7 +1210,8 @@ function turnCard(c,id,st,pb){
   c.actions.forEach(e=>{acts[actType(e)].push(e)});
   const bk=spellBuckets(c),hasMagic=c.spells.length>0||Object.keys(c.slots).some(k=>c.slots[k].max>0)||!!st;
   const nB=acts.bonus.length+bk.bonus.length,nR=1+acts.reaction.length+bk.reaction.length;
-  let h='<div class="turn"><h3>Your turn</h3><div class="turn-sum">1 action · 1 bonus action · move up to <b>'+c.speed+' ft</b> · 1 free object interaction. Plus 1 reaction per round.</div>'+
+  const es=effSpeed(c),ban=noActionsWhy(c);
+  let h='<div class="turn"><h3>Your turn</h3>'+(ban?'<div class="turn-ban">'+E(ban)+'</div>':'')+'<div class="turn-sum">1 action · 1 bonus action · move up to <b>'+es.v+' ft</b>'+(es.why?' ('+E(es.why)+')':'')+' · 1 free object interaction. Plus 1 reaction per round.</div>'+
     '<div class="jump" role="group" aria-label="Jump to"><button class="chip" data-act="jump" data-to="action">Action</button><button class="chip" data-act="jump" data-to="bonus">Bonus'+(nB?' ('+nB+')':'')+'</button><button class="chip" data-act="jump" data-to="reaction">Reaction ('+nR+')</button>'+(acts.free.length?'<button class="chip" data-act="jump" data-to="free">On a hit ('+acts.free.length+')</button>':'')+'</div>';
   /* ACTION */
   let a='<div class="tsub">Attack <span class="sub">make one attack with a weapon or Unarmed Strike</span></div>';
@@ -1074,10 +1257,11 @@ function tabPlay(id){
   h+='<div class="hero '+hpClass(c)+'"><div class="hp-big">'+c.hp+'<small> / '+c.hpMax+' HP</small>'+(c.hpTemp?' <span class="tmp">+'+c.hpTemp+' temp</span>':'')+'</div>'+
     '<div class="hpbar" role="img" aria-label="'+pct+' percent health"><i style="width:'+pct+'%;background:'+hpColor(c)+'"></i></div>';
   if(c.hp===0)h+='<div class="res"><div class="res-h"><b>Death saves</b></div><div style="display:flex;gap:1.4rem;flex-wrap:wrap"><div><div class="sub">Successes</div>'+pips(3,c.deathS,"death",'data-k="S"',"Death save success")+'</div><div><div class="sub">Failures</div>'+pips(3,c.deathF,"death",'data-k="F"',"Death save failure")+'</div></div></div>';
-  if(c.conditions)h+='<div class="conds">Conditions: '+E(c.conditions)+'</div>';
   if(can)h+='<div class="hpctl"><input type="number" id="hpAmt" min="0" inputmode="numeric" aria-label="Amount of damage or healing" value="'+E(hpAmtVal)+'"><button class="btn dmg" data-act="dmg">Damage</button><button class="btn heal" data-act="heal">Heal</button></div>';
   h+='</div>';
-  h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>AC</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile"><b>'+c.speed+'</b><span>Speed</span></div><div class="tile"><b>'+sgn(pb)+'</b><span>Prof.</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive</span></div>'+
+  h+=statusPanel(id,c,can,false);
+  const es=effSpeed(c);
+  h+='<div class="tiles"><div class="tile"><b>'+c.ac+'</b><span>AC</span></div><div class="tile"><b>'+sgn(mod(c.abilities.dex))+'</b><span>Initiative</span></div><div class="tile'+(es.why?" warn":"")+'"><b>'+es.v+'</b><span>Speed</span>'+(es.why?'<small class="tnote">'+E(es.why)+'</small>':'')+'</div><div class="tile"><b>'+sgn(pb)+'</b><span>Prof.</span></div><div class="tile"><b>'+passive(c)+'</b><span>Passive</span></div>'+
     (st?'<div class="tile"><b>'+st.dc+'</b><span>Spell DC</span></div><div class="tile"><b>'+sgn(st.atk)+'</b><span>Spell atk</span></div>':'')+
     '<div class="tile"><b>'+c.inspiration+'</b><span>Inspiration</span>'+(can?'<div class="ctl"><button class="btn small" data-act="insp" data-d="-1" aria-label="Use inspiration">−</button><button class="btn small" data-act="insp" data-d="1" aria-label="Gain inspiration">+</button></div>':'')+'</div></div>';
   if(!spellDB&&c.spells.length)loadSpells().then(()=>{if(openId===id&&sheetTab==="play"&&!ed()&&!sheetFocused())renderSheet()}).catch(()=>{});
@@ -1337,21 +1521,41 @@ function navItems(){
   return {items:[],active:""};
 }
 function renderNav(){
-  const nav=$("bnav"),n=navItems();
+  const nav=$("bnav"),sc=$("bnScroll"),n=navItems();
   nav.hidden=!n.items.length;
   document.body.classList.toggle("nonav",!n.items.length);
-  nav.classList.toggle("fit",n.items.length>0&&n.items.length<=5);
-  const prev=nav.scrollLeft;
-  nav.innerHTML=n.items.map(i=>'<button class="'+(n.active===i[0]?"on":"")+'" data-act="nav" data-tab="'+i[0]+'" aria-label="'+i[2]+'"><span class="ico">'+i[1]+'</span>'+i[2]+(n.badge&&n.badge[i[0]]?'<span class="n">'+n.badge[i[0]]+'</span>':"")+'</button>').join("");
-  nav.scrollLeft=prev;
-  const on=nav.querySelector(".on");
-  if(on&&nav.scrollWidth>nav.clientWidth){
+  sc.classList.toggle("fit",n.items.length>0&&n.items.length<=5);
+  const prev=sc.scrollLeft;
+  sc.innerHTML=n.items.map(i=>'<button class="'+(n.active===i[0]?"on":"")+'" data-act="nav" data-tab="'+i[0]+'" aria-label="'+i[2]+'"><span class="ico">'+i[1]+'</span>'+i[2]+(n.badge&&n.badge[i[0]]?'<span class="n">'+n.badge[i[0]]+'</span>':"")+'</button>').join("");
+  sc.scrollLeft=prev;
+  const on=sc.querySelector(".on");
+  if(on&&sc.scrollWidth>sc.clientWidth){
     const l=on.offsetLeft,r=l+on.offsetWidth;
-    if(l<nav.scrollLeft||r>nav.scrollLeft+nav.clientWidth)nav.scrollLeft=Math.max(0,l-(nav.clientWidth-on.offsetWidth)/2);
+    if(l<sc.scrollLeft||r>sc.scrollLeft+sc.clientWidth)sc.scrollLeft=Math.max(0,l-(sc.clientWidth-on.offsetWidth)/2);
   }
-  navFade();
+  navHints();
 }
-function navFade(){const nav=$("bnav");if(nav)nav.classList.toggle("fade",!nav.classList.contains("fit")&&nav.scrollWidth>nav.clientWidth+4&&nav.scrollLeft+nav.clientWidth<nav.scrollWidth-4)}
+function setThumb(sc,track){
+  const over=sc.scrollWidth>sc.clientWidth+4;
+  track.hidden=!over;
+  if(over){const th=track.firstElementChild;th.style.width=(sc.clientWidth/sc.scrollWidth*100)+"%";th.style.left=(sc.scrollLeft/sc.scrollWidth*100)+"%"}
+  return over;
+}
+function navHints(){
+  const sc=$("bnScroll");if(!sc)return;
+  const over=setThumb(sc,$("bnTrack"));
+  $("bnL").hidden=!over||sc.scrollLeft<4;
+  $("bnR").hidden=!over||sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-4;
+}
+/* a thin scroll bar under a row that scrolls sideways (works on phones, where normal scroll bars are hidden) */
+function addTrack(row){
+  if(!row||row.nextElementSibling&&row.nextElementSibling.classList.contains("sb-track"))return;
+  const tr=document.createElement("div");tr.className="sb-track";tr.innerHTML="<i></i>";
+  row.parentNode.insertBefore(tr,row.nextSibling);
+  const upd=()=>setThumb(row,tr);
+  row.addEventListener("scroll",upd,{passive:true});
+  upd();requestAnimationFrame(upd);
+}
 function renderSubnav(){
   const el=$("subnav"),top=isDM()&&!(openId&&chars[openId]);
   let chips=null,active=null,group=null,seg=null;
@@ -1368,6 +1572,7 @@ function renderSubnav(){
   const row=el.querySelector(".chips-row");
   if(row){row.scrollLeft=prev;const on=row.querySelector(".on");
     if(on&&row.scrollWidth>row.clientWidth){const l=on.offsetLeft,r=l+on.offsetWidth;if(l<row.scrollLeft||r>row.scrollLeft+row.clientWidth)row.scrollLeft=Math.max(0,l-20)}}
+  if(row)addTrack(row);
 }
 function renderApp(){
   if(!role)return;
@@ -1444,7 +1649,29 @@ document.addEventListener("click",async e=>{
     case "signout":return doSignOut();
     case "close":openId=null;lvlUp=null;sheetTab="play";editMode=false;renderApp();window.scrollTo(0,0);return;
     case "open":{const card=b.closest(".pcard");openId=card.dataset.id;sheetTab="play";lvlUp=null;editMode=false;renderApp();window.scrollTo(0,0);return}
-    case "hp":{const card=b.closest(".pcard"),id=card.dataset.id,x=chars[id];applyHpDelta(x,Number(b.dataset.d));saveChar(id,["hp","hpTemp","deathS","deathF"]);renderParty();return}
+    case "hp":{const card=b.closest(".pcard"),id=card.dataset.id,x=chars[id];const taken=applyHpDelta(x,Number(b.dataset.d));concAfter(id,taken);saveChar(id,["hp","hpTemp","deathS","deathF","concentrating"]);renderParty();return}
+    case "ctoggle":{
+      const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
+      const n=b.dataset.n;let l=condList(x).filter(v=>canonCond(v)!=="Exhaustion");const has=l.some(v=>canonCond(v)===n);
+      l=has?l.filter(v=>canonCond(v)!==n):l.concat(n);x.conditions=l.join(", ");
+      if(!has&&INCAP.indexOf(n)>=0&&x.concentrating){const sp=x.concentrating;x.concentrating="";hostToast((x.name||"").split(" ")[0]+" is "+n+", so concentration on "+sp+" ends.")}
+      saveChar(id,["conditions","concentrating"]);tomeSheetsSoon();if(openId)renderSheet();else renderParty();return}
+    case "exh":{
+      const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
+      x.exhaustion=Math.max(0,Math.min(6,(x.exhaustion||0)+Number(b.dataset.d)));
+      if(x.exhaustion>=6)hostToast("Exhaustion level 6 is death.");
+      saveChar(id,["exhaustion"]);if(openId)renderSheet();else renderParty();return}
+    case "conc":{
+      const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
+      const sel=host.querySelector("[data-conc-pick]");let name=sel?sel.value:"";
+      if(name==="__other")name=(prompt("Which spell are you concentrating on?")||"").trim();
+      if(!name)return;
+      if(x.concentrating&&x.concentrating!==name)hostToast("Concentration on "+x.concentrating+" ended. You can only concentrate on one spell at a time.");
+      x.concentrating=name;saveChar(id,["concentrating"]);if(openId)renderSheet();else renderParty();return}
+    case "concend":{
+      const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
+      x.concentrating="";saveChar(id,["concentrating"]);if(openId)renderSheet();else renderParty();return}
+    case "install":return doInstall();
     case "pview":{partyView=b.dataset.v;try{localStorage.setItem("partyView",partyView)}catch(e){}renderParty();return}
     case "abiltoggle":{showAbil=!showAbil;try{localStorage.setItem("showAbil",showAbil?"1":"0")}catch(e){}renderParty();return}
     case "edit":editMode=!editMode;renderSheet();renderNav();return;
@@ -1482,9 +1709,9 @@ document.addEventListener("click",async e=>{
   switch(act){
     case "dmg":case "heal":{
       const amt=Math.max(0,Math.floor(Number(hpAmtVal)||0));
-      if(act==="dmg"){let rem=amt;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem)}
-      else{if(c.hp===0&&amt>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+amt)}
-      saveChar(id,["hp","hpTemp","deathS","deathF"]);renderSheet();return}
+      if(act==="dmg"){const taken=applyHpDelta(c,-amt);concAfter(id,taken)}
+      else applyHpDelta(c,amt);
+      saveChar(id,["hp","hpTemp","deathS","deathF","concentrating"]);renderSheet();return}
     case "insp":c.inspiration=Math.max(0,c.inspiration+Number(b.dataset.d));saveChar(id,["inspiration"]);renderSheet();return;
     case "death":{const k=b.dataset.k,i=Number(b.dataset.i),f=k==="S"?"deathS":"deathF";c[f]=(i<c[f])?i:i+1;saveChar(id,[f]);renderSheet();return}
     case "rpip":{const r=c.resources[Number(b.dataset.r)],i=Number(b.dataset.i);r.used=(i<r.used)?i:i+1;saveChar(id,["resources"]);renderSheet();return}
@@ -1507,7 +1734,10 @@ document.addEventListener("click",async e=>{
     case "delsheet":return delSheet();
   }
 });
-document.addEventListener("scroll",e=>{if(e.target&&e.target.id==="bnav")navFade()},true);
+$("bnScroll").addEventListener("scroll",navHints,{passive:true});
+window.addEventListener("resize",navHints);
+$("bnL").addEventListener("click",()=>$("bnScroll").scrollBy({left:-$("bnScroll").clientWidth*.6,behavior:"smooth"}));
+$("bnR").addEventListener("click",()=>$("bnScroll").scrollBy({left:$("bnScroll").clientWidth*.6,behavior:"smooth"}));
 document.addEventListener("keydown",e=>{
   if(e.target.id==="codeIn"&&e.key==="Enter")$("joinBtn").click();
   if(e.target.id==="msgIn"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){const b=document.querySelector('[data-act="send"]');if(b)b.click()}
@@ -1520,7 +1750,8 @@ function applyRest(id,kind){
     else if(r.reset==="short"||r.reset==="combat")r.used=0;
     else if(r.reset==="short1")r.used=Math.max(0,r.used-1);
   });
-  if(kind==="long"){c.hp=c.hpMax;c.hpTemp=0;c.deathS=0;c.deathF=0;Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("hp","hpTemp","deathS","deathF","slots")}
+  c.concentrating="";keys.push("concentrating");
+  if(kind==="long"){c.hp=c.hpMax;c.hpTemp=0;c.deathS=0;c.deathF=0;c.exhaustion=Math.max(0,(c.exhaustion||0)-1);Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("hp","hpTemp","deathS","deathF","slots","exhaustion")}
   else if(pact){Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("slots")}
   saveChar(id,keys);
 }
@@ -1644,6 +1875,26 @@ function findSpellIn(name){
   return spellIdx.get(n)||spellIdx.get(ALIAS[n]||"")||null;
 }
 
+/* ================= offline and install ================= */
+let installEv=null;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const standalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function netState(){
+  const off=!navigator.onLine;$("offPill").hidden=!off;
+  if(off)setStatus("You’re offline. Everything you’ve opened still works and changes will sync when you’re back.");
+}
+window.addEventListener("online",()=>{netState();setStatus("Back online. Syncing…")});
+window.addEventListener("offline",netState);
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEv=e;if(!standalone())$("installBtn").hidden=false});
+window.addEventListener("appinstalled",()=>{installEv=null;$("installBtn").hidden=true});
+if(isIOS&&!standalone()&&!localStorage.getItem("iosHint"))$("installBtn").hidden=false;
+async function doInstall(){
+  if(installEv){installEv.prompt();try{await installEv.userChoice}catch(e){}installEv=null;$("installBtn").hidden=true;return}
+  if(isIOS){hostToast("To install: tap the Share button in Safari, then “Add to Home Screen”.",14000);try{localStorage.setItem("iosHint","1")}catch(e){}$("installBtn").hidden=true;return}
+  hostToast("Use your browser menu and choose “Install app” or “Add to Home Screen”.",10000);
+}
+netState();
+
 /* ================= campaign tools, built into this page (DM only) ================= */
 let tomeState="idle", tomeSent="", tomeTimer=null;
 const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
@@ -1721,9 +1972,11 @@ const shortOf=n=>String(n||"").split(" ")[0];
 const bid=short=>Object.keys(chars).filter(id=>!chars[id].npc&&shortOf(chars[id].name)===short)[0];
 function slotKey(key){const m=/^slot(\d)$/.exec(key);return m?m[1]:null}
 window.PartyBridge={
-  pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF}},
+  pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF,conds:activeStd(c)}},
+  setConds(short,arr){const id=bid(short);if(!id)return;const c=chars[id];const std=arr.map(canonCond).filter(n=>n&&n!=="Exhaustion");c.conditions=std.concat(customConds(c)).join(", ");saveChar(id,["conditions"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
+  addExh(short){const id=bid(short);if(!id)return;const c=chars[id];c.exhaustion=Math.min(6,(c.exhaustion||0)+1);saveChar(id,["exhaustion"]);hostToast(shortOf(c.name)+" now has Exhaustion level "+c.exhaustion+".");tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   setHP(short,hp){const id=bid(short);if(!id)return;const c=chars[id];hp=Math.max(0,Math.min(c.hpMax,Math.round(Number(hp)||0)));if(c.hp===hp)return;
-    applyHpDelta(c,hp-c.hp);saveChar(id,["hp","hpTemp","deathS","deathF"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
+    const taken=applyHpDelta(c,hp-c.hp);concAfter(id,taken);saveChar(id,["hp","hpTemp","deathS","deathF","concentrating"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   setDeath(short,s,f){const id=bid(short);if(!id)return;const c=chars[id];c.deathS=Math.max(0,Math.min(3,s));c.deathF=Math.max(0,Math.min(3,f));saveChar(id,["deathS","deathF"])},
   trackers(short){
     const id=bid(short);if(!id)return [];const c=chars[id],pact=classInfo(c.cls)&&classInfo(c.cls).caster==="pact",t=[];
@@ -1828,7 +2081,9 @@ function startApp(){
     unsubs.push(onSnapshot(doc(db,"characters",charId),snap=>{
       if(!snap.exists()){chars={};$("notice").innerHTML='<div class="note">Your sheet isn’t set up yet. Ask your DM.</div>';renderApp();return}
       $("notice").innerHTML="";
+      const prevC=chars[charId];
       chars[charId]=keepLocal("c:",charId,normalize(snap.data()||{}),chars[charId]);
+      remoteNotes(prevC,chars[charId]);
       renderApp();setStatus("Live");
     },e=>{
       if(e&&e.code==="permission-denied")showGate("Your login no longer works. Type your name again, or ask your DM.");

@@ -1137,6 +1137,10 @@
 #tome #tome-toast.on{display:flex}
 #tome #tome-toast button{flex:0 0 auto;min-height:2.6rem;padding:.35rem .85rem;border:0;border-radius:.6rem;background:var(--accent);color:var(--accent-ink);font-weight:700}
 
+/* text boxes grow with what is typed */
+#tome textarea{resize:none;overflow:hidden;min-height:2.9rem}
+#tome textarea.tall{min-height:7rem}
+
 #print-sheet{display:none}
 @media print{body.printing-sheet{background:#fff!important;padding:0!important;margin:0!important}
 body.printing-sheet > :not(#print-sheet){display:none!important}

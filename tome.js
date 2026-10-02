@@ -126,6 +126,7 @@ function sw(name,el){
   if(el)el.classList.add('active');
   else{const btn=root.querySelector('[data-ac="tab-'+name+'"]');if(btn)btn.classList.add('active');}
   if(name==='init'&&typeof window.__tomeFightRefresh==='function') window.__tomeFightRefresh();
+  if(typeof window.__growAll==='function') window.__growAll();
   if(typeof window.__tomeOnPane==='function') window.__tomeOnPane(name);
 }
 
@@ -1514,148 +1515,21 @@ function wrapSpellsInElement(el){
 //  CONDITIONS REFERENCE
 // ══════════════════════════════════════════════════════
 const CONDITIONS = [
-  {
-    name: 'Blinded', icon: '👁',
-    summary: 'Cannot see; attacks against you have advantage.',
-    effects: [
-      'A blinded creature can\'t see and automatically fails any ability check that requires sight.',
-      'Attack rolls against the creature have advantage.',
-      'The creature\'s attack rolls have disadvantage.'
-    ]
-  },
-  {
-    name: 'Charmed', icon: '💕',
-    summary: 'Cannot attack the charmer; charmer has advantage on social checks.',
-    effects: [
-      'A charmed creature can\'t attack the charmer or target the charmer with harmful abilities or magical effects.',
-      'The charmer has advantage on any ability check to interact socially with the creature.'
-    ]
-  },
-  {
-    name: 'Deafened', icon: '👂',
-    summary: 'Cannot hear; automatically fails hearing-based checks.',
-    effects: [
-      'A deafened creature can\'t hear and automatically fails any ability check that requires hearing.'
-    ]
-  },
-  {
-    name: 'Exhaustion', icon: '😴',
-    summary: 'Tiered condition — 6 levels, each worse than the last.',
-    effects: [
-      'Level 1: Disadvantage on ability checks.',
-      'Level 2: Speed halved.',
-      'Level 3: Disadvantage on attack rolls and saving throws.',
-      'Level 4: Hit point maximum halved.',
-      'Level 5: Speed reduced to 0.',
-      'Level 6: Death.',
-      'Finishing a long rest reduces exhaustion level by 1 (with food and water).'
-    ]
-  },
-  {
-    name: 'Frightened', icon: '😨',
-    summary: 'Disadvantage while source is visible; can\'t move closer to it.',
-    effects: [
-      'A frightened creature has disadvantage on ability checks and attack rolls while the source of its fear is within line of sight.',
-      'The creature can\'t willingly move closer to the source of its fear.'
-    ]
-  },
-  {
-    name: 'Grappled', icon: '🤼',
-    summary: 'Speed becomes 0; ends if grappler is incapacitated or moved away.',
-    effects: [
-      'A grappled creature\'s speed becomes 0, and it can\'t benefit from any bonus to its speed.',
-      'The condition ends if the grappler is incapacitated.',
-      'The condition also ends if an effect removes the grappled creature from the reach of the grappler or grappling effect.',
-      'Escape: use your action, make a Strength (Athletics) or Dexterity (Acrobatics) check contested by the grappler\'s Strength (Athletics).'
-    ]
-  },
-  {
-    name: 'Incapacitated', icon: '🚫',
-    summary: 'Cannot take actions or reactions.',
-    effects: [
-      'An incapacitated creature can\'t take actions or reactions.',
-      'Note: many other conditions (Paralyzed, Stunned, Unconscious) include this condition.'
-    ]
-  },
-  {
-    name: 'Invisible', icon: '👻',
-    summary: 'Cannot be seen; attacks against you have disadvantage.',
-    effects: [
-      'An invisible creature is impossible to see without the aid of magic or a special sense.',
-      'For the purpose of hiding, the creature is heavily obscured.',
-      'The creature\'s location can be detected by any noise it makes or any tracks it leaves.',
-      'Attack rolls against the creature have disadvantage, and the creature\'s attack rolls have advantage.'
-    ]
-  },
-  {
-    name: 'Paralyzed', icon: '⚡',
-    summary: 'Incapacitated, can\'t move or speak; attacks from within 5 ft are critical hits.',
-    effects: [
-      'A paralyzed creature is incapacitated and can\'t move or speak.',
-      'The creature automatically fails Strength and Dexterity saving throws.',
-      'Attack rolls against the creature have advantage.',
-      'Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.'
-    ]
-  },
-  {
-    name: 'Petrified', icon: '🪨',
-    summary: 'Turned to stone; incapacitated, immune to poison/disease, resistant to all damage.',
-    effects: [
-      'A petrified creature is transformed, along with any nonmagical object it is wearing or carrying, into a solid inanimate substance (usually stone).',
-      'Its weight increases by a factor of ten, and it ceases aging.',
-      'The creature is incapacitated, can\'t move or speak, and is unaware of its surroundings.',
-      'Attack rolls against the creature have advantage.',
-      'The creature automatically fails Strength and Dexterity saving throws.',
-      'The creature has resistance to all damage.',
-      'The creature is immune to poison and disease, although a poison or disease already in its system is suspended, not neutralized.'
-    ]
-  },
-  {
-    name: 'Poisoned', icon: '☠',
-    summary: 'Disadvantage on attack rolls and ability checks.',
-    effects: [
-      'A poisoned creature has disadvantage on attack rolls and ability checks.'
-    ]
-  },
-  {
-    name: 'Prone', icon: '⬇',
-    summary: 'Disadvantage on attacks; melee attacks against you have advantage, ranged have disadvantage.',
-    effects: [
-      'A prone creature\'s only movement option is to crawl, unless it stands up and thereby ends the condition.',
-      'The creature has disadvantage on attack rolls.',
-      'An attack roll against the creature has advantage if the attacker is within 5 feet of the creature. Otherwise, the attack roll has disadvantage.',
-      'Standing up costs half your movement speed.'
-    ]
-  },
-  {
-    name: 'Restrained', icon: '⛓',
-    summary: 'Speed 0; disadvantage on attacks and Dex saves; attacks against you have advantage.',
-    effects: [
-      'A restrained creature\'s speed becomes 0, and it can\'t benefit from any bonus to its speed.',
-      'Attack rolls against the creature have advantage, and the creature\'s attack rolls have disadvantage.',
-      'The creature has disadvantage on Dexterity saving throws.'
-    ]
-  },
-  {
-    name: 'Stunned', icon: '💫',
-    summary: 'Incapacitated; auto-fails Str/Dex saves; attacks against you have advantage.',
-    effects: [
-      'A stunned creature is incapacitated, can\'t move, and can speak only falteringly.',
-      'The creature automatically fails Strength and Dexterity saving throws.',
-      'Attack rolls against the creature have advantage.'
-    ]
-  },
-  {
-    name: 'Unconscious', icon: '💤',
-    summary: 'Incapacitated, prone; attacks from within 5 ft are critical hits.',
-    effects: [
-      'An unconscious creature is incapacitated, can\'t move or speak, and is unaware of its surroundings.',
-      'The creature drops whatever it\'s holding and falls prone.',
-      'The creature automatically fails Strength and Dexterity saving throws.',
-      'Attack rolls against the creature have advantage.',
-      'Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.'
-    ]
-  }
+  {name: 'Blinded', icon: '👁', summary: 'Can\'t see and fail any check that needs sight. Attacks against you have Advantage, and your attacks have Disadvantage.', effects: ['Can\'t See. You can\'t see and automatically fail any ability check that requires sight.', 'Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.']},
+  {name: 'Charmed', icon: '💕', summary: 'Can\'t attack the charmer or target them with harmful effects. The charmer has Advantage on social checks against you.', effects: ['Can\'t Harm the Charmer. You can\'t attack the charmer or target the charmer with damaging abilities or magical effects.', 'Social Advantage. The charmer has Advantage on ability checks to interact socially with you.']},
+  {name: 'Deafened', icon: '🔇', summary: 'Can\'t hear and fail any check that needs hearing.', effects: ['Can\'t Hear. You can\'t hear and automatically fail any ability check that requires hearing.']},
+  {name: 'Exhaustion', icon: '😴', summary: 'Each level: −2 to every D20 Test and −5 ft Speed. Level 6 is death. A long rest removes 1 level.', effects: ['Exhaustion Levels. This condition is cumulative. Each time you receive it, you gain 1 Exhaustion level. You die if your Exhaustion level is 6.', 'D20 Tests Affected. When you make a D20 Test, the roll is reduced by 2 times your Exhaustion level.', 'Speed Reduced. Your Speed is reduced by a number of feet equal to 5 times your Exhaustion level.', 'Removing Exhaustion Levels. Finishing a Long Rest removes 1 of your Exhaustion levels. When your Exhaustion level reaches 0, the condition ends.']},
+  {name: 'Frightened', icon: '😨', summary: 'Disadvantage on checks and attacks while you can see the source of fear. You can\'t willingly move closer to it.', effects: ['Ability Checks and Attacks Affected. You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.', 'Can\'t Approach. You can\'t willingly move closer to the source of your fear.']},
+  {name: 'Grappled', icon: '🤼', summary: 'Speed 0. Disadvantage on attacks against anyone except the grappler, who can drag you along.', effects: ['Speed 0. Your Speed is 0 and can\'t increase.', 'Attacks Affected. You have Disadvantage on attack rolls against any target other than the grappler.', 'Movable. The grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller.']},
+  {name: 'Incapacitated', icon: '💫', summary: 'No actions, bonus actions or reactions. Concentration breaks. You can\'t speak.', effects: ['Inactive. You can\'t take any action, Bonus Action, or Reaction.', 'No Concentration. Your Concentration is broken.', 'Speechless. You can\'t speak.', 'Surprised. If you\'re Incapacitated when you roll Initiative, you have Disadvantage on the roll.']},
+  {name: 'Invisible', icon: '👻', summary: 'Attacks against you have Disadvantage and yours have Advantage. Effects that need to see you can\'t target you. Advantage on initiative.', effects: ['Surprise. If you\'re Invisible when you roll Initiative, you have Advantage on the roll.', 'Concealed. You aren\'t affected by any effect that requires its target to be seen unless the effect\'s creator can somehow see you. Any equipment you are wearing or carrying is also concealed.', 'Attacks Affected. Attack rolls against you have Disadvantage, and your attack rolls have Advantage. If a creature can somehow see you, you don\'t gain this benefit against that creature.']},
+  {name: 'Paralyzed', icon: '⚡', summary: 'Incapacitated, Speed 0. Auto-fail Str and Dex saves. Attacks against you have Advantage, and hits from within 5 ft are critical hits.', effects: ['Incapacitated. You have the Incapacitated condition.', 'Speed 0. Your Speed is 0 and can\'t increase.', 'Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.', 'Attacks Affected. Attack rolls against you have Advantage.', 'Automatic Critical Hits. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.']},
+  {name: 'Petrified', icon: '🗿', summary: 'Turned to stone: Incapacitated, Speed 0, Resistance to all damage, immune to Poisoned. Auto-fail Str and Dex saves. Attacks against you have Advantage.', effects: ['Turned to Inanimate Substance. You are transformed, along with any nonmagical objects you are wearing and carrying, into a solid inanimate substance (usually stone). Your weight increases by a factor of ten, and you cease aging.', 'Incapacitated. You have the Incapacitated condition.', 'Speed 0. Your Speed is 0 and can\'t increase.', 'Attacks Affected. Attack rolls against you have Advantage.', 'Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.', 'Resist Damage. You have Resistance to all damage.', 'Poison Immunity. You have Immunity to the Poisoned condition.', 'Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.', 'Resist Damage. You have Resistance to all damage.', 'Poison Immunity. You have Immunity to the Poisoned condition.']},
+  {name: 'Poisoned', icon: '☠', summary: 'Disadvantage on attack rolls and ability checks.', effects: ['Ability Checks and Attacks Affected. You have Disadvantage on attack rolls and ability checks.']},
+  {name: 'Prone', icon: '🛌', summary: 'You crawl, or spend half your Speed to stand up. Disadvantage on your attacks. Attacks against you have Advantage from within 5 ft, otherwise Disadvantage.', effects: ['Restricted Movement. Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can\'t right yourself.', 'Attacks Affected. You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.']},
+  {name: 'Restrained', icon: '⛓', summary: 'Speed 0. Attacks against you have Advantage and yours have Disadvantage. Disadvantage on Dex saves.', effects: ['Speed 0. Your Speed is 0 and can\'t increase.', 'Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.', 'Saving Throws Affected. You have Disadvantage on Dexterity saving throws.']},
+  {name: 'Stunned', icon: '😵', summary: 'Incapacitated. Auto-fail Str and Dex saves. Attacks against you have Advantage.', effects: ['Incapacitated. You have the Incapacitated condition.', 'Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.', 'Attacks Affected. Attack rolls against you have Advantage.']},
+  {name: 'Unconscious', icon: '💤', summary: 'Incapacitated and Prone, you drop what you hold, Speed 0, unaware. Auto-fail Str and Dex saves. Attacks have Advantage, and hits from within 5 ft are critical hits.', effects: ['Inert. You have the Incapacitated and Prone conditions, and you drop whatever you\'re holding.', '**When this condition ends, you remain Prone.', 'Speed 0. Your Speed is 0 and can\'t increase.', 'Attacks Affected. Attack rolls against you have Advantage.', 'Saving Throws Affected. You automatically fail Strength and Dexterity saving throws.', 'Automatic Critical Hits. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.', 'Unaware. You\'re unaware of your surroundings.']}
 ];
 
 function renderConditions(){
@@ -4936,7 +4810,7 @@ function printPrepSheet(){
 //  EMBEDDED IN THE PARTY APP
 // ══════════════════════════════════════════════════════
 (function(){
-  const syncHP={}, syncDeath={};
+  const syncHP={}, syncDeath={}, syncCond={};
   function pcSync(){
     const B=window.PartyBridge; if(!B) return false;
     let changed=false;
@@ -4949,6 +4823,12 @@ function printPrepSheet(){
       else if(s.hp!==last){ c.hp=s.hp; syncHP[c.name]=s.hp; changed=true; }
       if(c.hpMax!==s.hpMax){ c.hpMax=s.hpMax; changed=true; }
       if(c.ac!==s.ac){ c.ac=s.ac; changed=true; }
+      // conditions (both ways) and exhaustion (tracker -> sheet level)
+      if((c.conditions||[]).includes('Exhaustion')){ c.conditions=c.conditions.filter(x=>x!=='Exhaustion'); B.addExh(c.name); changed=true; }
+      const sc=(s.conds||[]).slice().sort().join('|'), tc=(c.conditions||[]).slice().sort().join('|'), lastC=syncCond[c.name];
+      if(lastC===undefined){ c.conditions=(s.conds||[]).slice(); syncCond[c.name]=sc; changed=true; }
+      else if(tc!==lastC){ B.setConds(c.name,(c.conditions||[]).slice()); syncCond[c.name]=tc; }
+      else if(sc!==lastC){ c.conditions=(s.conds||[]).slice(); syncCond[c.name]=sc; changed=true; }
       // death saves
       const dkey=(c.death?c.death.s+'/'+c.death.f:'-')+'|'+s.deathS+'/'+s.deathF;
       if(c.hp<=0){

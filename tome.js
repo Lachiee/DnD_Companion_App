@@ -110,6 +110,7 @@ document.addEventListener('click', function(e) {
     'fn-webSave': webSaveDispatch,
     'fn-filterMonsters': filterMonsters,
     'fn-rollMonstersInit': rollMonstersInit,
+    'fn-toggleShare': toggleShare,
   };
   if (fnMap[ac]) fnMap[ac](e);
 });
@@ -734,7 +735,7 @@ function renderSingleRow(list,c){
   const upBtn=document.createElement('button');upBtn.className='ibtn';upBtn.title='Move up';upBtn.textContent='▲';upBtn.addEventListener('click',()=>moveUp(c.origIdx));
   const killBtn=document.createElement('button');killBtn.className='ibtn';killBtn.title='Kill/KO';killBtn.textContent='☠';killBtn.style.color='var(--red)';killBtn.addEventListener('click',()=>killCombatant(c.origIdx));
   const rmBtn=document.createElement('button');rmBtn.className='ibtn';rmBtn.title='Remove';rmBtn.textContent='✕';rmBtn.addEventListener('click',()=>removeCombatant(c.origIdx));
-  btnsDiv.appendChild(upBtn);btnsDiv.appendChild(killBtn);btnsDiv.appendChild(rmBtn);
+  btnsDiv.appendChild(upBtn);btnsDiv.appendChild(killBtn);if(c.type!=='pc')btnsDiv.appendChild(eyeBtn(c));btnsDiv.appendChild(rmBtn);
 
   row.appendChild(numDiv);row.appendChild(typeDiv);row.appendChild(nameDiv);row.appendChild(hpCell);row.appendChild(acDiv);row.appendChild(condDiv);row.appendChild(btnsDiv);
   list.appendChild(row);
@@ -788,7 +789,7 @@ function renderGroupRow(list,c){
   const splitBtn=document.createElement('button');splitBtn.className='ibtn';splitBtn.title='Split into individual rows (keep shared initiative)';splitBtn.textContent='⊕';splitBtn.addEventListener('click',e=>{e.stopPropagation();splitGroup(c.origIdx);});
   const splitInitBtnG=document.createElement('button');splitInitBtnG.className='ibtn';splitInitBtnG.title='Split and roll individual initiatives';splitInitBtnG.textContent='🎲⊕';splitInitBtnG.style.fontSize='.7rem';splitInitBtnG.addEventListener('click',e=>{e.stopPropagation();splitGroupWithInit(c.origIdx);});
   const rmBtn=document.createElement('button');rmBtn.className='ibtn';rmBtn.title='Remove group';rmBtn.textContent='✕';rmBtn.style.color='var(--red)';rmBtn.addEventListener('click',e=>{e.stopPropagation();removeCombatant(c.origIdx);});
-  btnsDiv.appendChild(upBtn);btnsDiv.appendChild(splitBtn);btnsDiv.appendChild(splitInitBtnG);btnsDiv.appendChild(rmBtn);
+  btnsDiv.appendChild(upBtn);btnsDiv.appendChild(splitBtn);btnsDiv.appendChild(splitInitBtnG);btnsDiv.appendChild(eyeBtn(c));btnsDiv.appendChild(rmBtn);
 
   header.appendChild(chevron);
   header.appendChild(initNum);
@@ -886,6 +887,43 @@ function rollAllInit(){
   currentTurn=0;renderInitList();updateInitSelects();
 }
 
+function eyeBtn(c){
+  const b=document.createElement('button'); b.className='ibtn eye'+(c.hidden?' off':'');
+  b.title=c.hidden?'Hidden from players. Tap to show them':'Players can see this one. Tap to hide it';
+  b.setAttribute('aria-label',b.title); b.textContent=c.hidden?'🙈':'👁';
+  b.addEventListener('click',e=>{ e.stopPropagation(); const o=combatants[c.origIdx]; if(o){ o.hidden=!o.hidden; renderInitList(); } });
+  return b;
+}
+/* what players are allowed to see: order, names, conditions. Never HP, AC or notes. */
+function combatPayload(){
+  const B=window.PartyBridge;
+  const ord=combatants.map((c,i)=>({c,i})).sort((a,b)=>(b.c.initiative||0)-(a.c.initiative||0)||a.i-b.i);
+  const cur=currentTurn>=0?combatants[currentTurn]:null;
+  const out=[]; let turn=-1, unseen=false;
+  ord.forEach(({c})=>{
+    if(c.hidden&&c.type!=='pc'){ if(c===cur) unseen=true; return; }
+    const e={n:String(c.name),t:c.type==='pc'?'pc':(c.type==='npc'?'npc':'monster'),i:c.initiative||0};
+    if(c.type==='pc'&&B&&B.idOf){ const k=B.idOf(c.name); if(k) e.k=k; }
+    if(c.isGroup){ const alive=(c.members||[]).filter(m=>!m.dead).length; e.g=alive; if(!alive) e.d=1; }
+    else{
+      if(c.type!=='pc'&&c.hp<=0) e.d=1;
+      if(c.type==='pc'&&c.hp<=0) e.dn=1;
+      const cs=(c.conditions||[]).filter(x=>typeof x==='string'); if(cs.length) e.cs=cs.slice(0,6);
+    }
+    if(c===cur) turn=out.length;
+    out.push(e);
+  });
+  return {round:round,turn:turn,unseen:unseen,order:out,started:currentTurn>=0};
+}
+window.__tomeCombatPayload=combatPayload;
+function toggleShare(){ if(window.__tomeToggleShare) window.__tomeToggleShare(); }
+window.__tomeShareLabel=function(on){
+  const b=document.getElementById('share-btn'); if(!b) return;
+  b.textContent=on?'📡 Sharing with players: ON':'📡 Share order with players: off';
+  b.classList.toggle('on',!!on);
+  const h=document.getElementById('share-hint');
+  if(h) h.textContent=on?'Players see the order, whose turn it is, names and conditions. Never HP or AC. Tap the eye on a monster to hide it.':'Players can’t see the fight until you turn this on.';
+};
 function rollMonstersInit(){
   const cur=currentTurn>=0?combatants[currentTurn]:null; let n=0;
   combatants.forEach(c=>{
@@ -900,8 +938,9 @@ function rollMonstersInit(){
 }
 function nextTurn(){
   if(combatants.length===0)return;
+  const prevT=currentTurn;
   currentTurn=(currentTurn+1)%combatants.length;
-  if(currentTurn===0)round++;
+  if(currentTurn===0&&prevT>=0)round++;
   renderInitList();
 }
 
@@ -4847,6 +4886,7 @@ function printPrepSheet(){
     _ril();
     if(busy) return; busy=true;
     try{ if(pcSync()){ _ril(); if(typeof refreshCombatPanel==='function') refreshCombatPanel(); } }finally{ busy=false; }
+    if(typeof window.__tomeShareTick==='function') window.__tomeShareTick();
   };
   window.__tomeSheetsChanged=function(){
     if(!document.getElementById('init-list')) return;

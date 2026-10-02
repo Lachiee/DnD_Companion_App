@@ -109,7 +109,7 @@ textarea{min-height:5rem;resize:vertical}
 input[type=checkbox]{width:1.4rem;height:1.4rem;accent-color:var(--accent)}
 
 /* ---------- sheet ---------- */
-.sbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border:1px solid var(--line);border-bottom:3px solid var(--brass);border-radius:.9rem;margin-bottom:.8rem;padding:.4rem .6rem;display:flex;gap:.5rem;align-items:center;flex-wrap:nowrap}
+.sbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--cbh,0px));z-index:5;background:var(--panel);border:1px solid var(--line);border-bottom:3px solid var(--brass);border-radius:.9rem;margin-bottom:.8rem;padding:.4rem .6rem;display:flex;gap:.5rem;align-items:center;flex-wrap:nowrap}
 .sbar .btn{white-space:nowrap;flex:0 0 auto}
 .sbar-title{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
 .sbar-title .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -354,8 +354,8 @@ textarea{overflow-y:hidden;resize:none}
 .cstat>summary::-webkit-details-marker{display:none}
 .cstat>summary::after{content:"▾";margin-left:auto;color:var(--muted)}
 .cstat>.stat{padding:.2rem .8rem .8rem}
-.stat-row{display:grid;grid-template-columns:6.4rem 1fr;gap:.5rem;align-items:center}
-.stat-k{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+.stat-row{display:grid;grid-template-columns:7.6rem 1fr;gap:.5rem;align-items:center}
+.stat-k{font-size:.72rem;text-transform:uppercase;letter-spacing:.02em;color:var(--muted)}
 .stat-v{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
 .cchip{border:2px solid var(--line);background:var(--field);border-radius:99px;padding:.2rem .8rem;font-size:.98rem;font-weight:700;min-height:2.5rem}
 .cchip.on{background:var(--hp-low);color:#fff;border-color:var(--hp-low)}
@@ -376,6 +376,28 @@ textarea{overflow-y:hidden;resize:none}
 .stat select{min-width:0;flex:1 1 9rem}
 
 @media (prefers-reduced-motion:reduce){details.entry>summary::before,details.spell>summary::before{transition:none}}
+
+/* ---------- fight bar for players ---------- */
+.combat-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;margin-bottom:.5rem;background:var(--panel);border:2px solid var(--brass);border-radius:.9rem}
+.combat-bar.nxt{border-color:var(--hp-mid);box-shadow:0 0 0 3px color-mix(in srgb,var(--hp-mid) 35%,transparent)}
+.combat-bar.me{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);animation:cbpulse 1.6s ease-in-out infinite}
+.cb-main{width:100%;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"r t x" "n n n";gap:.1rem .7rem;align-items:center;text-align:left;background:none;border:0;padding:.55rem .8rem;color:inherit;min-height:3.4rem}
+.cb-r{grid-area:r;font-size:.85rem;font-weight:700;opacity:.85}
+.cb-t{grid-area:t;font-family:Georgia,serif;font-size:1.25rem;font-weight:700;line-height:1.15}
+.cb-n{grid-area:n;font-size:.95rem;opacity:.9}
+.cb-x{grid-area:x;font-size:1.1rem}
+.combat-bar.me .cb-t{font-size:1.5rem;letter-spacing:.02em}
+.cb-panel{position:absolute;left:-2px;right:-2px;top:100%;z-index:10;max-height:55vh;overflow-y:auto;background:var(--panel);color:var(--ink);border:2px solid var(--brass);border-radius:.9rem;margin-top:.3rem;padding:.4rem .5rem;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.cb-row{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .6rem;padding:.5rem .5rem;border-bottom:1px solid var(--line);font-size:1.05rem}
+.cb-row.cur{background:color-mix(in srgb,var(--accent) 18%,transparent);font-weight:700;border-radius:.5rem}
+.cb-row.you .cb-nm{color:var(--accent);font-weight:700}
+.cb-row.dead{opacity:.5;text-decoration:line-through}
+.cb-i{min-width:2rem;font-family:Georgia,serif;font-weight:700;color:var(--brass);text-align:center}
+.cb-nm{flex:1 1 8rem}
+.cb-c1{background:var(--hp-low);color:#fff;border-radius:99px;padding:0 .55rem;font-size:.8rem;font-weight:700}
+.cb-foot{font-size:.82rem;color:var(--muted);padding:.5rem .5rem .3rem}
+@keyframes cbpulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}}
+@media (prefers-reduced-motion:reduce){.combat-bar.me{animation:none}}
 </style>
 </head>
 <body class="nonav">
@@ -411,6 +433,7 @@ textarea{overflow-y:hidden;resize:none}
 
   <main id="app" hidden>
     <div id="notice"></div>
+    <div id="combatBar" class="combat-bar" hidden></div>
     <div id="subnav" class="subnav" hidden></div>
     <section id="viewParty" hidden></section>
     <section id="viewMsgs" hidden></section>
@@ -1672,6 +1695,7 @@ document.addEventListener("click",async e=>{
       const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
       x.concentrating="";saveChar(id,["concentrating"]);if(openId)renderSheet();else renderParty();return}
     case "install":return doInstall();
+    case "cbtoggle":cbOpen=!cbOpen;renderCombatBar();return;
     case "pview":{partyView=b.dataset.v;try{localStorage.setItem("partyView",partyView)}catch(e){}renderParty();return}
     case "abiltoggle":{showAbil=!showAbil;try{localStorage.setItem("showAbil",showAbil?"1":"0")}catch(e){}renderParty();return}
     case "edit":editMode=!editMode;renderSheet();renderNav();return;
@@ -1895,6 +1919,58 @@ async function doInstall(){
 }
 netState();
 
+/* ================= share the fight with players ================= */
+let shareOn=false,lastShare="",shareT=null;
+try{shareOn=localStorage.getItem("combatShare")==="1"}catch(e){}
+function shareLabel(){if(window.__tomeShareLabel)window.__tomeShareLabel(shareOn)}
+function pushShare(force){
+  clearTimeout(shareT);
+  shareT=setTimeout(async()=>{
+    if(!isDM()||tomeState!=="ready"||typeof window.__tomeCombatPayload!=="function")return;
+    const p=window.__tomeCombatPayload();
+    const data=shareOn?{on:true,round:p.round,turn:p.turn,unseen:!!p.unseen,started:!!p.started,order:p.order,upd:Date.now()}
+      :{on:false,round:0,turn:-1,unseen:false,started:false,order:[],upd:Date.now()};
+    const key=JSON.stringify([data.on,data.round,data.turn,data.unseen,data.started,data.order]);
+    if(!force&&key===lastShare)return;
+    try{await setDoc(doc(db,"combat","live"),data);lastShare=key}
+    catch(e){shareOn=false;try{localStorage.setItem("combatShare","0")}catch(x){}shareLabel();
+      hostToast("Could not share the order ("+(e&&e.code||"error")+"). Publish the new firestore.rules in Firebase, then try again.",14000)}
+  },350);
+}
+window.__tomeShareTick=()=>{if(shareOn)pushShare(false)};
+window.__tomeToggleShare=()=>{
+  shareOn=!shareOn;try{localStorage.setItem("combatShare",shareOn?"1":"0")}catch(e){}
+  shareLabel();pushShare(true);
+  hostToast(shareOn?"Players can now see the turn order, names and conditions. They never see HP or AC.":"Sharing is off. Players no longer see the fight.",7000);
+};
+
+/* ================= players: the fight bar ================= */
+let combat=null,cbOpen=false,cbFirst=true,lastCbKey="";
+const cbIcon={pc:"🧙",npc:"🧑",monster:"👹"};
+function cbNext(o,t){if(t<0)return null;for(let k=1;k<=o.length;k++){const e=o[(t+k)%o.length];if(!e.d)return e}return null}
+function renderCombatBar(){
+  const el=$("combatBar");if(!el)return;
+  const live=role==="player"&&combat&&combat.on&&combat.order&&combat.order.length;
+  if(!live){el.hidden=true;el.innerHTML="";document.documentElement.style.setProperty("--cbh","0px");return}
+  const o=combat.order,t=combat.turn,cur=t>=0?o[t]:null,mine=!!cur&&cur.k===charId,nx=cbNext(o,t),nextMine=!mine&&!!nx&&nx.k===charId;
+  const when=combat.upd?new Date(combat.upd):null,stale=when&&(Date.now()-combat.upd>20*60*1000);
+  const turnTxt=!combat.started?"The fight is starting":combat.unseen?"Something unseen acts":mine?"YOUR TURN":cur?(cur.g!=null?cur.n+" ×"+cur.g+" act":cur.n+"’s turn"):"";
+  const nextTxt=!combat.started?"Order is set":nextMine?"You’re up next!":nx?"Next: "+nx.n:"";
+  el.hidden=false;
+  el.className="combat-bar"+(mine?" me":"")+(nextMine?" nxt":"");
+  el.innerHTML='<button type="button" class="cb-main" data-act="cbtoggle" aria-expanded="'+cbOpen+'"><span class="cb-r">⚔ Round '+E(combat.round)+'</span><span class="cb-t">'+E(turnTxt)+'</span><span class="cb-n">'+E(nextTxt)+'</span><span class="cb-x">'+(cbOpen?"▴":"▾")+'</span></button>'+
+    (cbOpen?'<div class="cb-panel">'+o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("")+
+      '<div class="cb-foot">'+(stale?"This may be out of date. Last update "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+". ":"")+'You can see the order, names and conditions. Your DM keeps the rest private.</div></div>':'');
+  document.documentElement.style.setProperty("--cbh",el.querySelector(".cb-main").offsetHeight+"px");
+}
+function cbNotify(){
+  if(!combat||!combat.on||!combat.started)return;
+  const o=combat.order||[],t=combat.turn;if(t<0||!o[t])return;
+  const key=combat.round+":"+t+":"+o[t].n;if(key===lastCbKey)return;lastCbKey=key;
+  if(o[t].k===charId){hostToast("It’s your turn!",6000);try{if(navigator.vibrate)navigator.vibrate([200,100,200])}catch(e){}}
+  else{const nx=cbNext(o,t);if(nx&&nx.k===charId)hostToast("You’re up next.",5000)}
+}
+
 /* ================= campaign tools, built into this page (DM only) ================= */
 let tomeState="idle", tomeSent="", tomeTimer=null;
 const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
@@ -1973,6 +2049,7 @@ const bid=short=>Object.keys(chars).filter(id=>!chars[id].npc&&shortOf(chars[id]
 function slotKey(key){const m=/^slot(\d)$/.exec(key);return m?m[1]:null}
 window.PartyBridge={
   pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF,conds:activeStd(c)}},
+  idOf(short){return bid(short)||null},
   setConds(short,arr){const id=bid(short);if(!id)return;const c=chars[id];const std=arr.map(canonCond).filter(n=>n&&n!=="Exhaustion");c.conditions=std.concat(customConds(c)).join(", ");saveChar(id,["conditions"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   addExh(short){const id=bid(short);if(!id)return;const c=chars[id];c.exhaustion=Math.min(6,(c.exhaustion||0)+1);saveChar(id,["exhaustion"]);hostToast(shortOf(c.name)+" now has Exhaustion level "+c.exhaustion+".");tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   setHP(short,hp){const id=bid(short);if(!id)return;const c=chars[id];hp=Math.max(0,Math.min(c.hpMax,Math.round(Number(hp)||0)));if(c.hp===hp)return;
@@ -2021,7 +2098,7 @@ async function ensureTome(){
     window.__tomeGoLibrary=()=>{dmTab="monsters";subMons="lib";openId=null;renderApp();window.scrollTo(0,0)};
     window.__tomeGoPrepared=()=>{dmTab="monsters";subMons="prep";openId=null;renderApp();window.scrollTo(0,0)};
     document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
-    tomeState="ready";tomeSent="";
+    tomeState="ready";tomeSent="";shareLabel();if(shareOn)pushShare(true);
     sendParty();
     setInterval(syncCampaignTick,5000);
     window.addEventListener("pagehide",()=>{syncCampaignTick()});
@@ -2059,7 +2136,7 @@ function subscribeChar(id){
 function startApp(){
   $("gate").hidden=true;$("app").hidden=false;
   unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
-  chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;
+  chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";
   $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
   $("outBtn").hidden=false;
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
@@ -2089,6 +2166,12 @@ function startApp(){
       if(e&&e.code==="permission-denied")showGate("Your login no longer works. Type your name again, or ask your DM.");
       else setStatus("Sync problem ("+(e&&e.code||"error")+")",true);
     }));
+    unsubs.push(onSnapshot(doc(db,"combat","live"),snap=>{
+      combat=snap.exists()?snap.data():null;
+      const first=cbFirst;cbFirst=false;
+      if(first&&combat&&combat.order&&combat.turn>=0&&combat.order[combat.turn])lastCbKey=combat.round+":"+combat.turn+":"+combat.order[combat.turn].n;
+      renderCombatBar();if(!first)cbNotify();
+    },()=>{}));
     unsubs.push(onSnapshot(query(collection(db,"characters",charId,"companions"),where("visible","==",true)),snap=>{
       const m={};snap.docs.forEach(d=>{m[d.id]=keepLocal("p:"+charId+"/",d.id,normComp(d.data()||{}),companions[charId]&&companions[charId][d.id])});
       companions[charId]=m;renderApp();

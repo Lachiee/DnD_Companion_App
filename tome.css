@@ -1141,6 +1141,12 @@
 #tome textarea{resize:none;overflow:hidden;min-height:2.9rem}
 #tome textarea.tall{min-height:7rem}
 
+/* ===== share with players ===== */
+#tome .share-btn{grid-column:1/-1;min-height:3.1rem;text-align:center}
+#tome .share-btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#tome .share-hint{grid-column:1/-1;font-size:.85rem;color:var(--muted);line-height:1.35;margin-top:-.2rem}
+#tome .ibtn.eye.off{background:var(--chip);opacity:.9}
+
 #print-sheet{display:none}
 @media print{body.printing-sheet{background:#fff!important;padding:0!important;margin:0!important}
 body.printing-sheet > :not(#print-sheet){display:none!important}

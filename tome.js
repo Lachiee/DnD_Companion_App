@@ -109,6 +109,7 @@ document.addEventListener('click', function(e) {
     'fn-webReset': webResetDispatch,
     'fn-webSave': webSaveDispatch,
     'fn-filterMonsters': filterMonsters,
+    'fn-rollMonstersInit': rollMonstersInit,
   };
   if (fnMap[ac]) fnMap[ac](e);
 });
@@ -124,6 +125,7 @@ function sw(name,el){
   pane.classList.add('active');
   if(el)el.classList.add('active');
   else{const btn=root.querySelector('[data-ac="tab-'+name+'"]');if(btn)btn.classList.add('active');}
+  if(name==='init'&&typeof window.__tomeFightRefresh==='function') window.__tomeFightRefresh();
   if(typeof window.__tomeOnPane==='function') window.__tomeOnPane(name);
 }
 
@@ -217,7 +219,7 @@ function addInitBtnToMonCard(card){
         let n = 2;
         while(combatants.find(x=>x.name===finalName)){ finalName=`${name} ${i+1} (${n++})`; }
         combatants.push({name:finalName, type:'monster', initiative:roll,
-          hp, hpMax:hp, ac, dex:10, conditions:[]});
+          hp, hpMax:hp, ac, dex:(findMonsterData(name)||{}).dex||10, conditions:[]});
       }
     } else if(count > 1){
       // Group with shared initiative, but store individual rolls on members if rolling
@@ -230,52 +232,51 @@ function addInitBtnToMonCard(card){
         initiative: rollRandom ? Math.floor(Math.random()*20)+1 : groupRoll
       }));
       combatants.push({name:groupName, type:'monster', initiative:groupRoll,
-        hp, hpMax:hp, ac, dex:10, conditions:[], isGroup:true, count, members, expanded:false});
+        hp, hpMax:hp, ac, dex:(findMonsterData(name)||{}).dex||10, conditions:[], isGroup:true, count, members, expanded:false});
     } else {
       const roll = rollRandom ? Math.floor(Math.random()*20)+1 : 0;
       let finalName = name;
       let n = 2;
       while(combatants.find(x=>x.name===finalName)){ finalName=`${name} (${n++})`; }
       combatants.push({name:finalName, type:'monster', initiative:roll,
-        hp, hpMax:hp, ac, dex:10, conditions:[]});
+        hp, hpMax:hp, ac, dex:(findMonsterData(name)||{}).dex||10, conditions:[]});
     }
     combatants.sort((a,b)=>b.initiative-a.initiative);
     renderInitList();
     updateInitSelects();
-    const btn = document.querySelector('[data-ac="tab-init"]');
-    if(btn) sw('init', btn);
+    toast('Added '+(count>1?count+' × ':'')+name+' to the fight','Open Combat',()=>sw('init'));
   }
 
   const initBtn = document.createElement('button');
   initBtn.className = 'abtn';
-  initBtn.style.cssText = 'border-color:var(--red);color:var(--red);font-size:.62rem';
-  initBtn.textContent = '⚔ Add to Initiative';
+  initBtn.style.cssText = 'border-color:var(--red);color:var(--red);font-size:calc(max(.62,.8)*var(--tu))';
+  initBtn.textContent = '⚔ Add to fight';
   initBtn.dataset.role = 'add-init';
   initBtn.addEventListener('click', () => {
     const {count} = getMonData();
     pushToTracker(false);
     initBtn.textContent = count>1 ? `✓ Group of ${count} added` : '✓ Added';
     initBtn.style.background = 'rgba(139,26,26,.1)';
-    setTimeout(()=>{ initBtn.textContent='⚔ Add to Initiative'; initBtn.style.background=''; }, 1800);
+    setTimeout(()=>{ initBtn.textContent='⚔ Add to fight'; initBtn.style.background=''; }, 1800);
   });
 
   const rollInitBtn = document.createElement('button');
   rollInitBtn.className = 'abtn';
-  rollInitBtn.style.cssText = 'font-size:.62rem';
-  rollInitBtn.textContent = '🎲 Roll & Add';
+  rollInitBtn.style.cssText = 'font-size:calc(max(.62,.8)*var(--tu))';
+  rollInitBtn.textContent = '🎲 Add + roll';
   rollInitBtn.dataset.role = 'roll-init';
   rollInitBtn.addEventListener('click', () => {
     const {count} = getMonData();
     pushToTracker(true);
     rollInitBtn.textContent = count>1 ? `✓ Group rolled & added` : '✓ Rolled & added';
     rollInitBtn.style.background = 'rgba(180,130,60,.15)';
-    setTimeout(()=>{ rollInitBtn.textContent='🎲 Roll & Add'; rollInitBtn.style.background=''; }, 1800);
+    setTimeout(()=>{ rollInitBtn.textContent='🎲 Add + roll'; rollInitBtn.style.background=''; }, 1800);
   });
 
   const splitInitBtn = document.createElement('button');
   splitInitBtn.className = 'abtn';
-  splitInitBtn.style.cssText = 'font-size:.62rem;border-color:var(--blue);color:var(--blue)';
-  splitInitBtn.textContent = '🎲 Roll Individual';
+  splitInitBtn.style.cssText = 'font-size:calc(max(.62,.8)*var(--tu));border-color:var(--blue);color:var(--blue)';
+  splitInitBtn.textContent = '🎲 Add + roll each';
   splitInitBtn.dataset.role = 'roll-indiv';
   splitInitBtn.title = 'Roll a separate initiative for each monster — adds them as individual rows';
   splitInitBtn.addEventListener('click', () => {
@@ -284,7 +285,7 @@ function addInitBtnToMonCard(card){
     else { pushToTracker(true, true); }
     splitInitBtn.textContent = `✓ ${count} individual rolls`;
     splitInitBtn.style.background = 'rgba(26,42,74,.1)';
-    setTimeout(()=>{ splitInitBtn.textContent='🎲 Roll Individual'; splitInitBtn.style.background=''; }, 1800);
+    setTimeout(()=>{ splitInitBtn.textContent='🎲 Add + roll each'; splitInitBtn.style.background=''; }, 1800);
   });
 
   btnRow.appendChild(initBtn);
@@ -668,7 +669,7 @@ function updateInitSelects(){
 
 function renderInitList(){
   const list=document.getElementById('init-list');
-  if(combatants.length===0){list.innerHTML='<div style="padding:1rem;text-align:center;font-family:\'IM Fell English\',serif;font-style:italic;color:var(--ink-light);font-size:.9rem">No combatants. Add below.</div>';return;}
+  if(combatants.length===0){list.innerHTML='<div style="padding:1rem;text-align:center;font-family:var(--bfont);font-style:italic;color:var(--ink-light);font-size:calc(.9*var(--tu))">No combatants. Add below.</div>';return;}
   const sorted=[...combatants].map((c,i)=>({...c,origIdx:i})).sort((a,b)=>b.initiative-a.initiative);
   list.innerHTML='';
   sorted.forEach((c)=>{
@@ -684,6 +685,23 @@ function renderInitList(){
   }
 }
 
+function initNumCell(c){
+  const d=document.createElement('div'); d.className='init-num';
+  const i=document.createElement('input'); i.type='number'; i.inputMode='numeric'; i.className='init-num-in';
+  i.value=c.initiative?c.initiative:''; i.placeholder='?'; i.setAttribute('aria-label',c.name+' initiative');
+  i.addEventListener('focus',()=>i.select());
+  i.addEventListener('change',()=>setInitiative(c.origIdx,i.value));
+  d.appendChild(i); return d;
+}
+function setInitiative(idx,val){
+  const me=combatants[idx]; if(!me) return;
+  const cur=currentTurn>=0?combatants[currentTurn]:null;
+  me.initiative=parseInt(val)||0;
+  if(me.isGroup) (me.members||[]).forEach(m=>{ m.initiative=me.initiative; });
+  combatants.sort((a,b)=>b.initiative-a.initiative);
+  if(cur) currentTurn=combatants.indexOf(cur);
+  renderInitList(); updateInitSelects();
+}
 function renderSingleRow(list,c){
   const isDown=c.type==='pc'&&c.hp<=0&&!(c.death&&c.death.dead);
   const isDead=c.hp<=0&&!isDown;
@@ -692,12 +710,12 @@ function renderSingleRow(list,c){
   const row=document.createElement('div');
   row.className='init-row'+(isActive?' active-turn':'')+(isDead?' dead':'')+(isDown?' dying':'');
 
-  const numDiv=document.createElement('div');numDiv.className='init-num';numDiv.textContent=c.initiative||'?';
+  const numDiv=initNumCell(c);
   const typeDiv=document.createElement('div');typeDiv.className='init-type';typeDiv.textContent=typeIcon;
   const nameDiv=buildInitName(c);
 
   const hpCell=document.createElement('div');hpCell.className='init-hp-cell';
-  const hpInput=document.createElement('input');hpInput.type='number';hpInput.value=c.hp;hpInput.min=0;hpInput.style.width='52px';
+  const hpInput=document.createElement('input');hpInput.type='number';hpInput.value=c.hp;hpInput.min=0;hpInput.inputMode='numeric';hpInput.className='init-hp-in';hpInput.setAttribute('aria-label',c.name+' hit points');hpInput.addEventListener('focus',()=>hpInput.select());
   hpInput.addEventListener('change',()=>updateHP(c.origIdx,hpInput.value));
   const hpMax=document.createElement('span');hpMax.className='init-hp-max';hpMax.textContent='/'+(c.hpMax||'?');
   hpCell.appendChild(hpInput);hpCell.appendChild(hpMax);
@@ -740,12 +758,13 @@ function renderGroupRow(list,c){
   chevron.className='init-group-chev';
   chevron.textContent=c.expanded?'▾':'▸';
 
-  const initNum=document.createElement('div');initNum.className='init-num';initNum.textContent=c.initiative||'?';
+  const initNum=initNumCell(c);
+  initNum.addEventListener('click',e=>e.stopPropagation());
 
   const icon=document.createElement('div');icon.className='init-type';icon.textContent='👹';
 
   const nameEl=document.createElement('div');nameEl.className='init-name';
-  nameEl.innerHTML=`<strong>${c.name}</strong> <span style="font-family:'Cinzel',serif;font-size:.65rem;color:var(--red);letter-spacing:.08em">×${aliveCount}/${totalCount}</span>`;
+  nameEl.innerHTML=`<strong>${c.name}</strong> <span style="font-family:var(--hfont);font-size:calc(max(.65,.8)*var(--tu));color:var(--red);letter-spacing:.08em">×${aliveCount}/${totalCount}</span>`;
   const bookBtn=document.createElement('button');bookBtn.className='init-book';bookBtn.textContent='Stats';bookBtn.title='Show stat block';
   bookBtn.addEventListener('click',e=>{e.stopPropagation();openCombatPanel({kind:'combatant',idx:c.origIdx});});
   nameEl.appendChild(bookBtn);
@@ -753,13 +772,13 @@ function renderGroupRow(list,c){
   const acEl=document.createElement('div');acEl.className='init-ac';acEl.textContent='🛡 '+(c.ac||'?');
 
   // Group damage bar
-  const dmgCell=document.createElement('div');dmgCell.style.cssText='display:flex;gap:.3rem;align-items:center;flex-wrap:wrap';
-  const dmgInput=document.createElement('input');dmgInput.type='number';dmgInput.placeholder='dmg';dmgInput.style.cssText='width:52px;font-size:.85rem;padding:.2rem .3rem';
+  const dmgCell=document.createElement('div');dmgCell.className='init-dmg-cell';
+  const dmgInput=document.createElement('input');dmgInput.type='number';dmgInput.placeholder='dmg';dmgInput.inputMode='numeric';dmgInput.className='init-dmg-in';dmgInput.setAttribute('aria-label','Damage for '+c.name);
   dmgInput.title='Enter damage amount';
   const dmgBtn=document.createElement('button');dmgBtn.className='ibtn';dmgBtn.title='Apply damage to one member (lowest HP first)';dmgBtn.textContent='💥';
-  dmgBtn.style.cssText='font-size:.85rem;color:var(--red)';
+  dmgBtn.style.cssText='font-size:calc(.85*var(--tu));color:var(--red)';
   dmgBtn.addEventListener('click',e=>{e.stopPropagation();applyGroupDamage(c.origIdx,parseInt(dmgInput.value)||0);dmgInput.value='';});
-  const aoeBtn=document.createElement('button');aoeBtn.className='ibtn';aoeBtn.title='Apply damage to ALL members (AoE)';aoeBtn.style.cssText='font-size:.75rem;color:var(--red)';aoeBtn.textContent='AoE';
+  const aoeBtn=document.createElement('button');aoeBtn.className='ibtn';aoeBtn.title='Apply damage to ALL members (AoE)';aoeBtn.style.cssText='font-size:calc(max(.75,.8)*var(--tu));color:var(--red)';aoeBtn.textContent='AoE';
   aoeBtn.addEventListener('click',e=>{e.stopPropagation();applyGroupAoE(c.origIdx,parseInt(dmgInput.value)||0);dmgInput.value='';});
   dmgCell.appendChild(dmgInput);dmgCell.appendChild(dmgBtn);dmgCell.appendChild(aoeBtn);
 
@@ -791,7 +810,7 @@ function renderGroupRow(list,c){
       const mName=document.createElement('span');mName.className='init-member-name';mName.textContent=m.name;
 
       const mHpWrap=document.createElement('span');mHpWrap.className='init-hp-cell';
-      const mHpIn=document.createElement('input');mHpIn.type='number';mHpIn.value=m.hp;mHpIn.min=0;mHpIn.style.width='48px';
+      const mHpIn=document.createElement('input');mHpIn.type='number';mHpIn.value=m.hp;mHpIn.min=0;mHpIn.inputMode='numeric';mHpIn.className='init-hp-in';mHpIn.setAttribute('aria-label',m.name+' hit points');mHpIn.addEventListener('focus',()=>mHpIn.select());
       mHpIn.addEventListener('change',()=>updateMemberHP(c.origIdx,mi,mHpIn.value));
       const mHpMax=document.createElement('span');mHpMax.className='init-hp-max';mHpMax.textContent='/'+m.hpMax;
       mHpWrap.appendChild(mHpIn);mHpWrap.appendChild(mHpMax);
@@ -799,19 +818,19 @@ function renderGroupRow(list,c){
       // HP bar
       const pct=Math.max(0,Math.min(100,Math.round((m.hp/m.hpMax)*100)));
       const barColor=pct>50?'var(--green)':pct>25?'var(--gold)':'var(--red)';
-      const bar=document.createElement('div');
-      bar.style.cssText=`flex:1;height:6px;background:rgba(180,130,60,.2);border-radius:3px;overflow:hidden;min-width:40px`;
+      const bar=document.createElement('div');bar.className='init-bar';
+      bar.style.cssText=`height:8px;background:rgba(180,130,60,.2);border-radius:4px;overflow:hidden`;
       const fill=document.createElement('div');fill.style.cssText=`height:100%;width:${pct}%;background:${barColor};transition:width .3s`;
       bar.appendChild(fill);
 
-      const condPips=document.createElement('span');condPips.style.cssText='display:flex;gap:.2rem;flex-wrap:wrap';
+      const condPips=document.createElement('span');condPips.className='init-cond';
       (m.conditions||[]).forEach(cn=>{
         const pip=document.createElement('span');pip.className='cond-pip';pip.textContent=cn.slice(0,3);pip.title='Click to remove';
         pip.addEventListener('click',()=>removeMemberCond(c.origIdx,mi,cn));
         condPips.appendChild(pip);
       });
 
-      const mBtns=document.createElement('span');mBtns.style.cssText='display:flex;gap:.15rem;margin-left:auto';
+      const mBtns=document.createElement('span');mBtns.className='init-mbtns';
       const mKill=document.createElement('button');mKill.className='ibtn';mKill.textContent='☠';mKill.title='Kill this member';mKill.style.color='var(--red)';
       mKill.addEventListener('click',()=>killMember(c.origIdx,mi));
       const mRm=document.createElement('button');mRm.className='ibtn';mRm.textContent='✕';mRm.title='Remove this member';
@@ -866,6 +885,18 @@ function rollAllInit(){
   currentTurn=0;renderInitList();updateInitSelects();
 }
 
+function rollMonstersInit(){
+  const cur=currentTurn>=0?combatants[currentTurn]:null; let n=0;
+  combatants.forEach(c=>{
+    if(c.type==='pc'||c.initiative) return;
+    const mod=Math.floor(((c.dex||10)-10)/2), r=Math.floor(Math.random()*20)+1+mod; c.initiative=r; n++;
+    if(c.isGroup) (c.members||[]).forEach(m=>{ m.initiative=r; });
+  });
+  combatants.sort((a,b)=>b.initiative-a.initiative);
+  currentTurn=cur?combatants.indexOf(cur):(combatants.length?0:-1);
+  renderInitList(); updateInitSelects();
+  toast(n?('Rolled initiative for '+n+' monster'+(n>1?'s':'')):'Every monster already has an initiative');
+}
 function nextTurn(){
   if(combatants.length===0)return;
   currentTurn=(currentTurn+1)%combatants.length;
@@ -969,7 +1000,7 @@ const histSessions=[];
 
 function renderHistList(){
   const list=document.getElementById('hist-list');
-  if(histSessions.length===0){list.innerHTML='<p style="font-family:\'IM Fell English\',serif;font-style:italic;color:var(--ink-light);font-size:.9rem">No sessions loaded yet.</p>';return;}
+  if(histSessions.length===0){list.innerHTML='<p style="font-family:var(--bfont);font-style:italic;color:var(--ink-light);font-size:calc(.9*var(--tu))">No sessions loaded yet.</p>';return;}
   list.innerHTML='';
   histSessions.forEach((s,i)=>{
     const card=document.createElement('div');card.className='hist-card';
@@ -1157,7 +1188,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     addHook();addScene();addScene();
     addSecret();addSecret();addSecret();
     addLoc();addLoc();addNPC();addNPC();
-    addMon();addTreas();
+    addTreas();
   } else {
     try{ applyData(JSON.parse(localStorage.getItem('lazy-dm-v3'))); }catch(e){ console.warn('Could not load saved campaign',e); }
   }
@@ -1260,14 +1291,14 @@ function renderMDB(){
 
     card.innerHTML = `
       <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.5rem">
-        <span style="font-family:'Cinzel',serif;font-size:.9rem;font-weight:600;color:var(--red)">${m.name}</span>
-        <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:.8rem;color:var(--ink-light)">${m.type} · CR ${m.cr}</span>
+        <span style="font-family:var(--hfont);font-size:calc(.9*var(--tu));font-weight:600;color:var(--red)">${m.name}</span>
+        <span style="font-family:var(--bfont);font-style:italic;font-size:calc(.8*var(--tu));color:var(--ink-light)">${m.type} · CR ${m.cr}</span>
       </div>
       <div class="mdb-detail" id="mdb-${i}" style="display:none;margin-top:.6rem">
         <div class="hp-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:.6rem">
           <div class="hpbox"><label>HP</label><div class="hpval">${m.hp}</div></div>
           <div class="hpbox"><label>AC</label><div class="hpval">${m.ac}</div></div>
-          <div class="hpbox" style="grid-column:span 2"><label>Speed</label><div class="hpval" style="font-size:.85rem">${m.speed}</div></div>
+          <div class="hpbox" style="grid-column:span 2"><label>Speed</label><div class="hpval" style="font-size:calc(.85*var(--tu))">${m.speed}</div></div>
         </div>
         <div class="stat-grid" style="margin-bottom:.6rem">
           ${statVals.map((s,si)=>`<div class="sbox"><div class="slbl">${statNames[si]}</div><div class="sval">${s}</div><div class="smod">${modStr(s)}</div></div>`).join('')}
@@ -1278,22 +1309,23 @@ function renderMDB(){
         ${m.traits?`<div class="db" style="margin-bottom:.4rem"><label>Traits</label><p>${m.traits}</p></div>`:''}
         ${m.actions?`<div class="db" style="margin-bottom:.4rem"><label>Actions</label><p>${m.actions}</p></div>`:''}
         ${m.reactions?`<div class="db" style="margin-bottom:.4rem"><label>Reactions</label><p>${m.reactions}</p></div>`:''}
-        <div style="display:flex;gap:.5rem;margin-top:.6rem">
-          <button class="abtn" style="border-color:var(--red);color:var(--red)" data-mdb-add="${i}">⚔ Add to Initiative</button>
-          <button class="abtn" style="border-color:var(--blue);color:var(--blue)" data-mdb-step7="${i}">+ Add to Step 7</button>
+        <div class="mdb-actions">
+          <label class="mdb-count-l">How many<input type="number" class="mdb-count" min="1" max="30" value="1" inputmode="numeric"></label>
+          <button class="btnp" data-mdb-add="${i}">⚔ Add to fight</button>
+          <button class="btns" data-mdb-step7="${i}">＋ Prep for session</button>
         </div>
       </div>`;
 
     card.addEventListener('click', e => {
-      if(e.target.closest('[data-mdb-add]')||e.target.closest('[data-mdb-step7]')) return;
+      if(e.target.closest('[data-mdb-add]')||e.target.closest('[data-mdb-step7]')||e.target.closest('.mdb-actions')) return;
       const det = document.getElementById('mdb-'+i);
       if(det) det.style.display = det.style.display==='none' ? 'block' : 'none';
     });
 
     const addBtn = card.querySelector('[data-mdb-add]');
-    if(addBtn) addBtn.addEventListener('click', e=>{ e.stopPropagation(); addMonsterToInit(m); });
+    if(addBtn) addBtn.addEventListener('click', e=>{ e.stopPropagation(); addMonsterToInit(m,card.querySelector('.mdb-count').value); });
     const s7Btn = card.querySelector('[data-mdb-step7]');
-    if(s7Btn) s7Btn.addEventListener('click', e=>{ e.stopPropagation(); addMonsterToStep7(m); });
+    if(s7Btn) s7Btn.addEventListener('click', e=>{ e.stopPropagation(); addMonsterToStep7(m,card.querySelector('.mdb-count').value); });
 
     list.appendChild(card);
     wrapSpellsInElement(card);
@@ -1306,20 +1338,24 @@ function renderMDB(){
   }
 }
 
-function addMonsterToInit(m){
-  if(combatants.find(c=>c.name===m.name)){
-    // Allow duplicates with a number suffix
-    let n=2; while(combatants.find(c=>c.name===m.name+' '+n)) n++;
-    m = {...m, name: m.name+' '+n};
+function addMonsterToInit(m,count,roll){
+  count=Math.max(1,Math.min(30,parseInt(count)||1));
+  const dex=m.dex||10, d20=()=>Math.floor(Math.random()*20)+1, mod=Math.floor((dex-10)/2);
+  if(count>1){
+    let gname=m.name, n=2; while(combatants.find(x=>x.isGroup&&x.name===gname)) gname=m.name+' ('+(n++)+')';
+    const gi=roll?d20()+mod:0;
+    const members=Array.from({length:count},(_,i)=>({name:m.name+' '+(i+1),hp:m.hp,hpMax:m.hp,conditions:[],dead:false,initiative:gi}));
+    combatants.push({name:gname,type:'monster',initiative:gi,hp:m.hp,hpMax:m.hp,ac:m.ac,dex,conditions:[],isGroup:true,count,members,expanded:false});
+  } else {
+    let name=m.name, n=2; while(combatants.find(x=>x.name===name)) name=m.name+' '+(n++);
+    combatants.push({name,type:'monster',initiative:roll?d20()+mod:0,hp:m.hp,hpMax:m.hp,ac:m.ac,dex,conditions:[]});
   }
-  combatants.push({name:m.name,type:'monster',initiative:0,hp:m.hp,hpMax:m.hp,ac:m.ac,dex:m.dex||10,conditions:[]});
+  if(roll){ const cur=currentTurn>=0?combatants[currentTurn]:null; combatants.sort((a,b)=>b.initiative-a.initiative); if(cur) currentTurn=combatants.indexOf(cur); }
   renderInitList(); updateInitSelects();
-  // Switch to init tab
-  const btn = document.querySelector('[data-ac="tab-init"]');
-  if(btn){ sw('init', btn); }
+  toast('Added '+(count>1?count+' × ':'')+m.name+' to the fight','Open Combat',()=>sw('init'));
 }
 
-function addMonsterToStep7(m){
+function addMonsterToStep7(m,count){
   const card = mkCard('mon-list',[
     {cols:5,items:[{key:'mn-name',label:'Name',placeholder:'Monster'},{key:'mn-cr',label:'CR',placeholder:'CR'},{key:'mn-hp',label:'HP',placeholder:'HP'},{key:'mn-ac',label:'AC',placeholder:'AC'},{key:'mn-n',label:'Count',placeholder:'1'}]},
     {cols:2,items:[{key:'mn-mot',label:'Motivation',placeholder:''},{key:'mn-tac',label:'Tactics',placeholder:''}]},
@@ -1327,12 +1363,12 @@ function addMonsterToStep7(m){
   ]);
   if(card){
     const setK = (k,v) => { const el=card.querySelector('[data-key="'+k+'"]'); if(el)el.value=v; };
-    setK('mn-name',m.name); setK('mn-cr',m.cr); setK('mn-hp',m.hp); setK('mn-ac',m.ac); setK('mn-n','1');
+    setK('mn-name',m.name); setK('mn-cr',m.cr); setK('mn-hp',m.hp); setK('mn-ac',m.ac); setK('mn-n',String(Math.max(1,parseInt(count)||1)));
     setK('mn-tac', m.actions ? m.actions.split(',')[0] : '');
   }
   if(card) addInitBtnToMonCard(card);
-  const btn = document.querySelector('[data-ac="tab-s7"]');
-  if(btn){ sw('s7', btn); }
+  if(typeof renderEncTester==='function') setTimeout(renderEncTester,50);
+  toast('Prepared '+(parseInt(count)>1?parseInt(count)+' × ':'')+m.name,'Open prepared list',()=>{ if(window.__tomeGoPrepared) window.__tomeGoPrepared(); else sw('s7'); });
 }
 
 // Also hook MDB search inputs (no onclick, use input/change events)
@@ -1638,11 +1674,11 @@ function renderConditions(){
       <div class="cond-card-detail" id="cond-detail-${i}">
         <ul>${cond.effects.map(e=>`<li>${e}</li>`).join('')}</ul>
         <div class="cond-apply-bar">
-          <span style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-light)">Apply to:</span>
-          <select id="cond-apply-sel-${i}" style="font-size:.82rem;padding:.2rem .4rem;min-width:100px">
+          <span style="font-family:var(--hfont);font-size:calc(max(.6,.8)*var(--tu));letter-spacing:.09em;text-transform:uppercase;color:var(--ink-light)">Apply to:</span>
+          <select id="cond-apply-sel-${i}" style="font-size:calc(.82*var(--tu));padding:.2rem .4rem;min-width:100px">
             <option value="">— combatant —</option>
           </select>
-          <button class="abtn" style="font-size:.6rem;padding:.2rem .55rem" data-cond-apply="${i}">Apply</button>
+          <button class="abtn" style="font-size:calc(max(.6,.8)*var(--tu));padding:.2rem .55rem" data-cond-apply="${i}">Apply</button>
         </div>
       </div>`;
     card.addEventListener('click', e => {
@@ -1867,15 +1903,15 @@ function webSelectNode(node){
   const relList = document.getElementById('wnp-rels');
   const rels = webEdges.filter(e=>e.from===node.name||e.to===node.name);
   if(rels.length===0){
-    relList.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.8rem;color:var(--ink-light)">No connections yet.</div>';
+    relList.innerHTML = '<div style="font-family:var(--bfont);font-style:italic;font-size:calc(.8*var(--tu));color:var(--ink-light)">No connections yet.</div>';
   } else {
     relList.innerHTML = rels.map(e=>{
       const other = e.from===node.name ? e.to : e.from;
       const col = REL_COLORS[e.type]||'#7a5c2e';
       return `<div class="web-rel-item">
         <span class="web-rel-dot" style="background:${col}"></span>
-        <span><strong>${e.type}</strong> → ${other}${e.note?` <em style="font-size:.78rem;color:var(--ink-light)"> · ${e.note}</em>`:''}</span>
-        <button style="margin-left:auto;background:none;border:none;color:var(--parch-shadow);cursor:pointer;font-size:.75rem" data-del-edge="${e.from}||${e.to}">✕</button>
+        <span><strong>${e.type}</strong> → ${other}${e.note?` <em style="font-size:calc(max(.78,.8)*var(--tu));color:var(--ink-light)"> · ${e.note}</em>`:''}</span>
+        <button style="margin-left:auto;background:none;border:none;color:var(--parch-shadow);cursor:pointer;font-size:calc(max(.75,.8)*var(--tu))" data-del-edge="${e.from}||${e.to}">✕</button>
       </div>`;
     }).join('');
     relList.querySelectorAll('[data-del-edge]').forEach(btn=>{
@@ -2203,7 +2239,7 @@ function processCFData(data){
   list.innerHTML = '';
 
   if(undiscovered.length === 0){
-    list.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;color:var(--ink-light)">All secrets from that session appear to have been discovered — or none were recorded.</div>';
+    list.innerHTML = '<div style="font-family:var(--bfont);font-style:italic;font-size:calc(.88*var(--tu));color:var(--ink-light)">All secrets from that session appear to have been discovered — or none were recorded.</div>';
     panel.style.display='block';
     return;
   }
@@ -3273,7 +3309,7 @@ function calcBenchmark(){
   const singleMax = level <= 4 ? level : Math.round(level * 1.5 * 10) / 10;
 
   resultEl.innerHTML = `
-    Benchmark: <span style="font-size:1.1rem">CR ${benchmark} total</span> before deadly
+    Benchmark: <span style="font-size:calc(1.1*var(--tu))">CR ${benchmark} total</span> before deadly
     · Single monster max: CR ${singleMax}
     <span class="bench-sub">${count} characters × level ${level} = sum ${sumLevels} · ${tierLabel}</span>
   `;
@@ -3546,21 +3582,21 @@ function genFork(){
 
   const block = document.getElementById('fork-result-block');
   block.innerHTML = `
-    <div style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:.5rem">Choice / Fork</div>
-    <div style="font-family:'Crimson Text',serif;font-size:1rem;color:var(--ink);line-height:1.5;margin-bottom:.75rem;font-style:italic">${fork.q}</div>
+    <div style="font-family:var(--hfont);font-size:calc(max(.72,.8)*var(--tu));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:.5rem">Choice / Fork</div>
+    <div style="font-family:var(--bfont);font-size:calc(1*var(--tu));color:var(--ink);line-height:1.5;margin-bottom:.75rem;font-style:italic">${fork.q}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.7rem">
       <div style="background:rgba(139,26,26,.07);border:1px solid rgba(139,26,26,.2);border-radius:2px;padding:.55rem .7rem">
-        <div style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:.25rem">Path A</div>
-        <div style="font-family:'Crimson Text',serif;font-size:.92rem;color:var(--ink);line-height:1.45">${fork.a}</div>
+        <div style="font-family:var(--hfont);font-size:calc(max(.6,.8)*var(--tu));letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:.25rem">Path A</div>
+        <div style="font-family:var(--bfont);font-size:calc(.92*var(--tu));color:var(--ink);line-height:1.45">${fork.a}</div>
       </div>
       <div style="background:rgba(26,42,74,.06);border:1px solid rgba(26,42,74,.2);border-radius:2px;padding:.55rem .7rem">
-        <div style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.25rem">Path B</div>
-        <div style="font-family:'Crimson Text',serif;font-size:.92rem;color:var(--ink);line-height:1.45">${fork.b}</div>
+        <div style="font-family:var(--hfont);font-size:calc(max(.6,.8)*var(--tu));letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.25rem">Path B</div>
+        <div style="font-family:var(--bfont);font-size:calc(.92*var(--tu));color:var(--ink);line-height:1.45">${fork.b}</div>
       </div>
     </div>
     <div style="background:rgba(184,134,11,.07);border:1px solid rgba(184,134,11,.25);border-radius:2px;padding:.5rem .7rem">
-      <div style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">What Changes</div>
-      <div style="font-family:'Crimson Text',serif;font-size:.9rem;color:var(--ink);line-height:1.45">${fork.change}</div>
+      <div style="font-family:var(--hfont);font-size:calc(max(.6,.8)*var(--tu));letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">What Changes</div>
+      <div style="font-family:var(--bfont);font-size:calc(.9*var(--tu));color:var(--ink);line-height:1.45">${fork.change}</div>
     </div>`;
 
   addToHistory('fork-history', fork.q.slice(0, 80) + '…');
@@ -3701,20 +3737,6 @@ function splitGroupWithInit(groupIdx){
   renderInitList(); updateInitSelects();
 }
 
-// Also update the monster-from-step7 adder to use groups
-const _origAddMonsterToInit = addMonsterToInit;
-function addMonsterToInit(m){
-  // called from monster DB — check if count implies group
-  if(combatants.find(c=>c.name===m.name)){
-    let n=2; while(combatants.find(c=>c.name===m.name+' '+n)) n++;
-    m = {...m, name: m.name+' '+n};
-  }
-  combatants.push({name:m.name,type:'monster',initiative:0,hp:m.hp,hpMax:m.hp,ac:m.ac,dex:m.dex||10,conditions:[]});
-  renderInitList(); updateInitSelects();
-  const btn = document.querySelector('[data-ac="tab-init"]');
-  if(btn){ sw('init', btn); }
-}
-
 // Update killCombatant to handle groups
 const _origKillCombatant = killCombatant;
 function killCombatant(idx){
@@ -3826,7 +3848,7 @@ function calcBenchmark(){
   const b=currentBench();
   const resultEl=document.getElementById('bench-result');
   if(resultEl){
-    resultEl.innerHTML=`Benchmark: <span style="font-size:1.1rem">CR ${b.benchmark} total</span> before an encounter may be deadly. No single monster above CR ${b.singleMax}.
+    resultEl.innerHTML=`Benchmark: <span style="font-size:calc(1.1*var(--tu))">CR ${b.benchmark} total</span> before an encounter may be deadly. No single monster above CR ${b.singleMax}.
       <span class="bench-sub">${b.count} characters, total level ${b.sum} (${b.tier})</span>`;
   }
   const noteEl=document.getElementById('enc-bench');
@@ -4312,6 +4334,15 @@ function partyRest(kind){
   renderInitList(); refreshCombatPanel();
   if(document.getElementById('tab-run').classList.contains('active')) renderRunMode();
   flashStatus(kind==='long'?'✓ Long rest taken':'✓ Short rest taken');
+}
+let _toastT;
+function toast(msg,label,fn){
+  const root=document.getElementById('tome'); if(!root) return;
+  let t=document.getElementById('tome-toast');
+  if(!t){ t=document.createElement('div'); t.id='tome-toast'; t.setAttribute('role','status'); root.appendChild(t); }
+  t.innerHTML=''; const sp=document.createElement('span'); sp.textContent='✓ '+msg; t.appendChild(sp);
+  if(label&&fn){ const b=document.createElement('button'); b.textContent=label; b.addEventListener('click',()=>{ t.classList.remove('on'); fn(); }); t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove('on'),4500);
 }
 function flashStatus(msg){
   const s=document.getElementById('sst'); if(!s) return;
@@ -5058,6 +5089,59 @@ function printPrepSheet(){
     const b=e.target.closest&&e.target.closest('[data-go]'); if(!b) return;
     sw(b.getAttribute('data-go')); window.scrollTo({top:0,behavior:'smooth'});
   });
+})();
+
+
+// ---- Combat: add prepared monsters or library monsters with one tap ----
+(function(){
+  const root=document.getElementById('tome'); if(!root) return;
+  const esc=escH;
+  const prepared=()=>readList('mon-list').filter(m=>m['mn-name']).map(m=>({
+    name:m['mn-name'],cr:m['mn-cr'],hp:parseInt(m['mn-hp'])||0,ac:parseInt(m['mn-ac'])||0,n:Math.max(1,parseInt(m['mn-n'])||1),card:m._card}));
+  function renderPrepared(){
+    const box=document.getElementById('fa-prepared'); if(!box) return;
+    const list=prepared();
+    if(!list.length){
+      box.innerHTML='<p class="fa-empty">Nothing prepared yet. Open <b>Monsters</b> from the menu to line some up, or search below.</p>';
+      return;
+    }
+    box.innerHTML=list.map((m,i)=>'<div class="fa-row"><div class="fa-main"><b>'+esc(m.name)+'</b>'+(m.n>1?' <span class="fa-n">× '+m.n+'</span>':'')+
+      '<div class="fa-meta">'+(m.cr?'CR '+esc(m.cr)+' · ':'')+'HP '+(m.hp||'?')+' · AC '+(m.ac||'?')+'</div></div>'+
+      '<button class="btnp" data-fa-prep="'+i+'">Add</button><button class="btns" data-fa-prep-roll="'+i+'" title="Add and roll initiative" aria-label="Add '+esc(m.name)+' and roll initiative">🎲</button></div>').join('')+
+      (list.length>1?'<button class="btns fa-all" data-fa-all>Add all prepared</button>':'');
+  }
+  function renderResults(){
+    const qEl=document.getElementById('fa-q'), box=document.getElementById('fa-results'); if(!qEl||!box) return;
+    const q=(qEl.value||'').trim().toLowerCase();
+    if(q.length<2){ box.innerHTML=''; return; }
+    const rank=m=>{const n=m.name.toLowerCase(); return n===q?0:n.startsWith(q)?1:n.includes(' '+q)?2:n.includes(q)?3:4};
+    const hits=MONSTERS.map((m,i)=>[m,i]).filter(([m])=>m.name.toLowerCase().includes(q)||('cr '+m.cr)===q||String(m.type).toLowerCase().includes(q)).sort((a,b)=>rank(a[0])-rank(b[0])).slice(0,8);
+    box.innerHTML=hits.length?hits.map(([m,i])=>'<div class="fa-row lib"><div class="fa-main"><b>'+esc(m.name)+'</b><div class="fa-meta">'+esc(m.type)+' · CR '+esc(m.cr)+' · HP '+m.hp+' · AC '+m.ac+'</div></div>'+
+      '<label class="fa-cl">How many<input type="number" class="fa-count" min="1" max="30" value="1" inputmode="numeric"></label>'+
+      '<button class="btnp" data-fa-lib="'+i+'">Add</button><button class="btns" data-fa-lib-roll="'+i+'" title="Add and roll initiative" aria-label="Add '+esc(m.name)+' and roll initiative">🎲</button></div>').join(''):
+      '<p class="fa-empty">Not in the library. Add it by hand below, or prepare it as a custom monster.</p>';
+  }
+  window.__tomeFightRefresh=function(){ renderPrepared(); renderResults(); };
+  const clickCard=(i,role)=>{ const p=prepared()[i]; if(!p) return; const b=p.card.querySelector('[data-role="'+role+'"]'); if(b) b.click(); };
+  root.addEventListener('click',e=>{
+    const t=e.target.closest&&e.target.closest('[data-fa-prep],[data-fa-prep-roll],[data-fa-all],[data-fa-lib],[data-fa-lib-roll],[data-go-lib]'); if(!t) return;
+    if(t.hasAttribute('data-fa-prep')) clickCard(+t.getAttribute('data-fa-prep'),'add-init');
+    else if(t.hasAttribute('data-fa-prep-roll')) clickCard(+t.getAttribute('data-fa-prep-roll'),'roll-init');
+    else if(t.hasAttribute('data-fa-all')) prepared().forEach((p,i)=>clickCard(i,'add-init'));
+    else if(t.hasAttribute('data-go-lib')){ if(window.__tomeGoLibrary) window.__tomeGoLibrary(); else sw('mdb'); }
+    else{
+      const attr=t.hasAttribute('data-fa-lib')?'data-fa-lib':'data-fa-lib-roll', roll=attr==='data-fa-lib-roll';
+      const m=MONSTERS[+t.getAttribute(attr)], row=t.closest('.fa-row'), n=row?row.querySelector('.fa-count').value:1;
+      if(m) addMonsterToInit(m,n,roll);
+    }
+  });
+  root.addEventListener('input',e=>{
+    if(e.target&&e.target.id==='fa-q') renderResults();
+    else if(e.target&&e.target.closest&&e.target.closest('#mon-list')){ clearTimeout(renderPrepared._t); renderPrepared._t=setTimeout(renderPrepared,250); }
+  });
+  const _ad2=applyData; applyData=function(d){ _ad2(d); setTimeout(renderPrepared,100); };
+  new MutationObserver(()=>{ clearTimeout(renderPrepared._m); renderPrepared._m=setTimeout(renderPrepared,150); }).observe(document.getElementById('mon-list')||root,{childList:true});
+  setTimeout(renderPrepared,400);
 })();
 
 // expose what the host page needs

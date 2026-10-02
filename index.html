@@ -189,6 +189,8 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .bnav button{flex:1 0 4.3rem;min-height:4.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:none;border:0;border-right:1px solid var(--line);font-size:.82rem;font-weight:700;color:var(--muted);position:relative;padding:.3rem .2rem}
 .bnav button:last-child{border-right:0}
 .bnav button.on{color:var(--accent-ink);background:var(--accent)}
+.bnav.fit{overflow:hidden}
+.bnav.fit button{flex:1 1 0;min-width:0}
 .bnav .ico{font-size:1.7rem;line-height:1.1}
 .bnav .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
 .subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;padding:.35rem 0 .5rem;margin-bottom:.4rem;background:var(--bg)}
@@ -220,7 +222,7 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .mini b{display:block;font-size:1.05rem}
 .tome-bar{display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin:.2rem 0 .6rem}
 #tome{min-height:50vh}
-#tome[data-view="combat"] .tome-meta,#tome[data-view="rules"] .tome-meta,#tome[data-view="combat"] .actbar,#tome[data-view="rules"] .actbar{display:none!important}
+#tome[data-view="combat"] .tome-meta,#tome[data-view="monsters"] .tome-meta,#tome[data-view="more"] .tome-meta,#tome[data-view="combat"] .actbar,#tome[data-view="monsters"] .actbar,#tome[data-view="more"] .actbar{display:none!important}
 .legal{font-size:.8rem;color:var(--muted);margin-top:1rem}
 @media (max-width:700px){
   .wrap{padding:.7rem}
@@ -949,8 +951,9 @@ const PREP_CHIPS=[["s1","1 Party"],["s2","2 Start"],["s3","3 Scenes"],["s4","4 S
 const CAMP_CHIPS=[["camp","Overview"],["web","Web"],["post","After session"],["hist","History"]];
 const segOf=p=>p==="run"?"run":/^s\d$/.test(p)?"prep":"campaign";
 const segLast={run:"run",prep:"s1",campaign:"camp"};
-const RULES_CHIPS=[["spells","Spells"],["mdb","Monsters"],["cond","Conditions"],["gen","Generators"]];
-let subSession="run", subRules="spells";
+const MONS_CHIPS=[["prep","Prepared"],["lib","Library"]];
+const MORE_CHIPS=[["msgs","✉️ Messages"],["spells","Spells"],["cond","Conditions"],["gen","Generators"]];
+let subSession="run", subMons="prep", subMore="msgs";
 function navItems(){
   const inSheet=!!(openId&&chars[openId]);
   if(inSheet){
@@ -964,7 +967,7 @@ function navItems(){
   }
   if(isDM()){
     let un=0;Object.keys(chars).forEach(id=>{un+=unreadFrom(id,"player")});
-    return {items:[["party","🏰","Party"],["combat","⚔️","Combat"],["session","📜","Session"],["rules","📚","Rules"],["msgs","✉️","Messages"]],active:dmTab,badge:{msgs:un}};
+    return {items:[["party","🏰","Party"],["combat","⚔️","Combat"],["monsters","👹","Monsters"],["session","📜","Session"],["more","☰","More"]],active:dmTab,badge:{more:un}};
   }
   return {items:[],active:""};
 }
@@ -972,6 +975,7 @@ function renderNav(){
   const nav=$("bnav"),n=navItems();
   nav.hidden=!n.items.length;
   document.body.classList.toggle("nonav",!n.items.length);
+  nav.classList.toggle("fit",n.items.length>0&&n.items.length<=5);
   const prev=nav.scrollLeft;
   nav.innerHTML=n.items.map(i=>'<button class="'+(n.active===i[0]?"on":"")+'" data-act="nav" data-tab="'+i[0]+'" aria-label="'+i[2]+'"><span class="ico">'+i[1]+'</span>'+i[2]+(n.badge&&n.badge[i[0]]?'<span class="n">'+n.badge[i[0]]+'</span>':"")+'</button>').join("");
   nav.scrollLeft=prev;
@@ -982,18 +986,19 @@ function renderNav(){
   }
   navFade();
 }
-function navFade(){const nav=$("bnav");if(nav)nav.classList.toggle("fade",nav.scrollWidth>nav.clientWidth+4&&nav.scrollLeft+nav.clientWidth<nav.scrollWidth-4)}
+function navFade(){const nav=$("bnav");if(nav)nav.classList.toggle("fade",!nav.classList.contains("fit")&&nav.scrollWidth>nav.clientWidth+4&&nav.scrollLeft+nav.clientWidth<nav.scrollWidth-4)}
 function renderSubnav(){
   const el=$("subnav"),top=isDM()&&!(openId&&chars[openId]);
   let chips=null,active=null,group=null,seg=null;
   if(top&&dmTab==="session"){seg=segOf(subSession);chips=seg==="prep"?PREP_CHIPS:seg==="campaign"?CAMP_CHIPS:null;active=subSession;group="session"}
-  else if(top&&dmTab==="rules"){chips=RULES_CHIPS;active=subRules;group="rules"}
+  else if(top&&dmTab==="monsters"){chips=MONS_CHIPS;active=subMons;group="monsters"}
+  else if(top&&dmTab==="more"){chips=MORE_CHIPS;active=subMore;group="more"}
   if(!seg&&!chips){el.hidden=true;return}
   const prevRow=el.querySelector(".chips-row"),prev=prevRow?prevRow.scrollLeft:0;
   el.hidden=false;
   let h="";
   if(seg)h+='<div class="seg" role="group" aria-label="Session section">'+SESSION_SEGS.map(c=>'<button class="'+(seg===c[0]?"on":"")+'" data-act="seg" data-seg="'+c[0]+'" aria-pressed="'+(seg===c[0])+'">'+c[1]+'</button>').join("")+'</div>';
-  if(chips)h+='<div class="chips-row">'+chips.map(c=>'<button class="chip'+(active===c[0]?" on":"")+'" data-act="sub" data-g="'+group+'" data-p="'+c[0]+'">'+c[1]+'</button>').join("")+'</div>';
+  if(chips)h+='<div class="chips-row">'+chips.map(c=>{let n=0;if(group==="more"&&c[0]==="msgs")Object.keys(chars).forEach(id=>{n+=unreadFrom(id,"player")});return '<button class="chip'+(active===c[0]?" on":"")+'" data-act="sub" data-g="'+group+'" data-p="'+c[0]+'">'+c[1]+(n?' ('+n+')':"")+'</button>'}).join("")+'</div>';
   el.innerHTML=h;
   const row=el.querySelector(".chips-row");
   if(row){row.scrollLeft=prev;const on=row.querySelector(".on");
@@ -1002,8 +1007,8 @@ function renderSubnav(){
 function renderApp(){
   if(!role)return;
   const inSheet=!!(openId&&chars[openId]),dm=isDM(),top=dm&&!inSheet;
-  const tomeTab=top&&(dmTab==="combat"||dmTab==="session"||(dmTab==="rules"&&subRules!=="spells"));
-  const show={party:top&&dmTab==="party",msgs:top&&dmTab==="msgs",lookup:top&&dmTab==="rules"&&subRules==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
+  const tomeTab=top&&(dmTab==="combat"||dmTab==="session"||dmTab==="monsters"||(dmTab==="more"&&(subMore==="cond"||subMore==="gen")));
+  const show={party:top&&dmTab==="party",msgs:top&&dmTab==="more"&&subMore==="msgs",lookup:top&&dmTab==="more"&&subMore==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
   $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewTome").hidden=!show.tome;$("viewSheet").hidden=!show.sheet;
   document.body.classList.toggle("compact",show.sheet||show.tome);
   if(!show.party)$("viewParty").innerHTML="";
@@ -1069,7 +1074,7 @@ document.addEventListener("click",async e=>{
     case "nav":{
       const tab=b.dataset.tab;
       if(openId&&chars[openId]){sheetTab=tab;lvlUp=null;renderSheet();renderNav();window.scrollTo(0,0)}
-      else{dmTab=tab;if(tab!=="msgs")dmMsgChar=null;renderApp();window.scrollTo(0,0)}
+      else{dmTab=tab;if(tab!=="more")dmMsgChar=null;renderApp();window.scrollTo(0,0)}
       return}
     case "signout":return doSignOut();
     case "close":openId=null;lvlUp=null;sheetTab="play";editMode=false;renderApp();window.scrollTo(0,0);return;
@@ -1093,7 +1098,7 @@ document.addEventListener("click",async e=>{
     case "savecs":return saveCustomSpell();
     case "delcs":{if(confirm("Delete the custom spell “"+b.dataset.n+"”?"))deleteDoc(doc(db,"customSpells",slugId(b.dataset.n))).catch(()=>setStatus("Could not delete",true));return}
     case "addspell":{const ch=chars[charId];if(!ch)return;ch.spells.push({name:b.dataset.n,level:Number(b.dataset.l),desc:""});saveChar(charId,["spells"]);b.outerHTML='<span class="sub">Added to your spells.</span>';return}
-    case "sub":{if(b.dataset.g==="session"){subSession=b.dataset.p;segLast[segOf(subSession)]=subSession}else subRules=b.dataset.p;renderApp();window.scrollTo(0,0);return}
+    case "sub":{const g=b.dataset.g;if(g==="session"){subSession=b.dataset.p;segLast[segOf(subSession)]=subSession}else if(g==="monsters")subMons=b.dataset.p;else{subMore=b.dataset.p;if(subMore!=="msgs")dmMsgChar=null}renderApp();window.scrollTo(0,0);return}
     case "seg":{subSession=segLast[b.dataset.seg]||"run";renderApp();window.scrollTo(0,0);return}
     case "restall":return restAll(b.dataset.k);
     case "tomeretry":tomeState="idle";ensureTome();return;
@@ -1383,12 +1388,16 @@ async function ensureTome(){
     if(typeof window.__tomeSetData!=="function")throw new Error("tome.js did not start");
     window.__tomeSetData(spellDB,monsterList);
     window.__tomeOnPane=name=>{
-      let g=dmTab,ss=subSession,sr=subRules;
+      let g=dmTab,ss=subSession,sm=subMons,sx=subMore;
       if(name==="init")g="combat";
-      else if(name==="mdb"||name==="cond"||name==="gen"){g="rules";sr=name}
+      else if(name==="mdb"){g="monsters";sm="lib"}
+      else if(name==="s7"){if(dmTab==="monsters")sm="prep";else{g="session";ss="s7";segLast.prep="s7"}}
+      else if(name==="cond"||name==="gen"){g="more";sx=name}
       else{g="session";ss=name;segLast[segOf(name)]=name}
-      if(g!==dmTab||ss!==subSession||sr!==subRules){dmTab=g;subSession=ss;subRules=sr;openId=null;renderApp();window.scrollTo(0,0)}
+      if(g!==dmTab||ss!==subSession||sm!==subMons||sx!==subMore){dmTab=g;subSession=ss;subMons=sm;subMore=sx;openId=null;renderApp();window.scrollTo(0,0)}
     };
+    window.__tomeGoLibrary=()=>{dmTab="monsters";subMons="lib";openId=null;renderApp();window.scrollTo(0,0)};
+    window.__tomeGoPrepared=()=>{dmTab="monsters";subMons="prep";openId=null;renderApp();window.scrollTo(0,0)};
     document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
     tomeState="ready";tomeSent="";
     sendParty();
@@ -1403,7 +1412,7 @@ async function ensureTome(){
 function tomeShow(){
   const root=$("tome");if(!root||tomeState!=="ready")return;
   root.dataset.view=dmTab;
-  const pane=dmTab==="combat"?"init":dmTab==="session"?subSession:subRules;
+  const pane=dmTab==="combat"?"init":dmTab==="session"?subSession:dmTab==="monsters"?(subMons==="lib"?"mdb":"s7"):subMore;
   const el=document.getElementById("tab-"+pane);
   if(el&&!el.classList.contains("active")){
     /* press the tool's own (hidden) tab button so its "refresh when opened" hooks run: Run Session, Web, Monsters */
@@ -1433,7 +1442,7 @@ function startApp(){
   $("outBtn").hidden=false;
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
-    openId=null;dmTab="party";subSession="run";subRules="spells";sheetTab="play";
+    openId=null;dmTab="party";subSession="run";subMons="prep";subMore="msgs";sheetTab="play";
     unsubs.push(onSnapshot(collection(db,"characters"),snap=>{
       const next={};snap.docs.forEach(d=>{next[d.id]=keepLocal("c:",d.id,normalize(d.data()||{}),chars[d.id])});
       chars=next;if(openId&&!chars[openId])openId=null;

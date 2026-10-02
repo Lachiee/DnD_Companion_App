@@ -179,9 +179,9 @@
 <!-- ══ S7: MONSTERS ══ -->
 <div id="tab-s7" class="pane">
   <div class="sec">
-    <div class="stitle"><span class="sbadge">Step 7</span>Choose Relevant Monsters</div>
-    <p class="shint">List separately from encounters so you can drop them anywhere based on pacing. Note the lazy encounter benchmark.</p>
-    <div class="bench-calculator">
+    <div class="stitle"><span class="sbadge">Step 7</span>Prepared monsters</div>
+    <p class="shint">Line up the monsters you expect to use. When the fight starts, open Combat and tap Add next to each one.</p>
+    <div class="prep-actions"><button class="btnp" data-go-lib>＋ Add from the monster library</button><button class="btns" data-ac="fn-addMon">＋ Add by hand</button></div><div class="cl" id="mon-list"></div><details class="qm-details"><summary>Build a monster from just a CR</summary><div class="qm-card" id="qm-s7"></div></details><details class="bench-wrap"><summary>Is the fight too tough? Encounter benchmark</summary><div class="bench-calculator">
       <div class="bench-top">
         <div class="stitle" style="margin-bottom:calc(.4*var(--tr))">Lazy Encounter Benchmark</div>
         <p class="shint" style="margin-bottom:calc(.8*var(--tr))">An encounter may be deadly if total monster CR exceeds the benchmark. <strong>Levels 1–4:</strong> sum of character levels ÷ 4. <strong>Levels 5–10:</strong> ÷ 2. <strong>Levels 11–16:</strong> × ¾. <strong>Level 17+:</strong> = full sum of levels.</p>
@@ -212,9 +212,7 @@
         <input type="text" id="enc-bench" placeholder="e.g. 4 × level 4 party → benchmark CR 4 total before deadly">
       </div>
     </div>
-    <details class="qm-details"><summary>Build a monster from just a CR</summary><div class="qm-card" id="qm-s7"></div></details>
-    <div style="margin-top:calc(.8*var(--tr))" class="cl" id="mon-list"></div>
-    <button class="abtn" data-ac="fn-addMon">+ Add Monster</button>
+    </details>
   </div>
 </div>
 
@@ -232,7 +230,7 @@
 <div id="tab-init" class="pane">
   <div class="sec">
     <div class="stitle">⚔ Initiative Tracker</div>
-    <p class="shint">Add combatants, roll initiative, track HP and conditions. Click a row to make it the active turn.</p>
+    <p class="shint">Tap a number to type what someone rolled. Tap a name for their stat block or resources.</p>
 
     <div class="init-tracker">
       <div class="init-header">
@@ -245,16 +243,24 @@
         </div>
       </div>
 
-      <div id="combat-alerts" aria-live="polite"></div>
+      <div id="combat-alerts" aria-live="polite"></div><div class="fight-setup"><button class="btns" data-ac="fn-addFromChars">⇲ Add party</button><button class="btns" data-ac="fn-rollMonstersInit">🎲 Roll monsters</button><button class="btns" data-ac="fn-rollAllInit">🎲 Roll everyone</button></div>
       <!-- combatant rows -->
       <div class="init-list" id="init-list">
         <div style="padding:calc(1*var(--tr));text-align:center;font-family:var(--bfont);font-style:italic;color:var(--ink-light);font-size:calc(.9*var(--tu))">Add combatants below and click Roll All Initiative</div>
       </div>
 
+      <section class="fight-add" id="fight-add">
+        <h4 class="fa-h">Add to the fight</h4>
+        <div class="fa-sub">Prepared for this session</div>
+        <div id="fa-prepared"></div>
+        <div class="fa-sub">Or search the monster library</div>
+        <input type="search" id="fa-q" placeholder="e.g. wolf, goblin, owlbear, CR 3" autocomplete="off" aria-label="Search monsters">
+        <div id="fa-results"></div>
+      </section>
       <!-- damage / heal bar -->
       <div class="dmg-bar">
         <div>
-          <div class="dmg-bar-title">Quick Damage / Heal</div>
+          <div class="dmg-bar-title">Quick damage or heal</div>
           <div style="display:flex;gap:calc(.4*var(--tr));align-items:end">
             <div><label>Target</label>
               <select id="dmg-target" style="min-width:130px"><option value="">— select —</option></select>
@@ -279,8 +285,7 @@
         </div>
       </div>
 
-      <!-- add combatant -->
-      <div class="init-add-area">
+      <details class="fight-manual"><summary>Add by hand (custom name, HP, AC)</summary><div class="init-add-area">
         <div><label>Name</label><input type="text" id="new-name" placeholder="Goblin / Aelindra"></div>
         <div><label>Type</label><select id="new-type"><option value="pc">🧙 PC</option><option value="monster">👹 Monster</option><option value="npc">🧑 NPC</option></select></div>
         <div><label>Initiative</label><input type="number" id="new-init" placeholder="roll or enter"></div>
@@ -288,11 +293,7 @@
         <div><label>Count</label><input type="number" id="new-count" placeholder="1" min="1" max="20" style="width:55px"></div>
         <div><label>AC</label><input type="number" id="new-ac" placeholder="ac"></div>
         <button class="btnp" data-ac="fn-addCombatant" style="padding:calc(.55*var(--tr)) calc(.8*var(--tr));font-size:calc(max(.63,.8)*var(--tu));white-space:nowrap;align-self:end">+ Add</button>
-      </div>
-      <div style="padding:calc(.5*var(--tr)) calc(.9*var(--tr));border-top:1px solid color-mix(in srgb,var(--tgold) 20%,transparent);display:flex;gap:calc(.5*var(--tr))">
-        <button class="btns" data-ac="fn-rollAllInit" style="font-size:calc(max(.63,.8)*var(--tu));padding:calc(.38*var(--tr)) calc(.75*var(--tr))">🎲 Roll All Initiative</button>
-        <button class="btns" data-ac="fn-addFromChars" style="font-size:calc(max(.63,.8)*var(--tu));padding:calc(.38*var(--tr)) calc(.75*var(--tr))">⇲ Import PCs from Sheets</button>
-      </div>
+      </div></details>
     </div>
   </div>
 </div>
@@ -805,8 +806,6 @@
 </div>
 
 
-
-</div>
 
 
 </div>

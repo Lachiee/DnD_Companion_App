@@ -590,7 +590,8 @@ function spellDetail(sp){
   if(sp.h)h+='<div class="prose" style="margin-top:.5rem"><b>At higher levels.</b> '+E(sp.h)+'</div>';
   const notes=[];
   if(sp.cl&&sp.cl.length)notes.push("Classes: "+sp.cl.join(", ")+".");
-  if(sp.u===1)notes.push("Short summary only. Check your book for the full text.");
+  if(sp.src==="EEPC")notes.push("From the Elemental Evil Player’s Companion (2015). It is not in the 2024 core rules. Short summary only, so check your book for the full text.");
+  else if(sp.u===1)notes.push("Short summary only. Check your book for the full text.");
   if(sp.u===2)notes.push("Custom spell from your DM.");
   if(notes.length)h+='<div class="sub" style="margin-top:.5rem">'+E(notes.join(" "))+'</div>';
   return h;
@@ -749,7 +750,7 @@ function pips(n,used,act,extra,label){
   for(let i=0;i<n;i++)h+='<button type="button" class="pip'+(i<used?" used":"")+'" data-act="'+act+'" data-i="'+i+'" '+(extra||"")+' aria-label="'+E(label)+' '+(i+1)+(i<used?" used":" available")+'"></button>';
   return h+'</div>';
 }
-const RESET_LABEL={short:"Short rest",long:"Long rest",combat:"Per combat",hitdice:"Long rest (half back)",manual:"Manual"};
+const RESET_LABEL={short:"Short rest",short1:"1 back on short rest, all on long",long:"Long rest",combat:"Per combat",hitdice:"Long rest (half back)",manual:"Manual"};
 function resView(r,i){
   const left=Math.max(0,r.max-r.used);
   let ctl;
@@ -1372,6 +1373,7 @@ function applyRest(id,kind){
   c.resources.forEach(r=>{
     if(kind==="long"){if(r.reset==="hitdice")r.used=Math.max(0,r.used-Math.ceil(r.max/2));else if(r.reset!=="manual")r.used=0}
     else if(r.reset==="short"||r.reset==="combat")r.used=0;
+    else if(r.reset==="short1")r.used=Math.max(0,r.used-1);
   });
   if(kind==="long"){c.hp=c.hpMax;c.hpTemp=0;c.deathS=0;c.deathF=0;Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("hp","hpTemp","deathS","deathF","slots")}
   else if(pact){Object.keys(c.slots).forEach(k=>{c.slots[k].used=0});keys.push("slots")}

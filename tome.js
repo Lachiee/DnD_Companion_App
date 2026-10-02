@@ -5002,6 +5002,8 @@ function printPrepSheet(){
     document.querySelectorAll('#char-sheets .cs-card').forEach(el=>{ if(!keep.has(el.id)) el.remove(); });
     for(let i=loadedChars.length-1;i>=0;i--){ if(!sheets.some(s=>s.name===loadedChars[i].name)) loadedChars.splice(i,1); }
     if(typeof updateInitSelects==='function') updateInitSelects();
+    const pl=document.getElementById('party-level');
+    if(pl&&!pl.value&&sheets.length){ pl.value=String(Math.round(sheets.reduce((a,s)=>a+(parseInt(s.level)||1),0)/sheets.length)); if(window.__tomeMetaSum) window.__tomeMetaSum(); }
     window.__tomeSheetsChanged();
   };
   // autosave a few seconds after any edit inside the tome (the app copies it to the cloud)
@@ -5010,6 +5012,51 @@ function printPrepSheet(){
   ['input','change','click'].forEach(ev=>{
     const root=document.getElementById('tome');
     if(root) root.addEventListener(ev,_kick,true);
+  });
+})();
+
+// ---- tidy-up behaviour ----
+(function(){
+  const val=id=>{const e=document.getElementById(id);return e?String(e.value||'').trim():''};
+  function metaSum(){
+    const s=document.getElementById('tome-meta-sum'); if(!s) return;
+    const parts=[val('campaign-name')||'Name your campaign',val('session-num'),val('session-date'),val('party-level')?'Party level '+val('party-level'):''].filter(Boolean);
+    s.textContent=parts.join(' · ');
+  }
+  window.__tomeMetaSum=metaSum;
+  const _ad=applyData; applyData=function(d){ _ad(d); metaSum(); };
+  const root=document.getElementById('tome');
+  if(root) root.addEventListener('input',e=>{ if(e.target&&/^(campaign-name|session-num|session-date|party-level)$/.test(e.target.id)) metaSum(); });
+  setTimeout(metaSum,300); setTimeout(metaSum,1500);
+
+  const RUNIDS={secrets:'run-secrets',forks:'run-forks',scenes:'run-scenes',party:'run-party',hooks:'run-hooks',kit:'run-kit',npcs:'run-npcs',mons:'run-mons',locs:'run-locs',treas:'run-treas'};
+  function runTidy(){
+    Object.keys(RUNIDS).forEach(k=>{
+      const d=document.querySelector('#tome details[data-run="'+k+'"]'), box=document.getElementById(RUNIDS[k]);
+      if(!d||!box) return;
+      const n=[...box.children].filter(c=>!c.classList.contains('run-empty')).length;
+      let b=d.querySelector('summary .run-n');
+      if(k==='secrets'&&d.querySelector('summary .run-count')){ if(b) b.remove(); }
+      else{
+        if(!b){ b=document.createElement('span'); b.className='run-n'; d.querySelector('summary').appendChild(b); }
+        b.textContent=n?String(n):'none';
+      }
+      d.classList.toggle('is-empty',!n);
+    });
+  }
+  const _rrm=renderRunMode; renderRunMode=function(){ _rrm.apply(this,arguments); runTidy(); };
+
+  const ORDER=['s1','s2','s3','s4','s5','s6','s7','s8'], NAMES=['Party','Strong start','Scenes','Secrets','Places','NPCs','Monsters','Treasure'];
+  ORDER.forEach((id,i)=>{
+    const p=document.getElementById('tab-'+id); if(!p||p.querySelector('.step-nav')) return;
+    const nav=document.createElement('div'); nav.className='step-nav';
+    nav.innerHTML=(i?'<button class="btns" data-go="'+ORDER[i-1]+'">‹ '+NAMES[i-1]+'</button>':'')+
+      (i<ORDER.length-1?'<button class="btnp" data-go="'+ORDER[i+1]+'">'+NAMES[i+1]+' ›</button>':'<button class="btnp" data-go="run">▶ Run the session</button>');
+    p.appendChild(nav);
+  });
+  if(root) root.addEventListener('click',e=>{
+    const b=e.target.closest&&e.target.closest('[data-go]'); if(!b) return;
+    sw(b.getAttribute('data-go')); window.scrollTo({top:0,behavior:'smooth'});
   });
 })();
 

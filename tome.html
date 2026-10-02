@@ -6,12 +6,12 @@
 
 
 <!-- META -->
-<div class="meta">
+<details class="tome-meta" id="tome-meta"><summary id="tome-meta-sum">Campaign details</summary><div class="meta">
   <div><label>Campaign</label><input type="text" id="campaign-name" placeholder="e.g. Curse of Strahd"></div>
   <div><label>Session #</label><input type="text" id="session-num" placeholder="Session 7"></div>
   <div><label>Date</label><input type="text" id="session-date" placeholder="14 June 2025"></div>
   <div><label>Party Level</label><input type="text" id="party-level" placeholder="5"></div>
-</div>
+</div></details>
 
 <!-- TABS -->
 <div class="tab-groups" id="tab-groups">
@@ -366,8 +366,8 @@
 <div id="tab-mdb" class="pane">
   <div class="sec">
     <div class="stitle">👾 Monster Database</div>
-    <p class="shint">Search and browse D&amp;D 5e SRD monsters. Click a monster to expand its stat block, then send it directly to the Initiative Tracker.</p>
-    <div class="qm-card" id="qm-db"></div>
+    <p class="shint">Search the 2024 SRD monsters, plus a few 2014 SRD ones the 2024 book dropped. Click a monster to expand its stat block, then send it directly to the Initiative Tracker.</p>
+    <details class="qm-wrap"><summary>Not in the list? Build a quick monster by CR</summary><div class="qm-card" id="qm-db"></div></details>
     <div style="display:grid;grid-template-columns:1fr auto auto;gap:calc(.6*var(--tr));align-items:end;margin-bottom:calc(1*var(--tr))">
       <div><label>Search Monsters</label><input type="text" id="mdb-search" placeholder="e.g. goblin, dragon, CR 5, undead…" id="mdb-search" data-ac="fn-filterMonsters"></div>
       <div><label>CR Filter</label><select id="mdb-cr" data-mdb-filter="1">
@@ -483,8 +483,8 @@
       <div class="run-sub" id="run-sub"></div>
     </div>
     <div class="run-head-btns">
-      <button class="btns" data-ac="fn-openPrepCheck">✓ Check my prep</button>
-      <button class="btns" data-ac="fn-printSheet">⎙ Print one-page sheet</button>
+      <button class="btns" data-ac="fn-openPrepCheck">✓ Check prep</button>
+      <button class="btns" data-ac="fn-printSheet">⎙ Print sheet</button>
       <button class="btns" data-ac="fn-renderRun">↻ Refresh</button>
     </div>
   </div>
@@ -492,71 +492,59 @@
 
   <div class="run-grid">
     <div class="run-main">
-      <section class="run-block run-strong">
-        <h3 class="run-h">Strong start</h3>
+      <details class="run-block run-strong" data-run="strong" open><summary class="run-h">Strong start</summary>
         <div id="run-strong" class="run-strong-text"></div>
         <div id="run-advhook" class="run-meta-line"></div>
-      </section>
+      </details>
 
-      <section class="run-block">
-        <h3 class="run-h">Secrets and clues <span class="run-count" id="run-sec-count"></span></h3>
+      <details class="run-block" data-run="secrets" open><summary class="run-h">Secrets and clues <span class="run-count" id="run-sec-count"></span></summary>
         <p class="run-hint">Tick a secret when the players learn it. Ticked secrets are written into your post-session notes.</p>
         <div id="run-secrets"></div>
-      </section>
+      </details>
 
-      <section class="run-block">
-        <h3 class="run-h">Forks</h3>
+      <details class="run-block" data-run="forks"><summary class="run-h">Forks</summary>
         <div id="run-forks"></div>
-      </section>
+      </details>
 
-      <section class="run-block">
-        <h3 class="run-h">Scenes</h3>
+      <details class="run-block" data-run="scenes" open><summary class="run-h">Scenes</summary>
         <div id="run-scenes"></div>
-      </section>
+      </details>
 
-      <section class="run-block">
-        <h3 class="run-h">Table notes</h3>
+      <details class="run-block" data-run="notes" open><summary class="run-h">Table notes</summary>
         <p class="run-hint">Jot what happens as you play. This fills in the Post-Session summary.</p>
         <textarea id="run-notes" rows="5" placeholder="Warryn heard the name Albus from the captain…"></textarea>
-      </section>
+      </details>
     </div>
 
     <aside class="run-side">
-      <section class="run-block">
-        <h3 class="run-h">Party</h3>
+      <details class="run-block" data-run="party" open><summary class="run-h">Party</summary>
         <div id="run-party"></div>
         <div class="run-rest-btns">
           <button class="abtn" data-ac="fn-partyShortRest">Short rest</button>
           <button class="abtn" data-ac="fn-partyLongRest">Long rest</button>
         </div>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">Character hooks</h3>
+      </details>
+      <details class="run-block" data-run="hooks"><summary class="run-h">Character hooks</summary>
         <div id="run-hooks"></div>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">Improv kit <button class="run-link run-h-link" data-ac="fn-newKit">New kit</button></h3>
+      </details>
+      <details class="run-block" data-run="kit"><summary class="run-h">Improv kit <button class="run-link run-h-link" data-ac="fn-newKit">New kit</button></summary>
         <p class="run-hint">Names and details for anything you didn't prep. Click a name once you've used it.</p>
         <div id="run-kit"></div>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">NPCs</h3>
+      </details>
+      <details class="run-block" data-run="npcs"><summary class="run-h">NPCs</summary>
         <div id="run-npcs"></div>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">Monsters</h3>
+      </details>
+      <details class="run-block" data-run="mons"><summary class="run-h">Monsters</summary>
         <div id="run-bench" class="run-meta-line"></div>
         <div id="run-mons"></div>
         <details class="qm-details"><summary>Need a monster you didn't prep?</summary><div class="qm-card" id="qm-run"></div></details>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">Locations</h3>
+      </details>
+      <details class="run-block" data-run="locs"><summary class="run-h">Locations</summary>
         <div id="run-locs"></div>
-      </section>
-      <section class="run-block">
-        <h3 class="run-h">Treasure</h3>
+      </details>
+      <details class="run-block" data-run="treas"><summary class="run-h">Treasure</summary>
         <div id="run-treas"></div>
-      </section>
+      </details>
     </aside>
   </div>
 </div>
@@ -783,20 +771,21 @@
 
 <!-- ACTION BAR -->
 <div class="actbar">
-  <div style="display:flex;gap:calc(.55*var(--tr));flex-wrap:wrap;align-items:center">
-    <button class="btnp" data-ac="fn-saveAll">✦ Save Session</button>
-    <button class="btns" data-ac="fn-openPrepCheck">✓ Check Prep</button>
-    <button class="btns" data-ac="fn-openNextSession">➜ Start Next Session</button>
-    <button class="btns" data-ac="fn-loadSave">↺ Load Browser Save</button>
-    <button class="btnp" data-ac="fn-exportSession" style="background:var(--blue)">⇩ Export JSON</button>
-    <button class="btns" data-ac="fn-loadSessionFile" style="border-color:var(--blue);color:var(--blue)">📂 Load Session File</button>
-    <button class="btns" data-ac="fn-loadSessionURL">🔗 Load Session URL</button>
-    <button class="btns" data-ac="fn-printSheet">⎙ Print Prep Sheet</button>
-    <button class="btns" data-ac="fn-print">Print</button>
-    <button class="btns" data-ac="fn-clearAll" style="color:var(--red)">Clear All</button>
+  <div class="act-main"><button class="btnp" data-ac="fn-saveAll">✦ Save now</button><span class="sst" id="sst">✓ Saved</span><span class="act-note">Saves itself a few seconds after you stop typing.</span></div>
+  <details class="more-actions"><summary>Export, print and load</summary>
+    <div class="more-grid">
+      <button class="btns" data-ac="fn-openPrepCheck">✓ Check prep</button>
+      <button class="btns" data-ac="fn-openNextSession">➜ Start next session</button>
+      <button class="btns" data-ac="fn-exportSession">⇩ Export JSON</button>
+      <button class="btns" data-ac="fn-loadSessionFile">📂 Load session file</button>
+      <button class="btns" data-ac="fn-loadSessionURL">🔗 Load from URL</button>
+      <button class="btns" data-ac="fn-loadSave">↺ Reload saved copy</button>
+      <button class="btns" data-ac="fn-printSheet">⎙ Print prep sheet</button>
+      <button class="btns" data-ac="fn-print">Print page</button>
+      <button class="btns btn-danger" data-ac="fn-clearAll">Clear everything</button>
+    </div>
     <input type="file" id="session-file-input" accept=".json" style="display:none">
-  </div>
-  <span class="sst" id="sst">✓ Saved</span>
+  </details>
 </div>
 
 <!-- SESSION URL MODAL -->

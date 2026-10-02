@@ -191,9 +191,13 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .bnav button.on{color:var(--accent-ink);background:var(--accent)}
 .bnav .ico{font-size:1.7rem;line-height:1.1}
 .bnav .n{position:absolute;top:.3rem;left:calc(50% + .7rem);background:var(--hp-low);color:#fff;border-radius:99px;font-size:.75rem;min-width:1.3rem;padding:0 .35rem;line-height:1.3rem;font-weight:700}
-.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;gap:.5rem;overflow-x:auto;padding:.4rem 0 .6rem;margin-bottom:.4rem;background:var(--bg);scrollbar-width:none}
-.subnav::-webkit-scrollbar{display:none}
-.subnav .chip{flex:0 0 auto}
+.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;padding:.35rem 0 .5rem;margin-bottom:.4rem;background:var(--bg)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.5rem}
+.seg button{min-height:3rem;border-radius:.8rem;border:2px solid var(--line);background:var(--panel);font-weight:700;font-size:1.02rem}
+.seg button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chips-row{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem}
+.chips-row::-webkit-scrollbar{display:none}
+.chips-row .chip{flex:0 0 auto}
 .lk-bar{display:grid;grid-template-columns:1fr;gap:.5rem;margin-bottom:.5rem}
 .chips{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.4rem;margin-bottom:.4rem;scrollbar-width:thin}
 .chip{flex:0 0 auto;border:2px solid var(--line);background:var(--panel);border-radius:99px;padding:.35rem .95rem;font-size:.95rem;font-weight:700;min-height:2.6rem}
@@ -216,7 +220,7 @@ details.entry>.body,details.spell>.spell-body{padding:0 .9rem .9rem}
 .mini b{display:block;font-size:1.05rem}
 .tome-bar{display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin:.2rem 0 .6rem}
 #tome{min-height:50vh}
-#tome[data-view="combat"] .meta,#tome[data-view="rules"] .meta,#tome[data-view="combat"] .actbar,#tome[data-view="rules"] .actbar{display:none!important}
+#tome[data-view="combat"] .tome-meta,#tome[data-view="rules"] .tome-meta,#tome[data-view="combat"] .actbar,#tome[data-view="rules"] .actbar{display:none!important}
 .legal{font-size:.8rem;color:var(--muted);margin-top:1rem}
 @media (max-width:700px){
   .wrap{padding:.7rem}
@@ -820,10 +824,13 @@ function loadMonsters(){
 }
 function fillTemplates(){
   const sel=$("cTemplate");if(!sel||!monsterList)return;
-  const q=($("cFilter")?$("cFilter").value:"").trim().toLowerCase();
+  const raw=($("cFilter")?$("cFilter").value:"").trim(),q=raw.toLowerCase();
   const opts=[];
-  monsterList.forEach((m,i)=>{if(!q||m.n.toLowerCase().indexOf(q)>=0||String(m.t).toLowerCase().indexOf(q)>=0)opts.push('<option value="'+i+'">'+E(m.n)+' (CR '+E(m.cr)+')</option>')});
+  monsterList.forEach((m,i)=>{if(!q||m.n.toLowerCase().indexOf(q)>=0||String(m.t).toLowerCase().indexOf(q)>=0)opts.push('<option value="'+i+'">'+E(m.n)+' (CR '+E(m.cr)+')'+(m.lg?" · 2014 SRD":"")+'</option>')});
   sel.innerHTML=(opts.length?'':'<option value="">No match</option>')+opts.join("");
+  const none=$("cNone");
+  if(none)none.innerHTML=!q?"":(opts.length?'<div class="sub">Not the one you want? <button class="btn small" data-act="cadd" data-from="named">Start a blank “'+E(raw)+'” instead</button></div>':
+    '<div class="note"><span>“'+E(raw)+'” is not in the free SRD. Some well-known monsters (the displacer beast, for one) belong to Wizards and are left out. You can build it yourself from your book.</span><button class="btn small primary" data-act="cadd" data-from="named">Start a blank “'+E(raw)+'”</button></div>');
 }
 function compHtml(cid,pid,c){
   const dm=isDM(),key=cid+"|"+pid,edit=dm&&compEdit[key],ctl='data-ch="'+E(cid)+'" data-pid="'+E(pid)+'"';
@@ -856,7 +863,7 @@ function tabPets(id){
   const list=compsFor(id);
   let h='';
   if(isDM()){
-    h+='<div class="pane"><h3>Add a creature for '+E((chars[id].name||"").split(" ")[0])+'</h3><div class="sub" style="margin-bottom:8px">Create it here, tweak the stat block, then press “Show to player”. Until then only you can see it.</div><div class="row cols2"><label class="f">Find a monster (2024 SRD)<input type="search" id="cFilter" placeholder="e.g. bear, wolf, ape"></label><label class="f">Pick one<select id="cTemplate"><option value="">Loading list…</option></select></label></div><div class="row cols2" style="margin-top:.5rem"><label class="f">Kind<select id="cKind">'+Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join("")+'</select></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="cadd" data-from="tpl">Add from monster</button><button class="btn" data-act="cadd" data-from="blank">Add blank creature</button></div></div>';
+    h+='<div class="pane"><h3>Add a creature for '+E((chars[id].name||"").split(" ")[0])+'</h3><div class="sub" style="margin-bottom:8px">Create it here, tweak the stat block, then press “Show to player”. Until then only you can see it.</div><div class="row cols2"><label class="f">Find a monster (2024 SRD)<input type="search" id="cFilter" placeholder="e.g. bear, wolf, ape"></label><label class="f">Pick one<select id="cTemplate"><option value="">Loading list…</option></select></label></div><div id="cNone" style="margin-top:.5rem"></div><div class="row cols2" style="margin-top:.5rem"><label class="f">Kind<select id="cKind">'+Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join("")+'</select></label></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="cadd" data-from="tpl">Add from monster</button><button class="btn" data-act="cadd" data-from="blank">Add blank creature</button></div></div>';
     loadMonsters().then(()=>fillTemplates()).catch(()=>{const s=$("cTemplate");if(s)s.innerHTML='<option value="">Could not load monsters-2024.json</option>'});
   }
   h+=list.length?list.map(x=>compHtml(id,x[0],x[1])).join(""):'<div class="empty">No creatures yet.'+(isDM()?"":" Your DM can give you a pet or a Wild Shape form.")+'</div>';
@@ -937,7 +944,11 @@ function sbarStat(c){return "HP "+c.hp+"/"+c.hpMax+(c.hpTemp?" (+"+c.hpTemp+")":
 function sheetFocused(){const a=document.activeElement;return !!(a&&$("app").contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
 
 /* ================= nav & top-level render ================= */
-const SESSION_CHIPS=[["run","▶ Run"],["s1","Hooks"],["s2","Strong start"],["s3","Scenes"],["s4","Secrets"],["s5","Places"],["s6","NPCs"],["s7","Monsters"],["s8","Treasure"],["camp","Campaign"],["web","Web"],["post","After"],["hist","History"]];
+const SESSION_SEGS=[["run","▶ Run"],["prep","Prep"],["campaign","Campaign"]];
+const PREP_CHIPS=[["s1","1 Party"],["s2","2 Start"],["s3","3 Scenes"],["s4","4 Secrets"],["s5","5 Places"],["s6","6 NPCs"],["s7","7 Monsters"],["s8","8 Treasure"]];
+const CAMP_CHIPS=[["camp","Overview"],["web","Web"],["post","After session"],["hist","History"]];
+const segOf=p=>p==="run"?"run":/^s\d$/.test(p)?"prep":"campaign";
+const segLast={run:"run",prep:"s1",campaign:"camp"};
 const RULES_CHIPS=[["spells","Spells"],["mdb","Monsters"],["cond","Conditions"],["gen","Generators"]];
 let subSession="run", subRules="spells";
 function navItems(){
@@ -974,16 +985,19 @@ function renderNav(){
 function navFade(){const nav=$("bnav");if(nav)nav.classList.toggle("fade",nav.scrollWidth>nav.clientWidth+4&&nav.scrollLeft+nav.clientWidth<nav.scrollWidth-4)}
 function renderSubnav(){
   const el=$("subnav"),top=isDM()&&!(openId&&chars[openId]);
-  let chips=null,active=null,group=null;
-  if(top&&dmTab==="session"){chips=SESSION_CHIPS;active=subSession;group="session"}
+  let chips=null,active=null,group=null,seg=null;
+  if(top&&dmTab==="session"){seg=segOf(subSession);chips=seg==="prep"?PREP_CHIPS:seg==="campaign"?CAMP_CHIPS:null;active=subSession;group="session"}
   else if(top&&dmTab==="rules"){chips=RULES_CHIPS;active=subRules;group="rules"}
-  if(!chips){el.hidden=true;return}
-  const prev=el.scrollLeft;
+  if(!seg&&!chips){el.hidden=true;return}
+  const prevRow=el.querySelector(".chips-row"),prev=prevRow?prevRow.scrollLeft:0;
   el.hidden=false;
-  el.innerHTML=chips.map(c=>'<button class="chip'+(active===c[0]?" on":"")+'" data-act="sub" data-g="'+group+'" data-p="'+c[0]+'">'+c[1]+'</button>').join("");
-  el.scrollLeft=prev;
-  const on=el.querySelector(".on");
-  if(on&&el.scrollWidth>el.clientWidth){const l=on.offsetLeft,r=l+on.offsetWidth;if(l<el.scrollLeft||r>el.scrollLeft+el.clientWidth)el.scrollLeft=Math.max(0,l-20)}
+  let h="";
+  if(seg)h+='<div class="seg" role="group" aria-label="Session section">'+SESSION_SEGS.map(c=>'<button class="'+(seg===c[0]?"on":"")+'" data-act="seg" data-seg="'+c[0]+'" aria-pressed="'+(seg===c[0])+'">'+c[1]+'</button>').join("")+'</div>';
+  if(chips)h+='<div class="chips-row">'+chips.map(c=>'<button class="chip'+(active===c[0]?" on":"")+'" data-act="sub" data-g="'+group+'" data-p="'+c[0]+'">'+c[1]+'</button>').join("")+'</div>';
+  el.innerHTML=h;
+  const row=el.querySelector(".chips-row");
+  if(row){row.scrollLeft=prev;const on=row.querySelector(".on");
+    if(on&&row.scrollWidth>row.clientWidth){const l=on.offsetLeft,r=l+on.offsetWidth;if(l<row.scrollLeft||r>row.scrollLeft+row.clientWidth)row.scrollLeft=Math.max(0,l-20)}}
 }
 function renderApp(){
   if(!role)return;
@@ -1079,7 +1093,8 @@ document.addEventListener("click",async e=>{
     case "savecs":return saveCustomSpell();
     case "delcs":{if(confirm("Delete the custom spell “"+b.dataset.n+"”?"))deleteDoc(doc(db,"customSpells",slugId(b.dataset.n))).catch(()=>setStatus("Could not delete",true));return}
     case "addspell":{const ch=chars[charId];if(!ch)return;ch.spells.push({name:b.dataset.n,level:Number(b.dataset.l),desc:""});saveChar(charId,["spells"]);b.outerHTML='<span class="sub">Added to your spells.</span>';return}
-    case "sub":{if(b.dataset.g==="session")subSession=b.dataset.p;else subRules=b.dataset.p;renderApp();window.scrollTo(0,0);return}
+    case "sub":{if(b.dataset.g==="session"){subSession=b.dataset.p;segLast[segOf(subSession)]=subSession}else subRules=b.dataset.p;renderApp();window.scrollTo(0,0);return}
+    case "seg":{subSession=segLast[b.dataset.seg]||"run";renderApp();window.scrollTo(0,0);return}
     case "restall":return restAll(b.dataset.k);
     case "tomeretry":tomeState="idle";ensureTome();return;
     case "cadd":return addComp(b);
@@ -1216,7 +1231,8 @@ async function addComp(b){
   if(b.dataset.from==="tpl"){
     const i=$("cTemplate").value;if(i==="")return;
     const list=await loadMonsters();c=fromMonster(list[Number(i)]);
-  }else c=blankComp();
+  }else if(b.dataset.from==="named"){c=blankComp();c.name=($("cFilter")?$("cFilter").value:"").trim()}
+  else c=blankComp();
   c.kind=$("cKind").value;c.updated=Date.now();
   try{await setDoc(doc(collection(db,"characters",cid,"companions")),c);setStatus("Creature added (hidden from the player until you show it)")}
   catch(err){setStatus("Could not add ("+(err&&err.code||"error")+")",true)}
@@ -1370,8 +1386,8 @@ async function ensureTome(){
       let g=dmTab,ss=subSession,sr=subRules;
       if(name==="init")g="combat";
       else if(name==="mdb"||name==="cond"||name==="gen"){g="rules";sr=name}
-      else{g="session";ss=name}
-      if(g!==dmTab||ss!==subSession||sr!==subRules){dmTab=g;subSession=ss;subRules=sr;openId=null;renderApp()}
+      else{g="session";ss=name;segLast[segOf(name)]=name}
+      if(g!==dmTab||ss!==subSession||sr!==subRules){dmTab=g;subSession=ss;subRules=sr;openId=null;renderApp();window.scrollTo(0,0)}
     };
     document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
     tomeState="ready";tomeSent="";
@@ -1388,7 +1404,12 @@ function tomeShow(){
   const root=$("tome");if(!root||tomeState!=="ready")return;
   root.dataset.view=dmTab;
   const pane=dmTab==="combat"?"init":dmTab==="session"?subSession:subRules;
-  if(window.__tome&&window.__tome.sw)window.__tome.sw(pane);
+  const el=document.getElementById("tab-"+pane);
+  if(el&&!el.classList.contains("active")){
+    /* press the tool's own (hidden) tab button so its "refresh when opened" hooks run: Run Session, Web, Monsters */
+    const b=root.querySelector('[data-ac="tab-'+pane+'"]');
+    if(b)b.click();else if(window.__tome&&window.__tome.sw)window.__tome.sw(pane);
+  }
 }
 
 /* ================= live data ================= */

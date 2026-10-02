@@ -398,6 +398,18 @@ textarea{overflow-y:hidden;resize:none}
 .cb-foot{font-size:.82rem;color:var(--muted);padding:.5rem .5rem .3rem}
 @keyframes cbpulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}}
 @media (prefers-reduced-motion:reduce){.combat-bar.me{animation:none}}
+
+/* ---------- initiative entry, backup ---------- */
+.combat-bar.ask{border-color:var(--hp-mid);animation:cbask 1.6s ease-in-out infinite}
+@keyframes cbask{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--hp-mid) 40%,transparent)}}
+@media (prefers-reduced-motion:reduce){.combat-bar.ask{animation:none}}
+.cb-init{padding:.5rem .5rem .7rem;border-bottom:2px solid var(--line);margin-bottom:.3rem}
+.cb-init label{display:block;font-weight:700;margin-bottom:.3rem}
+.cb-init small{font-weight:400;color:var(--muted)}
+.cb-ir{display:flex;gap:.5rem}
+.cb-ir input{flex:1;min-width:0;font-size:1.4rem;font-weight:700;text-align:center;min-height:3.2rem}
+.cb-ir .btn{min-height:3.2rem;min-width:6rem}
+#bkNudge{justify-content:space-between}
 </style>
 </head>
 <body class="nonav">
@@ -509,7 +521,7 @@ function blank(){
   const a={};ABIL.forEach(k=>a[k]=10);
   return {name:"New adventurer",player:"",race:"",cls:"",subclass:"",alignment:"",size:"",level:1,background:"",
     abilities:a,saveProf:{},skillProf:{},skillExtra:{},ac:10,speed:30,hpMax:10,hp:10,hpTemp:0,hitDice:"",
-    deathS:0,deathF:0,inspiration:0,conditions:"",exhaustion:0,concentrating:"",spellAbility:"",slots:{},spells:[],spellInfo:[],
+    deathS:0,deathF:0,inspiration:0,conditions:"",exhaustion:0,concentrating:"",initRoll:null,spellAbility:"",slots:{},spells:[],spellInfo:[],
     attacks:[],actions:[],features:[],traits:[],resources:[],inventory:"",gold:0,languages:"",goals:"",backstory:"",notes:"",
     history:[],npc:false,updated:0};
 }
@@ -520,6 +532,7 @@ function normalize(d){
   ["spells","spellInfo","attacks","actions","features","traits","resources","history"].forEach(k=>{o[k]=Array.isArray(d[k])?d[k]:[]});
   o.inspiration=Number(d.inspiration)||0;
   o.exhaustion=Math.max(0,Math.min(6,Number(d.exhaustion)||0));o.concentrating=String(d.concentrating||"");
+  o.initRoll=d.initRoll&&typeof d.initRoll==="object"?{v:Number(d.initRoll.v)||0,fid:String(d.initRoll.fid||""),t:Number(d.initRoll.t)||0}:null;
   return o;
 }
 function slugify(name){
@@ -1056,7 +1069,8 @@ function renderParty(){
   let h='<div class="seg two" role="group" aria-label="Party view"><button class="'+(partyView==="cards"?"on":"")+'" data-act="pview" data-v="cards" aria-pressed="'+(partyView==="cards")+'">Cards</button><button class="'+(partyView==="compare"?"on":"")+'" data-act="pview" data-v="compare" aria-pressed="'+(partyView==="compare")+'">Compare</button></div>';
   h+='<div class="ptools"><button class="btn" data-act="restall" data-k="short">☕ Short rest · all</button><button class="btn" data-act="restall" data-k="long">🌙 Long rest · all</button></div>';
   if(partyView==="cards")h+='<div class="abtog"><button class="chip'+(showAbil?" on":"")+'" data-act="abiltoggle" aria-pressed="'+showAbil+'">'+(showAbil?"✓ Showing abilities":"Show abilities")+'</button></div>';
-  h+='<details class="manage"><summary>Manage party (import, NPCs)</summary><div class="inner"><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
+  h+='<details class="manage"><summary>Manage party (backup, import, NPCs)</summary><div class="inner"><button class="btn primary" data-act="backup">⬇ Download backup</button><button class="btn" data-act="restorebk">⬆ Restore from backup</button><input type="file" id="restoreIn" accept=".json,application/json" hidden><div class="sub" style="flex-basis:100%">Last backup: '+ago(lastBackup())+'</div><button class="btn" data-act="import">Import characters (JSON)</button><input type="file" id="importIn" accept=".json,application/json" multiple hidden><button class="btn" data-act="addnpc">Add NPC</button></div></details>';
+  if(ids.length&&(!lastBackup()||Date.now()-lastBackup()>14*86400000))h+='<div class="note" id="bkNudge"><span>'+(lastBackup()?"Your last backup was "+ago(lastBackup())+".":"You haven’t backed up your party yet.")+'</span><button class="btn small primary" data-act="backup">Back up now</button></div>';
   h+='<div class="note" id="importMsg"'+(importMsg?'':' hidden')+'>'+E(importMsg)+'</div>';
   if(partyView==="compare")h+=partyStatus(ids)+compareView(ids);
   else{
@@ -1695,7 +1709,15 @@ document.addEventListener("click",async e=>{
       const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
       x.concentrating="";saveChar(id,["concentrating"]);if(openId)renderSheet();else renderParty();return}
     case "install":return doInstall();
+    case "backup":return doBackup();
+    case "restorebk":$("restoreIn").click();return;
     case "cbtoggle":cbOpen=!cbOpen;renderCombatBar();return;
+    case "cbinit":{
+      const c=chars[charId],i=$("cbInit");if(!c||!i||!combat||!combat.fid)return;
+      const v=parseInt(i.value,10);
+      if(!isFinite(v)||v<-10||v>60){hostToast("Type the number you rolled, like 14.",4000);return}
+      c.initRoll={v:v,fid:combat.fid,t:Date.now()};cbDraft="";saveChar(charId,["initRoll"]);
+      hostToast("Sent your initiative: "+v+".",4000);renderCombatBar();return}
     case "pview":{partyView=b.dataset.v;try{localStorage.setItem("partyView",partyView)}catch(e){}renderParty();return}
     case "abiltoggle":{showAbil=!showAbil;try{localStorage.setItem("showAbil",showAbil?"1":"0")}catch(e){}renderParty();return}
     case "edit":editMode=!editMode;renderSheet();renderNav();return;
@@ -1928,9 +1950,9 @@ function pushShare(force){
   shareT=setTimeout(async()=>{
     if(!isDM()||tomeState!=="ready"||typeof window.__tomeCombatPayload!=="function")return;
     const p=window.__tomeCombatPayload();
-    const data=shareOn?{on:true,round:p.round,turn:p.turn,unseen:!!p.unseen,started:!!p.started,order:p.order,upd:Date.now()}
+    const data=shareOn?{on:true,round:p.round,turn:p.turn,unseen:!!p.unseen,started:!!p.started,order:p.order,fid:p.fid||"",upd:Date.now()}
       :{on:false,round:0,turn:-1,unseen:false,started:false,order:[],upd:Date.now()};
-    const key=JSON.stringify([data.on,data.round,data.turn,data.unseen,data.started,data.order]);
+    const key=JSON.stringify([data.on,data.round,data.turn,data.unseen,data.started,data.order,data.fid]);
     if(!force&&key===lastShare)return;
     try{await setDoc(doc(db,"combat","live"),data);lastShare=key}
     catch(e){shareOn=false;try{localStorage.setItem("combatShare","0")}catch(x){}shareLabel();
@@ -1944,8 +1966,94 @@ window.__tomeToggleShare=()=>{
   hostToast(shareOn?"Players can now see the turn order, names and conditions. They never see HP or AC.":"Sharing is off. Players no longer see the fight.",7000);
 };
 
+/* ================= the fight survives a reload ================= */
+const FIGHT_KEY="party-fight-v1";
+let fightT=null,lastFightKey="",fightReady=false;
+async function saveFightNow(){
+  if(!fightReady||!isDM()||tomeState!=="ready"||typeof window.__tomeFightState!=="function")return;
+  const st=window.__tomeFightState();
+  const key=JSON.stringify([st.round,st.currentTurn,st.fightId,st.anonCount,st.hideNames,st.combatants,st.initSeen]);
+  if(key===lastFightKey)return;lastFightKey=key;
+  try{localStorage.setItem(FIGHT_KEY,JSON.stringify(st))}catch(e){}
+  try{await setDoc(doc(db,"dmdata","fight"),{json:JSON.stringify(st),upd:st.upd})}catch(e){}
+}
+window.__tomeFightChanged=()=>{if(!fightReady)return;clearTimeout(fightT);fightT=setTimeout(saveFightNow,600)};
+/* the moment the app goes to the background, save straight away */
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){clearTimeout(fightT);saveFightNow()}});
+window.addEventListener("pagehide",()=>{clearTimeout(fightT);saveFightNow()});
+async function restoreFight(){
+  let best=null;
+  try{const l=JSON.parse(localStorage.getItem(FIGHT_KEY)||"null");if(l&&l.upd)best=l}catch(e){}
+  try{const sn=await getDoc(doc(db,"dmdata","fight"));if(sn.exists()){const c=JSON.parse(sn.data().json||"null");if(c&&c.upd&&(!best||c.upd>best.upd))best=c}}catch(e){}
+  fightReady=true;
+  if(!best||!best.combatants||!best.combatants.length)return;
+  const hrs=(Date.now()-best.upd)/3600000;
+  if(hrs>12&&!confirm("There is a saved fight from "+new Date(best.upd).toLocaleString()+". Resume it? Cancel starts fresh.")){lastFightKey="";window.__tomeFightChanged();return}
+  if(window.__tomeRestoreFight&&window.__tomeRestoreFight(best)){
+    hostToast("Picked your fight back up: round "+best.round+", "+best.combatants.length+" combatants.",7000);
+    if(shareOn)pushShare(true);
+  }
+}
+
+/* ================= backup and restore ================= */
+const lastBackup=()=>{try{return Number(localStorage.getItem("lastBackup"))||0}catch(e){return 0}};
+function ago(t){if(!t)return "never";const d=Math.floor((Date.now()-t)/86400000);return d<=0?"today":d===1?"yesterday":d+" days ago"}
+function buildBackup(){
+  const b={format:"party-backup",version:1,exported:new Date().toISOString(),characters:{},dmnotes:Object.assign({},dmNotes),claims:{},customSpells:customSpells.slice(),
+    campaign:{v3:localStorage.getItem("lazy-dm-v3")||"",web:localStorage.getItem("lazy-dm-web")||""},fight:null};
+  Object.keys(chars).forEach(id=>{b.characters[id]={sheet:chars[id],companions:companions[id]||{},messages:messages[id]||[]}});
+  Object.keys(claimByChar).forEach(id=>{b.claims[claimByChar[id]]=id});
+  try{b.fight=JSON.parse(localStorage.getItem(FIGHT_KEY)||"null")}catch(e){}
+  return b;
+}
+function downloadText(name,text){
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+}
+function doBackup(){
+  const b=buildBackup(),n=Object.keys(b.characters).length;
+  if(!n){hostToast("There is nothing to back up yet.",4000);return}
+  downloadText("party-backup-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(b));
+  try{localStorage.setItem("lastBackup",String(Date.now()))}catch(e){}
+  hostToast("Backup saved: "+n+" sheets, your DM notes, login names and campaign notes. Keep the file somewhere safe.",9000);
+  if(viewIsParty())renderParty();
+}
+const viewIsParty=()=>!openId&&dmTab==="party";
+async function doRestore(file){
+  let b;
+  try{b=JSON.parse(await file.text())}catch(e){hostToast("That file isn’t a readable backup.",6000);return}
+  if(!b||b.format!=="party-backup"||!b.characters){hostToast("That isn’t a Party Sheets backup file.",6000);return}
+  const ids=Object.keys(b.characters);
+  if(!confirm("Restore "+ids.length+" sheets"+(b.campaign&&(b.campaign.v3||b.campaign.web)?", your campaign notes":"")+" from the backup made "+(b.exported?new Date(b.exported).toLocaleString():"earlier")+"?\n\nSheets with the same name are replaced by the backed-up version. Nothing else is deleted."))return;
+  setStatus("Restoring…");
+  try{
+    for(const id of ids){
+      const e=b.characters[id];
+      await setDoc(doc(db,"characters",id),e.sheet);
+      for(const pid of Object.keys(e.companions||{}))await setDoc(doc(db,"characters",id,"companions",pid),e.companions[pid]);
+      for(const m of (e.messages||[])){const mid=m.id,data=Object.assign({},m);delete data.id;if(mid)await setDoc(doc(db,"characters",id,"messages",mid),data)}
+    }
+    for(const id of Object.keys(b.dmnotes||{}))await setDoc(doc(db,"dmnotes",id),{text:b.dmnotes[id]||""});
+    for(const code of Object.keys(b.claims||{}))await setDoc(doc(db,"claims",code),{charId:b.claims[code]});
+    for(const sp of (b.customSpells||[]))await setDoc(doc(db,"customSpells",slugId(sp.n)),sp);
+    if(b.campaign&&(b.campaign.v3||b.campaign.web)){
+      try{localStorage.setItem("lazy-dm-v3",b.campaign.v3||"");localStorage.setItem("lazy-dm-web",b.campaign.web||"")}catch(e){}
+      try{await pushCampaign()}catch(e){}
+    }
+    if(b.fight&&b.fight.combatants&&b.fight.combatants.length){try{localStorage.setItem(FIGHT_KEY,JSON.stringify(b.fight))}catch(e){}}
+    setStatus("Restored");
+    hostToast("Restored "+ids.length+" sheets. Reloading to show everything…",5000);
+    setTimeout(()=>location.reload(),1800);
+  }catch(err){setStatus("Restore stopped ("+(err&&err.code||"error")+")",true);hostToast("The restore stopped part-way ("+(err&&err.code||"error")+"). Nothing was deleted. Try again.",9000)}
+}
+document.addEventListener("change",e=>{
+  if(!e.target||e.target.id!=="restoreIn")return;
+  const f=(e.target.files||[])[0];e.target.value="";if(f)doRestore(f);
+});
+
 /* ================= players: the fight bar ================= */
-let combat=null,cbOpen=false,cbFirst=true,lastCbKey="";
+let combat=null,cbOpen=false,cbFirst=true,lastCbKey="",cbDraft="";
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="cbInit")cbDraft=e.target.value},true);
 const cbIcon={pc:"🧙",npc:"🧑",monster:"👹"};
 function cbNext(o,t){if(t<0)return null;for(let k=1;k<=o.length;k++){const e=o[(t+k)%o.length];if(!e.d)return e}return null}
 function renderCombatBar(){
@@ -1955,13 +2063,17 @@ function renderCombatBar(){
   const o=combat.order,t=combat.turn,cur=t>=0?o[t]:null,mine=!!cur&&cur.k===charId,nx=cbNext(o,t),nextMine=!mine&&!!nx&&nx.k===charId;
   const when=combat.upd?new Date(combat.upd):null,stale=when&&(Date.now()-combat.upd>20*60*1000);
   const turnTxt=!combat.started?"The fight is starting":combat.unseen?"Something unseen acts":mine?"YOUR TURN":cur?(cur.g!=null?cur.n+" ×"+cur.g+" act":cur.n+"’s turn"):"";
-  const nextTxt=!combat.started?"Order is set":nextMine?"You’re up next!":nx?"Next: "+nx.n:"";
+  const meE=o.filter(e=>e.k===charId)[0],mc=chars[charId];
+  const sent=!!(mc&&mc.initRoll&&combat.fid&&mc.initRoll.fid===combat.fid),needInit=!!meE&&!!combat.fid&&!sent&&!meE.i;
+  const nextTxt=needInit?"Tap here to enter your initiative roll":!combat.started?"Order is set":nextMine?"You’re up next!":nx?"Next: "+nx.n:"";
+  const hadFocus=document.activeElement&&document.activeElement.id==="cbInit";
   el.hidden=false;
-  el.className="combat-bar"+(mine?" me":"")+(nextMine?" nxt":"");
+  el.className="combat-bar"+(mine?" me":"")+(nextMine?" nxt":"")+(needInit?" ask":"");
   el.innerHTML='<button type="button" class="cb-main" data-act="cbtoggle" aria-expanded="'+cbOpen+'"><span class="cb-r">⚔ Round '+E(combat.round)+'</span><span class="cb-t">'+E(turnTxt)+'</span><span class="cb-n">'+E(nextTxt)+'</span><span class="cb-x">'+(cbOpen?"▴":"▾")+'</span></button>'+
-    (cbOpen?'<div class="cb-panel">'+o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("")+
+    (cbOpen?'<div class="cb-panel">'+(meE&&combat.fid&&mc?'<div class="cb-init"><label for="cbInit">Your initiative roll <small>(d20 + your modifier '+sgn(mod(mc.abilities.dex))+')</small></label><div class="cb-ir"><input id="cbInit" type="number" inputmode="numeric" min="-10" max="60" value="'+E(cbDraft!==""?cbDraft:(sent?mc.initRoll.v:""))+'"><button type="button" class="btn primary" data-act="cbinit">'+(sent?"Update":"Send")+'</button></div>'+(sent?'<div class="sub">Sent: '+mc.initRoll.v+'. Your DM can see it.</div>':'')+'</div>':'')+o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("")+
       '<div class="cb-foot">'+(stale?"This may be out of date. Last update "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+". ":"")+'You can see the order, names and conditions. Your DM keeps the rest private.</div></div>':'');
   document.documentElement.style.setProperty("--cbh",el.querySelector(".cb-main").offsetHeight+"px");
+  if(hadFocus&&$("cbInit"))$("cbInit").focus();
 }
 function cbNotify(){
   if(!combat||!combat.on||!combat.started)return;
@@ -2048,7 +2160,7 @@ const shortOf=n=>String(n||"").split(" ")[0];
 const bid=short=>Object.keys(chars).filter(id=>!chars[id].npc&&shortOf(chars[id].name)===short)[0];
 function slotKey(key){const m=/^slot(\d)$/.exec(key);return m?m[1]:null}
 window.PartyBridge={
-  pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF,conds:activeStd(c)}},
+  pc(short){const id=bid(short);if(!id)return null;const c=chars[id];return {hp:c.hp,hpMax:c.hpMax,ac:c.ac,deathS:c.deathS,deathF:c.deathF,conds:activeStd(c),initRoll:c.initRoll}},
   idOf(short){return bid(short)||null},
   setConds(short,arr){const id=bid(short);if(!id)return;const c=chars[id];const std=arr.map(canonCond).filter(n=>n&&n!=="Exhaustion");c.conditions=std.concat(customConds(c)).join(", ");saveChar(id,["conditions"]);tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
   addExh(short){const id=bid(short);if(!id)return;const c=chars[id];c.exhaustion=Math.min(6,(c.exhaustion||0)+1);saveChar(id,["exhaustion"]);hostToast(shortOf(c.name)+" now has Exhaustion level "+c.exhaustion+".");tomeSheetsSoon();if(!openId&&dmTab==="party")renderApp()},
@@ -2098,7 +2210,7 @@ async function ensureTome(){
     window.__tomeGoLibrary=()=>{dmTab="monsters";subMons="lib";openId=null;renderApp();window.scrollTo(0,0)};
     window.__tomeGoPrepared=()=>{dmTab="monsters";subMons="prep";openId=null;renderApp();window.scrollTo(0,0)};
     document.dispatchEvent(new Event("DOMContentLoaded",{bubbles:true}));
-    tomeState="ready";tomeSent="";shareLabel();if(shareOn)pushShare(true);
+    tomeState="ready";tomeSent="";shareLabel();if(shareOn)pushShare(true);restoreFight();
     sendParty();
     setInterval(syncCampaignTick,5000);
     window.addEventListener("pagehide",()=>{syncCampaignTick()});

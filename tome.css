@@ -1057,28 +1057,28 @@
 
 @media (max-width:700px){
   #tome .pane{padding:.7rem .5rem}
-  #tome .init-row{grid-template-columns:3.4rem 1fr auto;grid-template-areas:"num name ac" "type hp btns" "cond cond cond";row-gap:.5rem;column-gap:.5rem;padding:.7rem .5rem;align-items:center}
+  #tome .init-row{grid-template-columns:3.4rem minmax(0,1fr) auto;grid-template-areas:"num name ac" "type hp hp" "cond btns btns";row-gap:.5rem;column-gap:.5rem;padding:.7rem .5rem;align-items:center}
   #tome .init-num input.init-num-in{width:3.4rem;font-size:1.3rem}
   #tome .init-row .ibtn{min-width:2.5rem;min-height:2.8rem}
   #tome .init-row .init-name{grid-area:name;min-width:0}
   #tome .init-row .init-ac{grid-area:ac;text-align:right;font-size:1.1rem}
   #tome .init-row .init-type{grid-area:type;text-align:center}
   #tome .init-row .init-hp-cell{grid-area:hp}
-  #tome .init-row .init-btns{grid-area:btns;gap:.4rem}
+  #tome .init-row .init-btns{grid-area:btns;gap:.4rem;justify-content:flex-end}
   #tome .init-row .init-btns .ibtn:first-child{display:none}
   #tome .init-row .cond-cell{grid-area:cond}
   #tome .init-row .cond-cell:empty{display:none}
   #tome .init-hp-cell input.init-hp-in{width:4.4rem}
   #tome .init-hp-cell .init-hp-max{font-size:1rem}
   #tome .init-group-header .init-btns .ibtn:first-child{display:none}
-  #tome .init-group-header{grid-template-columns:1.1rem 3.4rem 1fr auto;grid-template-areas:"chev num name ac" "icon dmg dmg btns";row-gap:.55rem;column-gap:.45rem;padding:.7rem .5rem}
+  #tome .init-group-header{grid-template-columns:1.1rem 3.4rem 1fr auto;grid-template-areas:"chev num name ac" "icon dmg dmg dmg" "btns btns btns btns";row-gap:.55rem;column-gap:.45rem;padding:.7rem .5rem}
   #tome .init-group-header .init-group-chev{grid-area:chev}
   #tome .init-group-header .init-num{grid-area:num}
   #tome .init-group-header .init-type{grid-area:icon}
   #tome .init-group-header .init-name{grid-area:name;min-width:0}
   #tome .init-group-header .init-ac{grid-area:ac}
   #tome .init-group-header .init-dmg-cell{grid-area:dmg}
-  #tome .init-group-header .init-btns{grid-area:btns;flex-wrap:wrap}
+  #tome .init-group-header .init-btns{grid-area:btns;flex-wrap:wrap;justify-content:flex-end}
   #tome .init-group-header .init-dmg-cell{flex-wrap:nowrap}
   #tome input.init-dmg-in{width:4.2rem}
   #tome .init-group-members{padding:.5rem .6rem}
@@ -1146,6 +1146,12 @@
 #tome .share-btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #tome .share-hint{grid-column:1/-1;font-size:.85rem;color:var(--muted);line-height:1.35;margin-top:-.2rem}
 #tome .ibtn.eye.off{background:var(--chip);opacity:.9}
+
+/* ===== placeholder names ===== */
+#tome .init-alias{display:flex;gap:.4rem;align-items:center;margin-top:.35rem;flex-wrap:wrap;width:100%}
+#tome input.init-alias-in{flex:1 1 100%;width:100%;min-width:0;min-height:2.4rem;font-size:.9rem;padding:.2rem .55rem;border-style:dashed}
+#tome .init-reveal{min-height:2.4rem;padding:.1rem .6rem;border:1px solid var(--line);border-radius:.5rem;background:var(--chip);font-size:.85rem;font-weight:700;color:var(--ink)}
+#tome .share-btn#hide-btn{min-height:2.8rem}
 
 #print-sheet{display:none}
 @media print{body.printing-sheet{background:#fff!important;padding:0!important;margin:0!important}

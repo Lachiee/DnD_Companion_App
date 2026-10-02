@@ -111,6 +111,7 @@ document.addEventListener('click', function(e) {
     'fn-filterMonsters': filterMonsters,
     'fn-rollMonstersInit': rollMonstersInit,
     'fn-toggleShare': toggleShare,
+    'fn-toggleHideNames': toggleHideNames,
   };
   if (fnMap[ac]) fnMap[ac](e);
 });
@@ -770,6 +771,7 @@ function renderGroupRow(list,c){
   const bookBtn=document.createElement('button');bookBtn.className='init-book';bookBtn.textContent='Stats';bookBtn.title='Show stat block';
   bookBtn.addEventListener('click',e=>{e.stopPropagation();openCombatPanel({kind:'combatant',idx:c.origIdx});});
   nameEl.appendChild(bookBtn);
+  { const af=aliasField(c); if(af) nameEl.appendChild(af); }
 
   const acEl=document.createElement('div');acEl.className='init-ac';acEl.textContent='🛡 '+(c.ac||'?');
 
@@ -887,6 +889,61 @@ function rollAllInit(){
   currentTurn=0;renderInitList();updateInitSelects();
 }
 
+/* ===== placeholder names, fight id, saved fight ===== */
+let fightId=null, anonCount=0, hideNames=false;
+window.__tomeInitSeen=window.__tomeInitSeen||{};
+const anonLetter=n=>{let s='';n++;while(n>0){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s};
+function ensureFight(){ if(!fightId) fightId=String(Date.now()); return fightId; }
+/* what players call a creature: your placeholder, else "Creature A" when names are hidden by default, else the real name */
+function playerName(c){
+  if(c.type==='pc') return String(c.name);
+  const a=String(c.alias||'').trim(); if(a) return a;
+  if(hideNames){ if(c.anon==null) c.anon=anonCount++; return 'Creature '+anonLetter(c.anon); }
+  return String(c.name);
+}
+function aliasField(c){
+  if(c.type==='pc') return null;
+  const w=document.createElement('div'); w.className='init-alias';
+  const i=document.createElement('input'); i.type='text'; i.className='init-alias-in'; i.maxLength=40;
+  i.value=c.alias||'';
+  const dflt=playerName({type:c.type,name:c.name,alias:'',anon:c.anon});
+  i.placeholder='Players see: '+(hideNames?'Creature …':dflt);
+  i.setAttribute('aria-label','Name players see for '+c.name);
+  i.addEventListener('click',e=>e.stopPropagation());
+  i.addEventListener('change',()=>{ const o=combatants[c.origIdx]; if(o){ o.alias=i.value.trim(); renderInitList(); } });
+  w.appendChild(i);
+  const shown=playerName(c);
+  if(shown!==String(c.name)){
+    const r=document.createElement('button'); r.type='button'; r.className='init-reveal'; r.textContent='🔓 Reveal';
+    r.title='Players see “'+shown+'”. Tap to show them the real name';
+    r.addEventListener('click',e=>{ e.stopPropagation(); const o=combatants[c.origIdx]; if(o){ o.alias=o.name; renderInitList(); } });
+    w.appendChild(r);
+  }
+  return w;
+}
+function toggleHideNames(){
+  hideNames=!hideNames; renderInitList(); updateHideLabel();
+  toast(hideNames?'Players will see “Creature A, B…” unless you give one a name':'Players see real names unless you give one a placeholder');
+}
+function updateHideLabel(){
+  const b=document.getElementById('hide-btn'); if(!b) return;
+  b.textContent=hideNames?'🎭 Hide monster names by default: ON':'🎭 Hide monster names by default: off';
+  b.classList.toggle('on',hideNames);
+}
+function fightState(){
+  return {v:1,upd:Date.now(),round:round,currentTurn:currentTurn,fightId:fightId,anonCount:anonCount,hideNames:hideNames,
+    initSeen:Object.assign({},window.__tomeInitSeen),combatants:JSON.parse(JSON.stringify(combatants))};
+}
+window.__tomeFightState=fightState;
+window.__tomeRestoreFight=function(st){
+  if(!st||!Array.isArray(st.combatants)||!st.combatants.length) return false;
+  combatants=st.combatants; currentTurn=typeof st.currentTurn==='number'?st.currentTurn:-1; round=st.round||1;
+  fightId=st.fightId||null; anonCount=st.anonCount||0; hideNames=!!st.hideNames;
+  window.__tomeInitSeen=Object.assign({},st.initSeen||{});
+  renderInitList(); updateInitSelects(); updateHideLabel();
+  if(typeof refreshCombatPanel==='function') refreshCombatPanel();
+  return true;
+};
 function eyeBtn(c){
   const b=document.createElement('button'); b.className='ibtn eye'+(c.hidden?' off':'');
   b.title=c.hidden?'Hidden from players. Tap to show them':'Players can see this one. Tap to hide it';
@@ -902,7 +959,7 @@ function combatPayload(){
   const out=[]; let turn=-1, unseen=false;
   ord.forEach(({c})=>{
     if(c.hidden&&c.type!=='pc'){ if(c===cur) unseen=true; return; }
-    const e={n:String(c.name),t:c.type==='pc'?'pc':(c.type==='npc'?'npc':'monster'),i:c.initiative||0};
+    const e={n:playerName(c),t:c.type==='pc'?'pc':(c.type==='npc'?'npc':'monster'),i:c.initiative||0};
     if(c.type==='pc'&&B&&B.idOf){ const k=B.idOf(c.name); if(k) e.k=k; }
     if(c.isGroup){ const alive=(c.members||[]).filter(m=>!m.dead).length; e.g=alive; if(!alive) e.d=1; }
     else{
@@ -913,7 +970,7 @@ function combatPayload(){
     if(c===cur) turn=out.length;
     out.push(e);
   });
-  return {round:round,turn:turn,unseen:unseen,order:out,started:currentTurn>=0};
+  return {round:round,turn:turn,unseen:unseen,order:out,started:currentTurn>=0,fid:ensureFight()};
 }
 window.__tomeCombatPayload=combatPayload;
 function toggleShare(){ if(window.__tomeToggleShare) window.__tomeToggleShare(); }
@@ -994,7 +1051,7 @@ function removeCond(idx,cond){
 
 function resetCombat(){
   if(!confirm('Reset combat?'))return;
-  combatants=[];currentTurn=-1;round=1;
+  combatants=[];currentTurn=-1;round=1;fightId=null;anonCount=0;window.__tomeInitSeen={};
   renderInitList();updateInitSelects();
 }
 
@@ -4289,6 +4346,7 @@ function buildInitName(c){
   }
   if(c.type==='pc'){ const ex=(pcState[c.name]||{}).exhaustion||0; if(ex) tags.innerHTML+=`<span class="init-tag">Exhaustion ${ex}</span>`; }
   if(tags.innerHTML) div.appendChild(tags);
+  { const af=aliasField(c); if(af) div.appendChild(af); }
   return div;
 }
 
@@ -4852,10 +4910,16 @@ function printPrepSheet(){
   const syncHP={}, syncDeath={}, syncCond={};
   function pcSync(){
     const B=window.PartyBridge; if(!B) return false;
-    let changed=false;
+    let changed=false, resort=false;
     combatants.forEach(c=>{
       if(c.type!=='pc'||c.isGroup) return;
       const s=B.pc(c.name); if(!s) return;
+      // initiative typed by the player on their phone
+      const ir=s.initRoll, seen=(window.__tomeInitSeen=window.__tomeInitSeen||{});
+      if(ir&&ir.fid&&ir.fid===fightId&&ir.t>(seen[c.name]||0)){
+        seen[c.name]=ir.t;
+        if(c.initiative!==ir.v){ c.initiative=ir.v; resort=true; changed=true; toast(c.name+' rolled '+ir.v+' for initiative'); }
+      }
       const last=syncHP[c.name];
       if(last===undefined){ c.hp=s.hp; c.hpMax=s.hpMax; c.ac=s.ac; syncHP[c.name]=s.hp; changed=true; }
       else if(c.hp!==last){ B.setHP(c.name,c.hp); syncHP[c.name]=c.hp; }
@@ -4878,6 +4942,7 @@ function printPrepSheet(){
         else if((s.deathS+'/'+s.deathF)!==lastD){ c.death=c.death||{s:0,f:0}; c.death.s=s.deathS; c.death.f=s.deathF; c.death.stable=c.death.s>=3; c.death.dead=c.death.f>=3; syncDeath[c.name]=s.deathS+'/'+s.deathF; changed=true; }
       } else { delete syncDeath[c.name]; }
     });
+    if(resort){ const cur0=currentTurn>=0?combatants[currentTurn]:null; combatants.sort((x,y)=>(y.initiative||0)-(x.initiative||0)); if(cur0) currentTurn=combatants.indexOf(cur0); }
     return changed;
   }
   const _ril=renderInitList;
@@ -4886,7 +4951,9 @@ function printPrepSheet(){
     _ril();
     if(busy) return; busy=true;
     try{ if(pcSync()){ _ril(); if(typeof refreshCombatPanel==='function') refreshCombatPanel(); } }finally{ busy=false; }
+    if(!combatants.length){ fightId=null; anonCount=0; }
     if(typeof window.__tomeShareTick==='function') window.__tomeShareTick();
+    if(typeof window.__tomeFightChanged==='function') window.__tomeFightChanged();
   };
   window.__tomeSheetsChanged=function(){
     if(!document.getElementById('init-list')) return;

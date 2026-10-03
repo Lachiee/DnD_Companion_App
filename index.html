@@ -346,7 +346,7 @@ textarea{overflow-y:hidden;resize:none}
 .pill{display:inline-block;padding:.1rem .65rem;border-radius:99px;font-size:.82rem;font-weight:700}
 .pill.off{background:var(--hp-low);color:#fff}
 #htoast{position:fixed;left:.8rem;right:.8rem;bottom:calc(6.4rem + env(safe-area-inset-bottom,0px));z-index:70;display:none;max-width:36rem;margin:0 auto;padding:.8rem 1rem;border-radius:.9rem;background:var(--ink);color:var(--bg);font-weight:700;line-height:1.4;box-shadow:0 6px 24px rgba(0,0,0,.35)}
-#htoast.on{display:block}
+#htoast.on{display:block;pointer-events:none}
 .stat{display:flex;flex-direction:column;gap:.5rem;background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:.8rem .9rem;margin-bottom:.9rem}
 .cstat .stat{border:0;padding:.3rem 0 0;margin:0;background:none}
 .cstat{border:1px dashed var(--line);border-radius:.8rem;background:var(--field)}
@@ -418,6 +418,16 @@ textarea{overflow-y:hidden;resize:none}
 .lv-line{background:var(--panel);border:1px solid var(--line);border-radius:.7rem;padding:.5rem .75rem;font-size:.98rem;line-height:1.45}
 .lv-line b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-bottom:.1rem}
 .lv-sec .seg{margin:0}
+
+.lv-sp{display:flex;gap:.5rem;align-items:flex-start;margin:.35rem 0}
+.lv-sp details.entry{flex:1;min-width:0;margin:0}
+.lv-sp .btn{flex:0 0 auto;min-height:2.9rem;min-width:4.4rem;margin-top:.1rem}
+#lvQ{margin:.2rem 0}
+#syncBtn{white-space:nowrap}
+
+.sync-fab{display:none;position:fixed;right:.8rem;bottom:calc(6.1rem + env(safe-area-inset-bottom,0px));z-index:30;width:3.1rem;height:3.1rem;border-radius:50%;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-size:1.45rem;line-height:1;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.28);padding:0}
+body.compact .sync-fab:not([hidden]){display:flex}
+.sync-fab:disabled{opacity:.7}
 </style>
 </head>
 <body class="nonav">
@@ -430,6 +440,7 @@ textarea{overflow-y:hidden;resize:none}
     <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
       <span class="pill off" id="offPill" hidden>Offline</span>
       <span class="status" id="status"></span>
+      <button class="btn small" data-act="syncnow" id="syncBtn" hidden>☁ Save now</button>
       <button class="btn small" data-act="install" id="installBtn" hidden>📲 Install</button>
       <button class="btn small" data-act="signout" id="outBtn" hidden>Sign out</button>
     </div>
@@ -468,6 +479,7 @@ textarea{overflow-y:hidden;resize:none}
   <button type="button" class="bn-arrow r" id="bnR" aria-label="Scroll tabs right" hidden>›</button>
   <div class="sb-track bn-track" id="bnTrack" hidden><i></i></div>
 </nav>
+<button type="button" class="sync-fab" id="syncFab" data-act="syncnow" aria-label="Save now to the cloud" title="Save now" hidden>☁</button>
 <input type="file" id="importIn" accept=".json,application/json" multiple hidden>
 <input type="file" id="restoreIn" accept=".json,application/json" hidden>
 <script>
@@ -477,7 +489,7 @@ if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventLis
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, waitForPendingWrites, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYnsx30sdSSQm9Khjdc8gJ_BJLjHMhL4g",
@@ -684,13 +696,15 @@ function keepLocal(prefix,id,remote,local){
   if(p&&p.keys&&p.keys.size&&local)p.keys.forEach(k=>{remote[k]=local[k]});
   return remote;
 }
-let noteTimers={};
+let noteTimers={},noteFns={};
 function queueNote(id){
   clearTimeout(noteTimers[id]);setStatus("Saving…");
-  noteTimers[id]=setTimeout(async()=>{
+  const run=async()=>{
+    delete noteFns[id];
     try{await setDoc(doc(db,"dmnotes",id),{text:dmNotes[id]||""});setStatus("Saved")}
     catch(e){setStatus("Could not save notes ("+(e&&e.code||"error")+")",true)}
-  },700);
+  };
+  noteFns[id]=run;noteTimers[id]=setTimeout(run,700);
 }
 
 /* ================= form helpers ================= */
@@ -1156,6 +1170,50 @@ function lvlInfo(c,nl){
   if(nums.length)h+=line("Your numbers at level "+nl,nums.map(E).join(" · "));
   return h;
 }
+function lvSpellNeed(c,nl){
+  const ck=clsKey(c),info=classInfo(c.cls);if(!ck||!info||!info.caster)return null;
+  const d=LV24.c[ck][nl]||{},o=LV24.c[ck][nl-1]||{};
+  const needC=(d.c!=null&&o.c!=null)?Math.max(0,d.c-o.c):0;
+  let needP=(d.p!=null&&o.p!=null)?Math.max(0,d.p-o.p):0;
+  if(ck==="Wizard")needP=Math.max(needP,2);
+  let max=0;const sl=slotsFor(info,nl,null);Object.keys(sl).forEach(k=>{if(sl[k].max>0)max=Math.max(max,Number(k))});
+  if(!needC&&!needP)return null;
+  return {ck:ck,needC:needC,needP:needP,max:max,now:{c:d.c,p:d.p}};
+}
+const lvPicked=t=>(lvlUp.picks||[]).filter(p=>t==="c"?p.level===0:p.level>0);
+function lvEligible(c,nl,tab,q){
+  const n=lvSpellNeed(c,nl);if(!n||!spellDB)return [];
+  const have=new Set(c.spells.map(x=>String(x.name).toLowerCase())),got=new Set((lvlUp.picks||[]).map(p=>p.name.toLowerCase())),ql=String(q||"").toLowerCase().trim();
+  return spellDB.filter(sp=>{
+    if(tab==="c"?sp.l!==0:(sp.l<1||sp.l>n.max))return false;
+    if(sp.cl&&sp.cl.length&&sp.cl.indexOf(n.ck)<0)return false;
+    const nm=sp.n.toLowerCase();
+    if(have.has(nm)||got.has(nm))return false;
+    return !ql||nm.indexOf(ql)>=0;
+  }).sort((a,b)=>a.l-b.l||a.n.localeCompare(b.n)).slice(0,30);
+}
+function lvResultsHtml(c,nl){
+  const tab=lvlUp.tab||"s",n=lvSpellNeed(c,nl);
+  if(!spellDB)return '<div class="sub">Loading the spell list…</div>';
+  const list=lvEligible(c,nl,tab,lvlUp.q);
+  if(!list.length)return '<div class="sub">No matching '+(tab==="c"?"cantrips":"spells")+' on the '+E(n.ck)+' list'+(tab==="s"?" up to level "+n.max:"")+'.</div>';
+  return list.map(sp=>'<div class="lv-sp"><details class="entry"><summary>'+E(sp.n)+' <span class="sub">'+(sp.l===0?"Cantrip":"Level "+sp.l)+' · '+E(sp.s||"")+(sp.k?" · Concentration":"")+(sp.src==="EEPC"?" · Elemental Evil":"")+'</span></summary><div class="body">'+spellDetail(sp)+'</div></details><button type="button" class="btn small primary" data-act="lvadd" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add</button></div>').join("");
+}
+function lvSpellSection(c,nl){
+  const n=lvSpellNeed(c,nl);if(!n)return "";
+  if(!lvlUp.tab)lvlUp.tab=n.needC?"c":"s";
+  if(!spellDB)loadSpells().then(()=>{if(lvlUp&&openId&&!sheetFocused())renderSheet()}).catch(()=>{});
+  const pc=lvPicked("c").length,ps=lvPicked("s").length;
+  let h='<div class="lv-sec" id="lvSpells"><div class="lv-k">Choose your new spells</div><div class="lv-calc">';
+  h+=(n.needC?'Cantrips: pick <b>'+n.needC+'</b> new ('+n.now.c+' known at level '+nl+'). ':'')+(n.needP?(n.ck==="Wizard"?'Spellbook: add <b>'+n.needP+'</b> spells. ':'Prepared spells: you can prepare <b>'+n.now.p+'</b> now, <b>'+n.needP+'</b> more than before. ')+'Spells up to level '+n.max+'.':'')+'</div>';
+  h+='<div class="seg two" role="group" aria-label="Which list"><button type="button" class="'+(lvlUp.tab==="c"?"on":"")+'" data-act="lvtab" data-t="c">Cantrips '+pc+'/'+n.needC+'</button><button type="button" class="'+(lvlUp.tab==="s"?"on":"")+'" data-act="lvtab" data-t="s">Spells '+ps+'/'+n.needP+'</button></div>';
+  h+='<input type="search" id="lvQ" placeholder="Search the '+E(n.ck)+' list" value="'+E(lvlUp.q||"")+'" autocomplete="off">';
+  h+='<div id="lvResults">'+lvResultsHtml(c,nl)+'</div>';
+  const picks=lvlUp.picks||[];
+  h+='<div class="lv-k" style="font-size:.95rem">Your picks</div><div class="chiprow">'+(picks.length?picks.map((p,i)=>'<button type="button" class="cchip on" data-act="lvdel" data-i="'+i+'" aria-label="Remove '+E(p.name)+'">'+E(p.name)+' ✕</button>').join(""):'<span class="sub">None yet. You can also add them later from Lookup.</span>')+'</div>';
+  h+='<div class="sub">In 2024 you can also change your prepared spells after any Long Rest.</div></div>';
+  return h;
+}
 function lvlPanel(c){
   const nl=c.level+1,info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con),mode=lvlUp.mode||"avg";
   const ck=clsKey(c),key=ck?ck.toLowerCase():"";
@@ -1166,6 +1224,7 @@ function lvlPanel(c){
   if(mode==="roll")h+='<div class="sub">Type just the number on the die. Your Constitution modifier ('+sgn(cm)+') is added for you.</div>';
   h+='</div>';
   if(info&&info.caster)h+='<label class="prof"><input type="checkbox" id="lvSlots" checked style="width:22px;height:22px"> Update spell slots to match level '+nl+'</label>';
+  h+=lvSpellSection(c,nl);
   const asi=(ASI_LV[key]||[4,8,12,16]).indexOf(nl)>=0;
   if(asi)h+='<div class="lv-line"><b>Ability Score Improvement</b> At level '+nl+' take an Ability Score Improvement or another feat. After confirming, switch on Edit to change your scores and add a feat under Features. If your Constitution modifier goes up, the sheet will offer to raise your max HP by 1 for every level.</div>';
   if(nl===19)h+='<div class="lv-line"><b>Epic Boon</b> Level 19 gives an Epic Boon feat (in 2024 this replaces the Ability Score Improvement). Add it under Features.</div>';
@@ -1173,7 +1232,7 @@ function lvlPanel(c){
   h+=lvlInfo(c,nl);
   const ups=resourceUpdates(c,nl);
   if(ups.length)h+='<div class="lv-line"><b>Updated for you</b> '+ups.map(u=>E(u.name)+" "+u.from+" → "+u.to).join(" · ")+'</div>';
-  h+='<div class="sub">Add the new features and spells yourself afterwards (Lookup finds spells). Tell your DM about anything the sheet doesn’t track.</div>';
+  h+='<div class="sub">Add the new features yourself afterwards. Tell your DM about anything the sheet doesn’t track.</div>';
   h+='<div style="display:flex;gap:8px"><button class="btn primary" data-act="lvlconfirm">Confirm level up</button><button class="btn" data-act="lvlcancel">Cancel</button></div></div>';
   return h;
 }
@@ -1716,6 +1775,7 @@ function setPath(obj,path,val){
 document.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="hpAmt"){hpAmtVal=t.value;return}
+  if(t.id==="lvQ"&&lvlUp&&openId){lvlUp.q=t.value;const r=$("lvResults");if(r)r.innerHTML=lvResultsHtml(chars[openId],chars[openId].level+1);return}
   if(t.id==="lvRoll"&&lvlUp&&openId){lvlUp.roll=t.value;const cc=$("lvCalc");if(cc)cc.innerHTML=lvCalcText(chars[openId]);return}
   if(t.id==="lkQ"){lk.q=t.value;lk.limit=40;renderLookupResults();return}
   if(t.id==="cFilter"){fillTemplates();return}
@@ -1794,6 +1854,7 @@ document.addEventListener("click",async e=>{
       const host=b.closest("[data-id]"),id=host?host.dataset.id:openId,x=chars[id];if(!x||!canEditChar(id))return;
       x.concentrating="";saveChar(id,["concentrating"]);if(openId)renderSheet();else renderParty();return}
     case "install":return doInstall();
+    case "syncnow":return syncNow();
     case "backup":return doBackup();
     case "restorebk":$("restoreIn").click();return;
     case "cbtoggle":cbOpen=!cbOpen;renderCombatBar();return;
@@ -1859,8 +1920,14 @@ document.addEventListener("click",async e=>{
     case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}
     case "delspell":c.spells.splice(Number(b.dataset.i),1);saveChar(id,["spells"]);renderSheet();return;
     case "addspellman":{const n=$("newSpell").value.trim();if(!n)return;c.spells.push({name:n,level:Number($("newSpellLv").value),desc:""});saveChar(id,["spells"]);renderSheet();return}
-    case "lvlopen":lvlUp={mode:"avg",roll:""};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvlopen":lvlUp={mode:"avg",roll:"",tab:"",q:"",picks:[]};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
     case "lvmode":lvlUp.mode=b.dataset.m;renderSheet();return;
+    case "lvtab":lvlUp.tab=b.dataset.t;lvlUp.q="";renderSheet();return;
+    case "lvadd":{
+      const lvl=Number(b.dataset.l),t=lvl===0?"c":"s",n=lvSpellNeed(c,c.level+1),cap=n?(t==="c"?n.needC:n.needP):0;
+      if(lvPicked(t).length>=cap){hostToast("You can only pick "+cap+" new "+(t==="c"?"cantrip"+(cap===1?"":"s"):"spell"+(cap===1?"":"s"))+" at this level. Remove one first to swap.",5000);return}
+      (lvlUp.picks=lvlUp.picks||[]).push({name:b.dataset.n,level:lvl});lvlUp.q="";renderSheet();return}
+    case "lvdel":{(lvlUp.picks||[]).splice(Number(b.dataset.i),1);renderSheet();return}
     case "lvlcancel":lvlUp=null;renderSheet();return;
     case "lvlconfirm":return confirmLevelUp(c);
     case "delsheet":return delSheet();
@@ -1904,6 +1971,11 @@ function confirmLevelUp(c){
   const gain=lvGainOf(c);
   if(gain==null){const info=classInfo(c.cls);hostToast("Type the number you rolled on the d"+(info?info.die:8)+" first (or switch to Take the average).",6000);return}
   const updSlots=$("lvSlots")?$("lvSlots").checked:false;
+  const sneed=lvSpellNeed(c,c.level+1);
+  if(sneed){
+    const pc=lvPicked("c").length,ps=lvPicked("s").length,mc=Math.max(0,sneed.needC-pc),mp=Math.max(0,sneed.needP-ps);
+    if((mc||mp)&&!confirm("You haven’t picked all your new spells ("+(sneed.needC?"cantrips "+pc+" of "+sneed.needC+", ":"")+"spells "+ps+" of "+sneed.needP+").\n\nLevel up anyway? You can add the rest later from Lookup."))return;
+  }
   const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level,ups=resourceUpdates(c,nl),how=(lvlUp.mode||"avg")==="avg"?"average":"rolled "+parseInt(lvlUp.roll,10);
   c.level=nl;c.hpMax+=gain;c.hp+=gain;
   const m=/^(\d+)d(\d+)$/.exec(String(c.hitDice||"").trim());
@@ -1911,11 +1983,12 @@ function confirmLevelUp(c){
   c.resources.forEach(r=>{if(r.reset==="hitdice"){r.max=nl}});
   ups.forEach(u=>{const r=c.resources[u.i];if(r){r.max=u.to;r.used=Math.min(r.used,r.max)}});
   if(updSlots)c.slots=slotsFor(info,nl,c.slots);
-  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")}].concat(c.history).slice(0,30);
+  const added=[];(lvlUp.picks||[]).forEach(p=>{if(!c.spells.some(x=>String(x.name).toLowerCase()===p.name.toLowerCase())){c.spells.push({name:p.name,level:p.level,desc:""});added.push(p.name)}});
+  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")+(added.length?"; new spells: "+added.join(", "):"")}].concat(c.history).slice(0,30);
   lvlUp=null;
-  saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources"]);
+  saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources","spells"]);
   renderSheet();window.scrollTo(0,0);
-  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+".",10000);
+  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+(added.length?". Added: "+added.join(", "):"")+".",10000);
 }
 
 /* ================= DM tools ================= */
@@ -2008,6 +2081,36 @@ function findSpellIn(name){
   if(!spellIdx)return null;
   const n=String(name||"").toLowerCase().replace(/\s*\([^)]*\)\s*$/,"").trim();
   return spellIdx.get(n)||spellIdx.get(ALIAS[n]||"")||null;
+}
+
+/* ================= save now ================= */
+let syncing=false,lastCloud=0;
+function flushEverything(){
+  Object.keys(pend).forEach(k=>{const p=pend[k];if(p&&p.keys&&p.keys.size){clearTimeout(p.timer);flush(k)}});
+  Object.keys(noteFns).forEach(id=>{clearTimeout(noteTimers[id]);noteFns[id]()});
+}
+const settled=()=>Object.keys(pend).every(k=>!pend[k].busy&&!(pend[k].keys&&pend[k].keys.size))&&!Object.keys(noteFns).length;
+async function syncNow(){
+  if(syncing)return;
+  syncing=true;const btn=$("syncBtn"),fab=$("syncFab");if(btn){btn.disabled=true;btn.textContent="☁ Saving…"}if(fab){fab.disabled=true;fab.textContent="…"}
+  setStatus("Saving…");
+  const when=()=>new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+  try{
+    flushEverything();
+    if(isDM()&&tomeState==="ready"){
+      try{if(window.__tome&&window.__tome.saveAll)window.__tome.saveAll()}catch(e){}
+      try{await pushCampaign()}catch(e){}
+      try{lastFightKey="";await saveFightNow()}catch(e){}
+    }
+    for(let k=0;k<40&&!settled();k++)await new Promise(r=>setTimeout(r,100));
+    if(!navigator.onLine){hostToast("You’re offline. Everything is stored on this phone and will upload when you’re back online.",9000);setStatus("Offline: changes are saved on this device and will sync later");return}
+    const r=await Promise.race([waitForPendingWrites(db).then(()=>"ok"),new Promise(res=>setTimeout(()=>res("late"),10000))]);
+    if(r==="ok"){lastCloud=Date.now();setStatus("Saved to the cloud at "+when());hostToast("Everything is saved to the cloud ("+when()+").",5000)}
+    else{setStatus("Slow connection: still uploading…");hostToast("Still uploading. It’s stored on this phone and will finish as soon as the connection allows.",9000)}
+  }catch(e){
+    setStatus("Could not reach the cloud ("+(e&&e.code||"error")+")",true);
+    hostToast("Could not reach the cloud ("+(e&&e.code||"error")+"). Your changes are stored on this phone and will upload later.",9000);
+  }finally{syncing=false;if(btn){btn.disabled=false;btn.textContent="☁ Save now"}if(fab){fab.disabled=false;fab.textContent=lastCloud&&Date.now()-lastCloud<4000?"✓":"☁";setTimeout(()=>{fab.textContent="☁"},2500)}}
 }
 
 /* ================= offline and install ================= */
@@ -2368,7 +2471,7 @@ function startApp(){
   unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
   chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";cbWasLive=false;{const b=document.getElementById("combatBar");if(b){b.innerHTML="";b.hidden=true}}
   $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
-  $("outBtn").hidden=false;
+  $("outBtn").hidden=false;$("syncBtn").hidden=false;$("syncFab").hidden=false;
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
     openId=null;dmTab="party";subSession="run";subMons="prep";subMore="msgs";sheetTab="play";
@@ -2418,7 +2521,7 @@ function showGate(msg){
   unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};
   chars={};openId=null;role=null;lvlUp=null;
   $("app").hidden=true;$("gate").hidden=false;$("bnav").hidden=true;document.body.classList.add("nonav");document.body.classList.remove("compact");
-  $("who").textContent="Not signed in";$("outBtn").hidden=!uid;
+  $("who").textContent="Not signed in";$("outBtn").hidden=!uid;$("syncBtn").hidden=!uid;$("syncFab").hidden=!uid;
   const m=$("gateMsg");m.className="msg"+(msg?" err":"");m.textContent=msg||"";
 }
 async function enter(user){

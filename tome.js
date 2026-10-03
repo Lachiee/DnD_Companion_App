@@ -5132,6 +5132,6 @@ function printPrepSheet(){
 })();
 
 // expose what the host page needs
-window.__tome={sw:sw,boot:null};
+window.__tome={sw:sw,saveAll:saveAll,boot:null};
 if(typeof handleFileUpload==='function') window.handleFileUpload=handleFileUpload;
 })();

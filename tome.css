@@ -1134,7 +1134,8 @@
 
 /* ===== toast ===== */
 #tome #tome-toast{position:fixed;left:.8rem;right:.8rem;bottom:calc(5.9rem + env(safe-area-inset-bottom,0px));z-index:60;display:none;align-items:center;justify-content:space-between;gap:.8rem;max-width:34rem;margin:0 auto;padding:.7rem 1rem;border-radius:.9rem;background:var(--ink);color:var(--bg);font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.3)}
-#tome #tome-toast.on{display:flex}
+#tome #tome-toast.on{display:flex;pointer-events:none}
+#tome #tome-toast button{pointer-events:auto}
 #tome #tome-toast button{flex:0 0 auto;min-height:2.6rem;padding:.35rem .85rem;border:0;border-radius:.6rem;background:var(--accent);color:var(--accent-ink);font-weight:700}
 
 /* text boxes grow with what is typed */

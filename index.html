@@ -410,6 +410,14 @@ textarea{overflow-y:hidden;resize:none}
 .cb-ir input{flex:1;min-width:0;font-size:1.4rem;font-weight:700;text-align:center;min-height:3.2rem}
 .cb-ir .btn{min-height:3.2rem;min-width:6rem}
 #bkNudge{justify-content:space-between}
+
+/* ---------- level up ---------- */
+.lv-sec{background:var(--panel);border:1px solid var(--line);border-radius:.8rem;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem}
+.lv-k{font-weight:700;font-size:1.05rem}
+.lv-calc{font-size:1.02rem;line-height:1.45}
+.lv-line{background:var(--panel);border:1px solid var(--line);border-radius:.7rem;padding:.5rem .75rem;font-size:.98rem;line-height:1.45}
+.lv-line b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-bottom:.1rem}
+.lv-sec .seg{margin:0}
 </style>
 </head>
 <body class="nonav">
@@ -499,7 +507,7 @@ const CLASSES={
   wizard:{die:6,caster:"full",ab:"int"},artificer:{die:8,caster:"artificer",ab:"int"}
 };
 const FULL=[[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]];
-const HALF=[[],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2],[4,3,3],[4,3,3],[4,3,3,1],[4,3,3,1],[4,3,3,2],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2]];
+const HALF=[[2],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2],[4,3,3],[4,3,3],[4,3,3,1],[4,3,3,1],[4,3,3,2],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2]];
 const PACT=[[1,1],[2,1],[2,2],[2,2],[2,3],[2,3],[2,4],[2,4],[2,5],[2,5],[3,5],[3,5],[3,5],[3,5],[3,5],[3,5],[4,5],[4,5],[4,5],[4,5]];
 function classInfo(name){
   const n=String(name||"").toLowerCase();
@@ -1096,15 +1104,76 @@ function basicsForm(c){
    inp("cls","Class",c.cls,"text")+inp("subclass","Subclass",c.subclass,"text")+inp("level","Level",c.level,"number",'min="1" max="20"')+inp("background","Background",c.background,"text")+inp("alignment","Alignment",c.alignment,"text")+
    inp("ac","Armor class",c.ac,"number")+inp("speed","Speed (ft)",c.speed,"number")+inp("hpMax","Max HP",c.hpMax,"number")+inp("hp","Current HP",c.hp,"number")+inp("hpTemp","Temp HP",c.hpTemp,"number")+inp("hitDice","Hit dice",c.hitDice,"text")+inp("inspiration","Inspiration",c.inspiration,"number",'min="0"')+inp("conditions","Conditions",c.conditions,"text")+'</div></div>';
 }
+const LV24={"c":{"Barbarian":{"1":{"f":["Rage","Unarmored Defense","Weapon Mastery"],"x":{"rage_count":2,"rage_damage_bonus":2,"weapon_mastery":2}},"2":{"f":["Danger Sense","Reckless Attack"],"x":{"rage_count":2,"rage_damage_bonus":2,"weapon_mastery":2}},"3":{"f":["Barbarian Subclass","Primal Knowledge"],"x":{"rage_count":3,"rage_damage_bonus":2,"weapon_mastery":2}},"4":{"f":["Ability Score Improvement"],"x":{"rage_count":3,"rage_damage_bonus":2,"weapon_mastery":3}},"5":{"f":["Extra Attack","Fast Movement"],"x":{"rage_count":3,"rage_damage_bonus":2,"weapon_mastery":3}},"6":{"f":["Barbarian Subclass"],"x":{"rage_count":4,"rage_damage_bonus":2,"weapon_mastery":3}},"7":{"f":["Feral Instinct","Instinctive Pounce"],"x":{"rage_count":4,"rage_damage_bonus":2,"weapon_mastery":3}},"8":{"f":["Ability Score Improvement"],"x":{"rage_count":4,"rage_damage_bonus":2,"weapon_mastery":3}},"9":{"f":["Brutal Strike"],"x":{"rage_count":4,"rage_damage_bonus":3,"weapon_mastery":3}},"10":{"f":["Barbarian Subclass"],"x":{"rage_count":4,"rage_damage_bonus":3,"weapon_mastery":4}},"11":{"f":["Relentless Rage"],"x":{"rage_count":4,"rage_damage_bonus":3,"weapon_mastery":4}},"12":{"f":["Ability Score Improvement"],"x":{"rage_count":5,"rage_damage_bonus":3,"weapon_mastery":4}},"13":{"f":["Improved Brutal Strike"],"x":{"rage_count":5,"rage_damage_bonus":3,"weapon_mastery":4}},"14":{"f":["Barbarian Subclass"],"x":{"rage_count":5,"rage_damage_bonus":3,"weapon_mastery":4}},"15":{"f":["Persistent Rage"],"x":{"rage_count":5,"rage_damage_bonus":3,"weapon_mastery":4}},"16":{"f":["Ability Score Improvement"],"x":{"rage_count":5,"rage_damage_bonus":4,"weapon_mastery":4}},"17":{"f":["Improved Brutal Strike"],"x":{"rage_count":6,"rage_damage_bonus":4,"weapon_mastery":4}},"18":{"f":["Indomitable Might"],"x":{"rage_count":6,"rage_damage_bonus":4,"weapon_mastery":4}},"19":{"f":["Epic Boon"],"x":{"rage_count":6,"rage_damage_bonus":4,"weapon_mastery":4}},"20":{"f":["Primal Champion"],"x":{"rage_count":6,"rage_damage_bonus":4,"weapon_mastery":4}}},"Bard":{"1":{"f":["Bardic Inspiration","Spellcasting"],"c":2,"p":4},"2":{"f":["Expertise","Jack of All Trades"],"c":2,"p":5},"3":{"f":["Bard Subclass"],"c":2,"p":6},"4":{"f":["Ability Score Improvement"],"c":3,"p":7},"5":{"f":["Font of Inspiration"],"c":3,"p":9},"6":{"f":["Bard Subclass"],"c":3,"p":10},"7":{"f":["Countercharm"],"c":3,"p":11},"8":{"f":["Ability Score Improvement"],"c":3,"p":12},"9":{"f":["Expertise"],"c":3,"p":14},"10":{"f":["Magical Secrets"],"c":4,"p":15},"11":{"f":[],"c":4,"p":16},"12":{"f":["Ability Score Improvement"],"c":4,"p":16},"13":{"f":[],"c":4,"p":17},"14":{"f":["Bard Subclass"],"c":4,"p":17},"15":{"f":[],"c":4,"p":18},"16":{"f":["Ability Score Improvement"],"c":4,"p":18},"17":{"f":[],"c":4,"p":19},"18":{"f":["Superior Inspiration"],"c":4,"p":20},"19":{"f":["Epic Boon"],"c":4,"p":21},"20":{"f":["Words of Creation"],"c":4,"p":22}},"Cleric":{"1":{"f":["Divine Order","Spellcasting"],"c":3,"p":4,"x":{"channel_divinity_charges":0}},"2":{"f":["Channel Divinity"],"c":3,"p":5,"x":{"channel_divinity_charges":2}},"3":{"f":["Cleric Subclass"],"c":3,"p":6,"x":{"channel_divinity_charges":2}},"4":{"f":["Ability Score Improvement"],"c":4,"p":7,"x":{"channel_divinity_charges":2}},"5":{"f":["Sear Undead"],"c":4,"p":9,"x":{"channel_divinity_charges":2}},"6":{"f":["Cleric Subclass"],"c":4,"p":10,"x":{"channel_divinity_charges":3}},"7":{"f":["Blessed Strikes"],"c":4,"p":11,"x":{"channel_divinity_charges":3}},"8":{"f":["Ability Score Improvement"],"c":4,"p":12,"x":{"channel_divinity_charges":3}},"9":{"f":[],"c":4,"p":14,"x":{"channel_divinity_charges":3}},"10":{"f":["Divine Intervention"],"c":5,"p":15,"x":{"channel_divinity_charges":3}},"11":{"f":[],"c":5,"p":16,"x":{"channel_divinity_charges":3}},"12":{"f":["Ability Score Improvement"],"c":5,"p":16,"x":{"channel_divinity_charges":3}},"13":{"f":[],"c":5,"p":17,"x":{"channel_divinity_charges":3}},"14":{"f":["Improved Blessed Strikes"],"c":5,"p":17,"x":{"channel_divinity_charges":3}},"15":{"f":[],"c":5,"p":18,"x":{"channel_divinity_charges":3}},"16":{"f":["Ability Score Improvement"],"c":5,"p":18,"x":{"channel_divinity_charges":3}},"17":{"f":["Cleric Subclass"],"c":5,"p":19,"x":{"channel_divinity_charges":3}},"18":{"f":[],"c":5,"p":20,"x":{"channel_divinity_charges":4}},"19":{"f":["Epic Boon"],"c":5,"p":21,"x":{"channel_divinity_charges":4}},"20":{"f":["Greater Divine Intervention"],"c":5,"p":22,"x":{"channel_divinity_charges":4}}},"Druid":{"1":{"f":["Druidic","Primal Order","Spellcasting"],"c":2,"p":4,"x":{"wild_shape_uses":0}},"2":{"f":["Wild Shape","Wild Companion"],"c":2,"p":5,"x":{"wild_shape_uses":2}},"3":{"f":["Druid Subclass"],"c":2,"p":6,"x":{"wild_shape_uses":2}},"4":{"f":["Ability Score Improvement"],"c":3,"p":7,"x":{"wild_shape_uses":2}},"5":{"f":["Wild Resurgence"],"c":3,"p":9,"x":{"wild_shape_uses":2}},"6":{"f":["Druid Subclass"],"c":3,"p":10,"x":{"wild_shape_uses":3}},"7":{"f":["Elemental Fury"],"c":4,"p":11,"x":{"wild_shape_uses":3}},"8":{"f":["Ability Score Improvement"],"c":3,"p":12,"x":{"wild_shape_uses":3}},"9":{"f":[],"c":3,"p":14,"x":{"wild_shape_uses":3}},"10":{"f":["Druid Subclass"],"c":4,"p":15,"x":{"wild_shape_uses":3}},"11":{"f":[],"c":4,"p":16,"x":{"wild_shape_uses":3}},"12":{"f":["Ability Score Improvement"],"c":4,"p":16,"x":{"wild_shape_uses":3}},"13":{"f":[],"c":4,"p":17,"x":{"wild_shape_uses":3}},"14":{"f":["Druid Subclass"],"c":4,"p":17,"x":{"wild_shape_uses":3}},"15":{"f":["Improved Elemental Fury"],"c":4,"p":18,"x":{"wild_shape_uses":3}},"16":{"f":["Ability Score Improvement"],"c":5,"p":18,"x":{"wild_shape_uses":3}},"17":{"f":[],"c":4,"p":19,"x":{"wild_shape_uses":4}},"18":{"f":["Beast Spells"],"c":4,"p":20,"x":{"wild_shape_uses":4}},"19":{"f":["Epic Boon"],"c":4,"p":21,"x":{"wild_shape_uses":4}},"20":{"f":["Archdruid"],"c":4,"p":22,"x":{"wild_shape_uses":4}}},"Fighter":{"1":{"f":["Fighting Style","Second Wind","Weapon Mastery"],"x":{"weapon_mastery":3}},"2":{"f":["Action Surge","Tactical Mind"],"x":{"weapon_mastery":3}},"3":{"f":["Fighter Subclass"],"x":{"weapon_mastery":3}},"4":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":4}},"5":{"f":["Extra Attack","Tactical Shift"],"x":{"weapon_mastery":4}},"6":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":4}},"7":{"f":["Fighter Subclass"],"x":{"weapon_mastery":4}},"8":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":4}},"9":{"f":["Indomitable","Tactical Master"],"x":{"weapon_mastery":4}},"10":{"f":["Fighter Subclass"],"x":{"weapon_mastery":5}},"11":{"f":["Two Extra Attacks"],"x":{"weapon_mastery":5}},"12":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":5}},"13":{"f":["Indomitable","Studied Attacks"],"x":{"weapon_mastery":5}},"14":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":5}},"15":{"f":["Fighter Subclass"],"x":{"weapon_mastery":5}},"16":{"f":["Ability Score Improvement"],"x":{"weapon_mastery":6}},"17":{"f":["Action Surge","Indomitable"],"x":{"weapon_mastery":6}},"18":{"f":["Fighter Subclass"],"x":{"weapon_mastery":6}},"19":{"f":["Epic Boon"],"x":{"weapon_mastery":6}},"20":{"f":["Three Extra Attacks"],"x":{"weapon_mastery":6}}},"Monk":{"1":{"f":["Martial Arts","Unarmored Defense"],"x":{"focus_points":0}},"2":{"f":["Monk's Focus","Unarmored Movement","Uncanny Metabolism"],"x":{"focus_points":2}},"3":{"f":["Monk Subclass","Deflect Attacks"],"x":{"focus_points":3}},"4":{"f":["Ability Score Improvement","Slow Fall"],"x":{"focus_points":4}},"5":{"f":["Extra Attack","Stunning Strike"],"x":{"focus_points":5}},"6":{"f":["Monk Subclass","Empowered Strikes"],"x":{"focus_points":6}},"7":{"f":["Evasion"],"x":{"focus_points":7}},"8":{"f":["Ability Score Improvement"],"x":{"focus_points":8}},"9":{"f":["Acrobatic Movement"],"x":{"focus_points":9}},"10":{"f":["Heightened Focus","Self-Restoration"],"x":{"focus_points":10}},"11":{"f":["Monk Subclass"],"x":{"focus_points":11}},"12":{"f":["Ability Score Improvement"],"x":{"focus_points":12}},"13":{"f":["Deflect Energy"],"x":{"focus_points":13}},"14":{"f":["Disciplined Survivor"],"x":{"focus_points":14}},"15":{"f":["Perfect Focus"],"x":{"focus_points":15}},"16":{"f":["Ability Score Improvement"],"x":{"focus_points":16}},"17":{"f":["Monk Subclass"],"x":{"focus_points":17}},"18":{"f":["Superior Defense"],"x":{"focus_points":18}},"19":{"f":["Epic Boon"],"x":{"focus_points":19}},"20":{"f":["Body and Mind"],"x":{"focus_points":20}}},"Paladin":{"1":{"f":["Lay On Hands","Spellcasting","Weapon Mastery"],"c":0,"p":2,"x":{"channel_divinity_charges":0}},"2":{"f":["Fighting Style","Paladin's Smite"],"c":0,"p":3,"x":{"channel_divinity_charges":0}},"3":{"f":["Channel Divinity","Paladin Subclass"],"c":0,"p":4,"x":{"channel_divinity_charges":2}},"4":{"f":["Ability Score Improvement"],"c":0,"p":5,"x":{"channel_divinity_charges":2}},"5":{"f":["Extra Attack","Faithful Steed"],"c":0,"p":6,"x":{"channel_divinity_charges":2}},"6":{"f":["Aura of Protection"],"c":0,"p":6,"x":{"channel_divinity_charges":2}},"7":{"f":["Paladin Subclass"],"c":0,"p":7,"x":{"channel_divinity_charges":2}},"8":{"f":["Ability Score Improvement"],"c":0,"p":7,"x":{"channel_divinity_charges":2}},"9":{"f":["Abjure Foes"],"c":0,"p":9,"x":{"channel_divinity_charges":2}},"10":{"f":["Aura of Courage"],"c":0,"p":9,"x":{"channel_divinity_charges":2}},"11":{"f":["Radiant Strikes"],"c":0,"p":10,"x":{"channel_divinity_charges":3}},"12":{"f":["Ability Score Improvement"],"c":0,"p":10,"x":{"channel_divinity_charges":3}},"13":{"f":[],"c":0,"p":11,"x":{"channel_divinity_charges":3}},"14":{"f":["Restoring Touch"],"c":0,"p":11,"x":{"channel_divinity_charges":3}},"15":{"f":["Paladin Subclass"],"c":0,"p":12,"x":{"channel_divinity_charges":3}},"16":{"f":["Ability Score Improvement"],"c":0,"p":12,"x":{"channel_divinity_charges":3}},"17":{"f":[],"c":0,"p":14,"x":{"channel_divinity_charges":3}},"18":{"f":["Aura Expansion"],"c":0,"p":14,"x":{"channel_divinity_charges":3}},"19":{"f":["Epic Boon"],"c":0,"p":15,"x":{"channel_divinity_charges":3}},"20":{"f":["Paladin Subclass"],"c":0,"p":15,"x":{"channel_divinity_charges":3}}},"Ranger":{"1":{"f":["Favored Enemy","Spellcasting","Weapon Mastery"],"c":0,"p":2},"2":{"f":["Deft Explorer","Fighting Style"],"c":0,"p":3},"3":{"f":["Ranger Subclass"],"c":0,"p":4},"4":{"f":["Ability Score Improvement"],"c":0,"p":5},"5":{"f":["Extra Attack"],"c":0,"p":6},"6":{"f":["Roving"],"c":0,"p":6},"7":{"f":["Ranger Subclass"],"c":0,"p":7},"8":{"f":["Ability Score Improvement"],"c":0,"p":7},"9":{"f":["Expertise"],"c":0,"p":9},"10":{"f":["Tireless"],"c":0,"p":9},"11":{"f":["Ranger Subclass"],"c":0,"p":10},"12":{"f":["Ability Score Improvement"],"c":0,"p":10},"13":{"f":["Relentless Hunter"],"c":0,"p":11},"14":{"f":["Nature's Veil"],"c":0,"p":11},"15":{"f":["Ranger Subclass"],"c":0,"p":12},"16":{"f":["Ability Score Improvement"],"c":0,"p":12},"17":{"f":["Precise Hunter"],"c":0,"p":14},"18":{"f":["Feral Senses"],"c":0,"p":14},"19":{"f":["Epic Boon"],"c":0,"p":15},"20":{"f":["Foe Slayer"],"c":0,"p":15}},"Rogue":{"1":{"f":["Expertise","Sneak Attack","Thieves' Cant","Weapon Mastery"]},"2":{"f":["Cunning Action"]},"3":{"f":["Rogue Subclass","Steady Aim"]},"4":{"f":["Ability Score Improvement"]},"5":{"f":["Cunning Strike","Uncanny Dodge"]},"6":{"f":["Expertise"]},"7":{"f":["Evasion","Reliable Talent"]},"8":{"f":["Ability Score Improvement"]},"9":{"f":["Rogue Subclass"]},"10":{"f":["Ability Score Improvement"]},"11":{"f":["Improved Cunning Strike"]},"12":{"f":["Ability Score Improvement"]},"13":{"f":["Rogue Subclass"]},"14":{"f":["Devious Strikes"]},"15":{"f":["Slippery Mind"]},"16":{"f":["Ability Score Improvement"]},"17":{"f":["Rogue Subclass"]},"18":{"f":["Elusive"]},"19":{"f":["Epic Boon"]},"20":{"f":["Stroke of Luck"]}},"Sorcerer":{"1":{"f":["Innate Sorcery","Spellcasting"],"c":4,"p":2,"x":{"sorcery_points":0}},"2":{"f":["Font of Magic","Metamagic"],"c":4,"p":4,"x":{"sorcery_points":2}},"3":{"f":["Sorcerer Subclass"],"c":4,"p":6,"x":{"sorcery_points":3}},"4":{"f":["Ability Score Improvement"],"c":5,"p":7,"x":{"sorcery_points":4}},"5":{"f":["Sorcerous Restoration"],"c":5,"p":9,"x":{"sorcery_points":5}},"6":{"f":["Sorcerer Subclass"],"c":5,"p":10,"x":{"sorcery_points":6}},"7":{"f":["Sorcery Incarnate"],"c":5,"p":11,"x":{"sorcery_points":7}},"8":{"f":["Ability Score Improvement"],"c":5,"p":12,"x":{"sorcery_points":8}},"9":{"f":[],"c":5,"p":14,"x":{"sorcery_points":9}},"10":{"f":["Metamagic"],"c":6,"p":15,"x":{"sorcery_points":10}},"11":{"f":[],"c":6,"p":16,"x":{"sorcery_points":11}},"12":{"f":["Ability Score Improvement"],"c":6,"p":16,"x":{"sorcery_points":12}},"13":{"f":[],"c":6,"p":17,"x":{"sorcery_points":13}},"14":{"f":["Sorcerer Subclass"],"c":6,"p":17,"x":{"sorcery_points":14}},"15":{"f":[],"c":6,"p":18,"x":{"sorcery_points":15}},"16":{"f":["Ability Score Improvement"],"c":6,"p":18,"x":{"sorcery_points":16}},"17":{"f":["Metamagic"],"c":6,"p":19,"x":{"sorcery_points":17}},"18":{"f":["Sorcerer Subclass"],"c":6,"p":20,"x":{"sorcery_points":18}},"19":{"f":["Epic Boon"],"c":6,"p":21,"x":{"sorcery_points":19}},"20":{"f":["Arcane Apotheosis"],"c":6,"p":22,"x":{"sorcery_points":20}}},"Warlock":{"1":{"f":["Eldritch Invocations","Pact Magic"],"c":2,"p":2,"x":{"eldritch_invocations":1}},"2":{"f":["Magical Cunning"],"c":2,"p":3,"x":{"eldritch_invocations":3}},"3":{"f":["Warlock Subclass"],"c":2,"p":4,"x":{"eldritch_invocations":3}},"4":{"f":["Ability Score Improvement"],"c":3,"p":5,"x":{"eldritch_invocations":3}},"5":{"f":[],"c":3,"p":6,"x":{"eldritch_invocations":5}},"6":{"f":["Warlock Subclass"],"c":3,"p":7,"x":{"eldritch_invocations":5}},"7":{"f":[],"c":3,"p":8,"x":{"eldritch_invocations":6}},"8":{"f":["Ability Score Improvement"],"c":3,"p":9,"x":{"eldritch_invocations":6}},"9":{"f":["Contact Patron"],"c":3,"p":10,"x":{"eldritch_invocations":7}},"10":{"f":["Warlock Subclass"],"c":4,"p":10,"x":{"eldritch_invocations":7}},"11":{"f":["Mystic Arcanum"],"c":4,"p":11,"x":{"eldritch_invocations":7}},"12":{"f":["Ability Score Improvement"],"c":4,"p":11,"x":{"eldritch_invocations":8}},"13":{"f":["Mystic Arcanum"],"c":4,"p":12,"x":{"eldritch_invocations":8}},"14":{"f":["Warlock Subclass"],"c":4,"p":12,"x":{"eldritch_invocations":8}},"15":{"f":["Mystic Arcanum"],"c":4,"p":13,"x":{"eldritch_invocations":9}},"16":{"f":["Ability Score Improvement"],"c":4,"p":13,"x":{"eldritch_invocations":9}},"17":{"f":["Mystic Arcanum"],"c":4,"p":14,"x":{"eldritch_invocations":9}},"18":{"f":[],"c":4,"p":14,"x":{"eldritch_invocations":10}},"19":{"f":["Epic Boon"],"c":4,"p":15,"x":{"eldritch_invocations":10}},"20":{"f":["Eldritch Master"],"c":4,"p":15,"x":{"eldritch_invocations":10}}},"Wizard":{"1":{"f":["Arcane Recovery","Ritual Adept","Spellcasting"],"c":3,"p":4},"2":{"f":["Scholar"],"c":3,"p":5},"3":{"f":["Wizard Subclass"],"c":3,"p":6},"4":{"f":["Ability Score Improvement"],"c":4,"p":7},"5":{"f":["Memorize Spell"],"c":4,"p":9},"6":{"f":["Wizard Subclass"],"c":4,"p":10},"7":{"f":[],"c":4,"p":11},"8":{"f":["Ability Score Improvement"],"c":4,"p":12},"9":{"f":[],"c":4,"p":14},"10":{"f":["Wizard Subclass"],"c":5,"p":15},"11":{"f":[],"c":5,"p":16},"12":{"f":["Ability Score Improvement"],"c":5,"p":16},"13":{"f":[],"c":5,"p":17},"14":{"f":["Wizard Subclass"],"c":5,"p":17},"15":{"f":[],"c":5,"p":18},"16":{"f":["Ability Score Improvement"],"c":5,"p":18},"17":{"f":[],"c":5,"p":19},"18":{"f":["Spell Mastery"],"c":5,"p":20},"19":{"f":["Epic Boon"],"c":5,"p":21},"20":{"f":["Signature Spells"],"c":5,"p":22}}},"s":{"Path of the Berserker":{"3":["Frenzy"],"6":["Mindless Rage"],"10":["Retaliation"],"14":["Intimidating Presence"]},"College of Lore":{"3":["Bonus Proficiencies","Cutting Words"],"6":["Magical Discoveries"],"14":["Peerless Skill"]},"Life Domain":{"3":["Disciple of Life","Life Domain Spells","Preserve Life"],"6":["Blessed Healer"],"17":["Supreme Healing"]},"Circle of the Land":{"3":["Circle of the Land Spells","Land's Aid"],"6":["Natural Recovery"],"10":["Nature's Ward"],"14":["Nature's Sanctuary"]},"Champion":{"3":["Improved Critical","Remarkable Athlete"],"7":["Additional Fighting Style"],"10":["Heroic Warrior"],"15":["Superior Critical"],"18":["Survivor"]},"Warrior of the Open Hand":{"3":["Open Hand Technique"],"6":["Wholeness of Body"],"11":["Fleet Step"],"17":["Quivering Palm"]},"Oath of Devotion":{"3":["Oath of Devotion Spells","Sacred Weapon"],"7":["Aura of Devotion"],"15":["Smite of Protection"],"20":["Holy Nimbus"]},"Hunter":{"3":["Hunter's Lore","Hunter's Prey"],"7":["Defensive Tactics"],"11":["Superior Hunter's Prey"],"15":["Superior Hunter's Defense"]},"Thief":{"3":["Fast Hands","Second-Story Work"],"9":["Supreme Sneak"],"13":["Use Magic Device"],"17":["Thief's Reflexes"]},"Draconic Sorcery":{"3":["Draconic Resilience","Draconic Spells"],"6":["Elemental Affinity"],"14":["Dragon Wings"],"18":["Dragon Companion"]},"Fiend Patron":{"3":["Dark One's Blessing","Fiend Spells"],"6":["Dark One's Own Luck"],"10":["Fiendish Resilience"],"14":["Hurl Through Hell"]},"Evoker":{"3":["Evocation Savant","Potent Cantrip"],"6":["Sculpt Spells"],"10":["Empowered Evocation"],"14":["Overchannel"]}}};
+const ASI_LV={fighter:[4,6,8,12,14,16],rogue:[4,8,10,12,16]};
+const clsKey=c=>{const n=String(c.cls||"").toLowerCase();return Object.keys(LV24.c).filter(k=>n.indexOf(k.toLowerCase())>=0)[0]||null};
+const subKey=c=>{const n=String(c.subclass||"").toLowerCase().trim();if(!n)return null;return Object.keys(LV24.s).filter(k=>n.indexOf(k.toLowerCase())>=0||k.toLowerCase().indexOf(n)>=0)[0]||null};
+function lvGainOf(c){
+  const info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con);
+  if((lvlUp.mode||"avg")==="avg")return Math.max(1,Math.floor(die/2)+1+cm);
+  const r=parseInt(lvlUp.roll,10);
+  if(!isFinite(r)||r<1||r>die)return null;
+  return Math.max(1,r+cm);
+}
+function lvCalcText(c){
+  const info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con),g=lvGainOf(c);
+  if((lvlUp.mode||"avg")==="avg")return "Average of a d"+die+" ("+(Math.floor(die/2)+1)+") + Constitution "+sgn(cm)+" = <b>"+g+" HP</b>. New maximum: "+c.hpMax+" → <b>"+(c.hpMax+g)+"</b>.";
+  if(g==null)return "Type the number you rolled on the d"+die+" (1 to "+die+").";
+  return "You rolled "+parseInt(lvlUp.roll,10)+", plus Constitution "+sgn(cm)+" = <b>"+g+" HP</b>. New maximum: "+c.hpMax+" → <b>"+(c.hpMax+g)+"</b>.";
+}
+/* class resources the 2024 tables change with level; only the ones this sheet already tracks are touched */
+function resourceUpdates(c,nl){
+  const ck=clsKey(c),out=[];if(!ck)return out;
+  const d=(LV24.c[ck][nl]||{}).x||{};
+  c.resources.forEach((r,i)=>{
+    const nm=String(r.name||"");let to=null;
+    if(ck==="Barbarian"&&/^rage\b/i.test(nm)&&d.rage_count)to=d.rage_count;
+    else if(ck==="Druid"&&/wild shape/i.test(nm)&&d.wild_shape_uses)to=d.wild_shape_uses;
+    else if(ck==="Paladin"&&/channel divinity/i.test(nm)&&d.channel_divinity_charges)to=d.channel_divinity_charges;
+    else if(ck==="Paladin"&&/lay on hands/i.test(nm))to=5*nl;
+    else if(ck==="Sorcerer"&&/sorcery point/i.test(nm)&&d.sorcery_points)to=d.sorcery_points;
+    else if(ck==="Monk"&&/(focus|ki) point/i.test(nm)&&d.focus_points)to=d.focus_points;
+    if(to!=null&&to!==r.max)out.push({i:i,name:shortRes(nm),from:r.max,to:to});
+  });
+  return out;
+}
+const XLAB={rage_count:"Rages per day",rage_damage_bonus:"Rage damage bonus",weapon_mastery:"Weapon Mastery kinds",wild_shape_uses:"Wild Shape uses",channel_divinity_charges:"Channel Divinity uses",eldritch_invocations:"Eldritch Invocations",sorcery_points:"Sorcery Points",focus_points:"Focus Points"};
+function lvlInfo(c,nl){
+  const ck=clsKey(c);let h="";
+  const line=(k,v)=>'<div class="lv-line"><b>'+k+'</b> '+v+'</div>';
+  if(!ck)return line("Check your book","This class isn’t in the free 2024 rules, so the new features aren’t listed here.");
+  const d=LV24.c[ck][nl]||{},o=LV24.c[ck][nl-1]||{};
+  const feats=(d.f||[]).filter(n=>!/^Ability Score Improvement$|^Epic Boon$/.test(n));
+  if(feats.length)h+=line("New "+ck+" features",feats.map(E).join(", "));
+  const sk=subKey(c);
+  if(nl===3&&!c.subclass)h+=line("Subclass","Choose your subclass now (level 3). Type it in the box under Edit.");
+  else if(sk){const sf=(LV24.s[sk]||{})[nl];if(sf&&sf.length)h+=line(E(sk)+" features",sf.map(E).join(", "))}
+  else if(c.subclass&&nl>=3)h+=line("Your subclass","Check your book or your DM for what “"+E(c.subclass)+"” gives at level "+nl+".");
+  const nums=[];
+  if(d.c!=null&&d.c>0)nums.push("Cantrips known: "+d.c+(o.c!=null&&o.c!==d.c?" (was "+o.c+")":""));
+  if(d.p!=null)nums.push("Prepared spells: "+d.p+(o.p!=null&&o.p!==d.p?" (was "+o.p+")":""));
+  Object.keys(d.x||{}).forEach(k=>{const was=(o.x||{})[k];nums.push((XLAB[k]||k)+": "+d.x[k]+(was!=null&&was!==d.x[k]?" (was "+was+")":""))});
+  if(nums.length)h+=line("Your numbers at level "+nl,nums.map(E).join(" · "));
+  return h;
+}
 function lvlPanel(c){
-  const nl=c.level+1,info=classInfo(c.cls),die=info?info.die:8;
+  const nl=c.level+1,info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con),mode=lvlUp.mode||"avg";
+  const ck=clsKey(c),key=ck?ck.toLowerCase():"";
   let h='<div class="lvl"><h3>Level up to '+nl+'</h3>';
-  h+='<label class="f">Max HP gained<input type="number" id="lvGain" min="0" inputmode="numeric" value="'+lvlUp.gain+'"></label>';
-  h+='<div class="sub">The average for a d'+die+' plus your Constitution modifier is '+hpGainDefault(c)+'. If you roll, type your result instead.</div>';
+  h+='<div class="lv-sec"><div class="lv-k">Hit points</div><div class="seg two" role="group" aria-label="How to work out HP"><button type="button" class="'+(mode==="avg"?"on":"")+'" data-act="lvmode" data-m="avg" aria-pressed="'+(mode==="avg")+'">Take the average</button><button type="button" class="'+(mode==="roll"?"on":"")+'" data-act="lvmode" data-m="roll" aria-pressed="'+(mode==="roll")+'">I rolled</button></div>';
+  if(mode==="roll")h+='<label class="f">What did you roll on the d'+die+'?<input type="number" id="lvRoll" min="1" max="'+die+'" inputmode="numeric" value="'+E(lvlUp.roll)+'" placeholder="1 to '+die+'"></label>';
+  h+='<div class="lv-calc" id="lvCalc">'+lvCalcText(c)+'</div>';
+  if(mode==="roll")h+='<div class="sub">Type just the number on the die. Your Constitution modifier ('+sgn(cm)+') is added for you.</div>';
+  h+='</div>';
   if(info&&info.caster)h+='<label class="prof"><input type="checkbox" id="lvSlots" checked style="width:22px;height:22px"> Update spell slots to match level '+nl+'</label>';
-  if([4,8,12,16,19].indexOf(nl)>=0)h+='<div class="sub">Level '+nl+' gives an Ability Score Improvement or a feat. After confirming, switch on Edit to change your scores, and add any feat under Features.</div>';
-  if([5,9,13,17].indexOf(nl)>=0)h+='<div class="sub">Your proficiency bonus rises to '+sgn(prof(nl))+'. Skills, saves and spell numbers update on their own.</div>';
-  h+='<div class="sub">Add new features and spells yourself afterwards (use the Lookup tab to find spells).</div>';
+  const asi=(ASI_LV[key]||[4,8,12,16]).indexOf(nl)>=0;
+  if(asi)h+='<div class="lv-line"><b>Ability Score Improvement</b> At level '+nl+' take an Ability Score Improvement or another feat. After confirming, switch on Edit to change your scores and add a feat under Features. If your Constitution modifier goes up, the sheet will offer to raise your max HP by 1 for every level.</div>';
+  if(nl===19)h+='<div class="lv-line"><b>Epic Boon</b> Level 19 gives an Epic Boon feat (in 2024 this replaces the Ability Score Improvement). Add it under Features.</div>';
+  if([5,9,13,17].indexOf(nl)>=0)h+='<div class="lv-line"><b>Proficiency bonus</b> rises to '+sgn(prof(nl))+'. Skills, saves and spell numbers update on their own.</div>';
+  h+=lvlInfo(c,nl);
+  const ups=resourceUpdates(c,nl);
+  if(ups.length)h+='<div class="lv-line"><b>Updated for you</b> '+ups.map(u=>E(u.name)+" "+u.from+" → "+u.to).join(" · ")+'</div>';
+  h+='<div class="sub">Add the new features and spells yourself afterwards (Lookup finds spells). Tell your DM about anything the sheet doesn’t track.</div>';
   h+='<div style="display:flex;gap:8px"><button class="btn primary" data-act="lvlconfirm">Confirm level up</button><button class="btn" data-act="lvlcancel">Cancel</button></div></div>';
   return h;
 }
@@ -1647,6 +1716,7 @@ function setPath(obj,path,val){
 document.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="hpAmt"){hpAmtVal=t.value;return}
+  if(t.id==="lvRoll"&&lvlUp&&openId){lvlUp.roll=t.value;const cc=$("lvCalc");if(cc)cc.innerHTML=lvCalcText(chars[openId]);return}
   if(t.id==="lkQ"){lk.q=t.value;lk.limit=40;renderLookupResults();return}
   if(t.id==="cFilter"){fillTemplates();return}
   if(t.dataset&&t.dataset.dm==="notes"&&isDM()&&openId){dmNotes[openId]=t.value;autosize(t);queueNote(openId);return}
@@ -1668,8 +1738,21 @@ document.addEventListener("input",e=>{
   const sb=$("sbarStat");if(sb)sb.textContent=sbarStat(chars[openId]);
   saveChar(openId,[path.split(".")[0]]);
 });
+let conSnap=null;
+document.addEventListener("focusin",e=>{const t=e.target;if(t.getAttribute&&t.getAttribute("data-path")==="abilities.con"&&openId&&chars[openId])conSnap={id:openId,mod:mod(chars[openId].abilities.con)}});
 document.addEventListener("change",e=>{
   const t=e.target;
+  if(t.getAttribute&&t.getAttribute("data-path")==="abilities.con"&&conSnap&&conSnap.id===openId&&chars[openId]&&canEditChar(openId)){
+    const c=chars[openId],nm=mod(c.abilities.con),d=nm-conSnap.mod,was=conSnap.mod;conSnap=null;
+    if(d!==0&&c.level>0){
+      const delta=d*c.level;
+      if(confirm("Your Constitution modifier went from "+sgn(was)+" to "+sgn(nm)+".\n\nUnder the rules your maximum HP changes by "+sgn(delta)+" (1 for every level you have). Apply that now?")){
+        c.hpMax=Math.max(1,c.hpMax+delta);c.hp=Math.max(0,Math.min(c.hpMax,c.hp+(delta>0?delta:0)));
+        c.history=[{t:Date.now(),text:"Constitution modifier "+sgn(was)+" → "+sgn(nm)+": max HP "+sgn(delta)}].concat(c.history).slice(0,30);
+        saveChar(openId,["hpMax","hp","history"]);hostToast("Max HP is now "+c.hpMax+".",5000);
+      }
+    }
+  }
   if(t.id==="lkCls"){lk.cls=t.value;lk.limit=40;renderLookupResults();return}
   if(t.id==="lkSch"){lk.sch=t.value;lk.limit=40;renderLookupResults();return}
   const path=t.getAttribute&&t.getAttribute("data-path");
@@ -1776,7 +1859,8 @@ document.addEventListener("click",async e=>{
     case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}
     case "delspell":c.spells.splice(Number(b.dataset.i),1);saveChar(id,["spells"]);renderSheet();return;
     case "addspellman":{const n=$("newSpell").value.trim();if(!n)return;c.spells.push({name:n,level:Number($("newSpellLv").value),desc:""});saveChar(id,["spells"]);renderSheet();return}
-    case "lvlopen":lvlUp={gain:hpGainDefault(c)};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvlopen":lvlUp={mode:"avg",roll:""};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvmode":lvlUp.mode=b.dataset.m;renderSheet();return;
     case "lvlcancel":lvlUp=null;renderSheet();return;
     case "lvlconfirm":return confirmLevelUp(c);
     case "delsheet":return delSheet();
@@ -1817,18 +1901,21 @@ function restAll(kind){
   renderApp();setStatus(kind==="long"?"Party long rest taken":"Party short rest taken");
 }
 function confirmLevelUp(c){
-  const gain=Math.max(0,Math.floor(Number($("lvGain").value)||0));
+  const gain=lvGainOf(c);
+  if(gain==null){const info=classInfo(c.cls);hostToast("Type the number you rolled on the d"+(info?info.die:8)+" first (or switch to Take the average).",6000);return}
   const updSlots=$("lvSlots")?$("lvSlots").checked:false;
-  const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level;
+  const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level,ups=resourceUpdates(c,nl),how=(lvlUp.mode||"avg")==="avg"?"average":"rolled "+parseInt(lvlUp.roll,10);
   c.level=nl;c.hpMax+=gain;c.hp+=gain;
   const m=/^(\d+)d(\d+)$/.exec(String(c.hitDice||"").trim());
   c.hitDice=nl+"d"+(m?m[2]:die);
   c.resources.forEach(r=>{if(r.reset==="hitdice"){r.max=nl}});
+  ups.forEach(u=>{const r=c.resources[u.i];if(r){r.max=u.to;r.used=Math.min(r.used,r.max)}});
   if(updSlots)c.slots=slotsFor(info,nl,c.slots);
-  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP"}].concat(c.history).slice(0,30);
+  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")}].concat(c.history).slice(0,30);
   lvlUp=null;
   saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources"]);
   renderSheet();window.scrollTo(0,0);
+  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+".",10000);
 }
 
 /* ================= DM tools ================= */

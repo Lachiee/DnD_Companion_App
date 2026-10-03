@@ -432,6 +432,11 @@ body.compact .sync-fab:not([hidden]){display:flex}
 .lv-grp{font-family:Georgia,serif;font-weight:700;color:var(--brass);margin:.9rem 0 .2rem;padding-bottom:.15rem;border-bottom:1px solid var(--line);font-size:1.05rem}
 .lv-lvs{margin:.2rem 0 .3rem;flex-wrap:wrap;overflow-x:visible}
 #lvResults{max-height:none}
+
+.lv-sp.inv .sub.block{display:block;font-weight:400;margin-top:.1rem}
+.inv-ask{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;background:var(--chip);border-radius:.7rem;padding:.6rem;margin:.1rem 0 .5rem}
+.inv-ask label{flex:1 1 100%}
+.inv-ask .btn{min-height:2.8rem}
 </style>
 </head>
 <body class="nonav">
@@ -1174,6 +1179,84 @@ function lvlInfo(c,nl){
   if(nums.length)h+=line("Your numbers at level "+nl,nums.map(E).join(" · "));
   return h;
 }
+const INV24=[{"n":"Agonizing Blast","l":2,"k":"dmg","rep":true,"x":"Pick a damaging Warlock cantrip you know. Add your Charisma modifier to its damage rolls. Pick a different cantrip each time you take this invocation."},{"n":"Armor of Shadows","l":0,"x":"Cast Mage Armor on yourself without spending a spell slot."},{"n":"Ascendant Step","l":5,"x":"Cast Levitate on yourself without spending a spell slot."},{"n":"Devil's Sight","l":2,"x":"You see normally in Dim Light and Darkness, magical or not, out to 120 feet."},{"n":"Devouring Blade","l":12,"r":["Thirsting Blade"],"x":"The Extra Attack from Thirsting Blade gives two extra attacks instead of one."},{"n":"Eldritch Mind","l":0,"x":"Advantage on Constitution saving throws to maintain Concentration."},{"n":"Eldritch Smite","l":5,"r":["Pact of the Blade"],"x":"Once per turn when you hit with your pact weapon, spend a Pact Magic slot to deal an extra 1d8 Force damage plus 1d8 per slot level. A Huge or smaller target can also be knocked Prone."},{"n":"Eldritch Spear","l":2,"k":"rng","rep":true,"x":"Pick a damaging Warlock cantrip with a range of 10+ feet. Its range increases by 30 feet times your Warlock level. Pick a different cantrip each time."},{"n":"Fiendish Vigor","l":2,"x":"Cast False Life on yourself without a slot. The temporary Hit Points die always counts as its highest result."},{"n":"Gaze of Two Minds","l":5,"x":"Bonus Action: touch a willing creature and perceive through its senses until the end of your next turn. Spend a Bonus Action each turn to keep it going. You can cast spells from its space if you are within 60 feet."},{"n":"Gift of the Depths","l":5,"x":"Breathe underwater and gain a Swim Speed equal to your Speed. Cast Water Breathing once per Long Rest without a slot."},{"n":"Gift of the Protectors","l":9,"r":["Pact of the Tome"],"x":"A page in your Book of Shadows can hold a number of names equal to your Charisma modifier (minimum 1). When a named creature drops to 0 HP without dying, it drops to 1 HP instead, once until your next Long Rest."},{"n":"Investment of the Chain Master","l":5,"r":["Pact of the Chain"],"x":"Your familiar gains a 40 ft Fly or Swim Speed, can attack as your Bonus Action, can deal Necrotic or Radiant damage, uses your spell save DC, and you can give it Resistance with your Reaction."},{"n":"Lessons of the First Ones","l":2,"rep":true,"f":true,"x":"Gain one Origin feat of your choice. Pick a different feat each time you take this invocation."},{"n":"Lifedrinker","l":9,"r":["Pact of the Blade"],"x":"Once per turn when you hit with your pact weapon, deal an extra 1d6 Necrotic, Psychic or Radiant damage, and you can spend a Hit Die to heal the roll plus your Constitution modifier (minimum 1)."},{"n":"Mask of Many Faces","l":2,"x":"Cast Disguise Self without spending a spell slot."},{"n":"Master of Myriad Forms","l":5,"x":"Cast Alter Self without spending a spell slot."},{"n":"Misty Visions","l":2,"x":"Cast Silent Image without spending a spell slot."},{"n":"One with Shadows","l":5,"x":"In an area of Dim Light or Darkness, cast Invisibility on yourself without spending a spell slot."},{"n":"Otherworldly Leap","l":2,"x":"Cast Jump on yourself without spending a spell slot."},{"n":"Pact of the Blade","l":0,"x":"Bonus Action: conjure or bond a Simple or Martial melee weapon as your pact weapon. You are proficient with it, it works as a Spellcasting Focus, you can use Charisma for its attacks and damage, and it can deal Necrotic, Psychic or Radiant damage."},{"n":"Pact of the Chain","l":0,"x":"You learn Find Familiar and can cast it as a Magic action without a slot, with special forms (Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, Venomous Snake). You can give up one of your attacks so your familiar attacks with its Reaction."},{"n":"Pact of the Tome","l":0,"x":"At the end of a Short or Long Rest you conjure a Book of Shadows. Choose three cantrips and two level 1 spells with the Ritual tag from any class. While you hold the book they are prepared Warlock spells. The book is a Spellcasting Focus."},{"n":"Repelling Blast","l":2,"k":"atk","rep":true,"x":"Pick a Warlock cantrip that needs an attack roll. When it hits a Large or smaller creature you can push it up to 10 feet straight away. Pick a different cantrip each time."},{"n":"Thirsting Blade","l":5,"r":["Pact of the Blade"],"x":"You gain Extra Attack for your pact weapon only: attack twice with it when you take the Attack action."},{"n":"Visions of Distant Realms","l":9,"x":"Cast Arcane Eye without spending a spell slot."},{"n":"Whispers of the Grave","l":7,"x":"Cast Speak with Dead without spending a spell slot."},{"n":"Witch Sight","l":15,"x":"You have Truesight out to 30 feet."}];
+const invKey=n=>String(n||"").replace(/^Eldritch Invocations?:\s*/i,"").replace(/\s*\(.*\)\s*$/,"").replace(/[’]/g,"'").trim().toLowerCase();
+const invDef=n=>INV24.filter(v=>v.n.toLowerCase()===invKey(n))[0]||null;
+function invHave(c){
+  return c.features.map((f,i)=>({i:i,name:f.name})).filter(x=>!/^Eldritch Invocations\b/i.test(x.name)).map(x=>{const d=invDef(x.name);return d?{i:x.i,name:x.name,d:d}:null}).filter(Boolean);
+}
+function lvInvNeed(c,nl){
+  if(clsKey(c)!=="Warlock")return null;
+  const t=((LV24.c.Warlock[nl]||{}).x||{}).eldritch_invocations;if(!t)return null;
+  const have=invHave(c).length,inv=lvlUp.inv||{};
+  return {target:t,have:have,need:Math.max(0,t-have)+(inv.swap!=null?1:0)};
+}
+/* cantrips on the sheet that can feed an invocation (Pact of the Tome cantrips count as Warlock spells) */
+function invCantrips(c,kind,exclude){
+  const used=new Set((exclude||[]).map(x=>String(x).toLowerCase()));
+  return c.spells.filter(s=>s.level===0&&!used.has(String(s.name).toLowerCase())).filter(s=>{
+    const sp=findSpell(s.name);if(!sp)return !spellDB;
+    const t=String(sp.x||"");
+    if(kind==="atk")return /(ranged|melee) spell attack/i.test(t);
+    const dmg=/\d+d\d+\s+(?:[A-Za-z]+\s+)?damage/i.test(t);if(kind==="dmg")return dmg;
+    if(kind==="rng"){const m=/(\d+)\s*(?:feet|foot)/i.exec(String(sp.r||""));return dmg&&!!m&&Number(m[1])>=10}
+    return false;
+  }).map(s=>s.name);
+}
+function invUsedCantrips(c,picks,name){
+  const out=[];
+  invHave(c).forEach(h=>{if(h.d.n===name){const m=/\(([^)]+)\)\s*$/.exec(h.name);if(m)out.push(m[1])}});
+  (picks||[]).forEach(p=>{if(p.d===name&&p.extra)out.push(p.extra)});
+  return out;
+}
+function invOwned(c,inv){
+  const have=invHave(c).filter(h=>h.i!==inv.swap).map(h=>h.d.n);
+  return have.concat((inv.picks||[]).map(p=>p.d));
+}
+function invCheck(c,nl,v,inv){
+  const owned=invOwned(c,inv);
+  if(v.l&&nl<v.l)return {ok:false,why:"Needs Warlock level "+v.l+"+"};
+  const miss=(v.r||[]).filter(r=>owned.indexOf(r)<0);
+  if(miss.length)return {ok:false,why:"Needs "+miss.join(" and ")};
+  if(owned.indexOf(v.n)>=0&&!v.rep)return {ok:false,why:"You already have it",have:true};
+  if(v.k){
+    const list=invCantrips(c,v.k,invUsedCantrips(c,inv.picks,v.n));
+    if(!list.length)return {ok:false,why:"Needs "+(v.k==="atk"?"a Warlock cantrip that uses an attack roll":v.k==="rng"?"a damaging Warlock cantrip with 10+ ft range":"a damaging Warlock cantrip")+(owned.indexOf(v.n)>=0?" you haven’t used for it yet":"")};
+  }
+  return {ok:true};
+}
+function invReq(v){
+  const bits=[];if(v.l)bits.push("Level "+v.l+"+");(v.r||[]).forEach(r=>bits.push(r));
+  if(v.k)bits.push(v.k==="atk"?"cantrip with an attack roll":v.k==="rng"?"damaging cantrip, 10+ ft range":"damaging cantrip");
+  return bits.length?bits.join(" · "):"No prerequisite";
+}
+function lvInvRows(c,nl){
+  const inv=lvlUp.inv,rows={ok:[],no:[]};
+  INV24.forEach(v=>{const chk=invCheck(c,nl,v,inv);(chk.ok?rows.ok:rows.no).push({v:v,chk:chk})});
+  const row=(r,avail)=>{
+    const v=r.v,choosing=inv.choosing===v.n;
+    let h='<div class="lv-sp inv"><details class="entry"><summary>'+E(v.n)+(v.rep?' <span class="sub">(repeatable)</span>':"")+'<span class="sub block">'+(avail?E(invReq(v)):E(r.chk.why))+'</span></summary><div class="body">'+E(v.x)+'</div></details>'+(avail?'<button type="button" class="btn small primary" data-act="lvinvadd" data-n="'+E(v.n)+'">Add</button>':'')+'</div>';
+    if(choosing){
+      if(v.k){const list=invCantrips(c,v.k,invUsedCantrips(c,inv.picks,v.n));h+='<div class="inv-ask"><label class="f">Which cantrip for '+E(v.n)+'?<select id="lvInvC">'+list.map(n=>'<option>'+E(n)+'</option>').join("")+'</select></label><button type="button" class="btn small primary" data-act="lvinvc" data-n="'+E(v.n)+'">Confirm</button><button type="button" class="btn small" data-act="lvinvx">Cancel</button></div>'}
+      else if(v.f){h+='<div class="inv-ask"><label class="f">Which Origin feat?<input type="text" id="lvInvF" placeholder="e.g. Alert, Skilled, Lucky" autocomplete="off"></label><button type="button" class="btn small primary" data-act="lvinvc" data-n="'+E(v.n)+'">Confirm</button><button type="button" class="btn small" data-act="lvinvx">Cancel</button></div>'}
+    }
+    return h;
+  };
+  return rows.ok.map(r=>row(r,true)).join("")+(rows.no.length?'<details class="more"><summary>Not available yet ('+rows.no.length+')</summary>'+rows.no.map(r=>row(r,false)).join("")+'</details>':"");
+}
+function lvInvSection(c,nl){
+  const n=lvInvNeed(c,nl);if(!n)return "";
+  const inv=lvlUp.inv,picks=inv.picks||[],have=invHave(c);
+  const short=Math.max(0,n.need-picks.length);
+  const isPre=h=>invHave(c).some(o=>o.i!==h.i&&(o.d.r||[]).indexOf(h.d.n)>=0)||picks.some(p=>(invDef(p.d).r||[]).indexOf(h.d.n)>=0);
+  let h='<div class="lv-sec" id="lvInv"><div class="lv-k">Choose your Eldritch Invocations</div>';
+  h+='<div class="lv-calc">At level '+nl+' a Warlock has <b>'+n.target+'</b> invocations. Your sheet lists <b>'+n.have+'</b>'+(n.have?' ('+have.map(x=>E(invKey(x.name)?x.d.n:x.name)).join(", ")+')':"")+', so pick <b>'+n.need+'</b> more'+(inv.swap!=null?" (including the one you are swapping)":"")+'.</div>';
+  h+='<div class="lv-k" style="font-size:.95rem">Picked '+picks.length+' of '+n.need+'</div><div class="chiprow">'+(picks.length?picks.map((p,i)=>'<button type="button" class="cchip on" data-act="lvinvdel" data-i="'+i+'" aria-label="Remove '+E(p.label)+'">'+E(p.label)+' ✕</button>').join(""):'<span class="sub">None yet.</span>')+'</div>';
+  if(have.length)h+='<details class="cpick"><summary>Swap one invocation for another (optional)</summary><div class="cgrid">'+have.map(x=>{const pre=isPre(x);return '<button type="button" class="cchip'+(inv.swap===x.i?" on":"")+'"'+(pre?" disabled":"")+' data-act="lvinvswap" data-i="'+x.i+'" title="'+(pre?"Another of your invocations needs this one":"")+'">'+E(x.d.n)+(pre?" (needed)":"")+'</button>'}).join("")+'</div><div class="sub" style="padding:0 .6rem .5rem">Whenever you gain a Warlock level you can replace one invocation. You can’t replace one that another of yours needs.</div></details>';
+  h+='<div id="lvInvRows">'+lvInvRows(c,nl)+'</div>';
+  if(picks.some(p=>p.d==="Pact of the Tome"))h+='<div class="lv-line"><b>Pact of the Tome</b>After you level up, add the 3 cantrips and 2 level 1 Ritual spells for your Book of Shadows from Lookup.</div>';
+  return h+'</div>';
+}
 function lvSpellNeed(c,nl){
   const ck=clsKey(c),info=classInfo(c.cls);if(!ck||!info||!info.caster)return null;
   const d=LV24.c[ck][nl]||{},o=LV24.c[ck][nl-1]||{};
@@ -1241,6 +1324,7 @@ function lvlPanel(c){
   h+='</div>';
   if(info&&info.caster)h+='<label class="prof"><input type="checkbox" id="lvSlots" checked style="width:22px;height:22px"> Update spell slots to match level '+nl+'</label>';
   h+=lvSpellSection(c,nl);
+  h+=lvInvSection(c,nl);
   const asi=(ASI_LV[key]||[4,8,12,16]).indexOf(nl)>=0;
   if(asi)h+='<div class="lv-line"><b>Ability Score Improvement</b> At level '+nl+' take an Ability Score Improvement or another feat. After confirming, switch on Edit to change your scores and add a feat under Features. If your Constitution modifier goes up, the sheet will offer to raise your max HP by 1 for every level.</div>';
   if(nl===19)h+='<div class="lv-line"><b>Epic Boon</b> Level 19 gives an Epic Boon feat (in 2024 this replaces the Ability Score Improvement). Add it under Features.</div>';
@@ -1936,8 +2020,26 @@ document.addEventListener("click",async e=>{
     case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}
     case "delspell":c.spells.splice(Number(b.dataset.i),1);saveChar(id,["spells"]);renderSheet();return;
     case "addspellman":{const n=$("newSpell").value.trim();if(!n)return;c.spells.push({name:n,level:Number($("newSpellLv").value),desc:""});saveChar(id,["spells"]);renderSheet();return}
-    case "lvlopen":lvlUp={mode:"avg",roll:"",tab:"",q:"",lv:"all",picks:[]};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvlopen":lvlUp={mode:"avg",roll:"",tab:"",q:"",lv:"all",picks:[],inv:{picks:[],swap:null,choosing:null}};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
     case "lvmode":lvlUp.mode=b.dataset.m;renderSheet();return;
+    case "lvinvadd":{
+      const v=invDef(b.dataset.n),nl=c.level+1,n=lvInvNeed(c,nl),inv=lvlUp.inv;if(!v||!n)return;
+      if(inv.picks.length>=n.need){hostToast("You’ve picked all "+n.need+". Remove one first to swap, or use the swap option for an invocation you already have.",6000);return}
+      const chk=invCheck(c,nl,v,inv);if(!chk.ok){hostToast(chk.why+".",5000);return}
+      if(v.k||v.f){inv.choosing=v.n;renderSheet();return}
+      inv.picks.push({d:v.n,label:v.n});renderSheet();return}
+    case "lvinvc":{
+      const v=invDef(b.dataset.n),inv=lvlUp.inv;if(!v)return;
+      const sel=document.getElementById(v.f?"lvInvF":"lvInvC"),val=sel?String(sel.value||"").trim():"";
+      if(!val){hostToast(v.f?"Type the Origin feat you chose.":"Pick a cantrip first.",4000);return}
+      inv.picks.push({d:v.n,extra:val,label:v.n+" ("+val+")"});inv.choosing=null;renderSheet();return}
+    case "lvinvx":lvlUp.inv.choosing=null;renderSheet();return;
+    case "lvinvdel":{
+      const inv=lvlUp.inv,i=Number(b.dataset.i),gone=inv.picks[i];if(!gone)return;
+      const need=inv.picks.filter((p,k)=>k!==i&&(invDef(p.d).r||[]).indexOf(gone.d)>=0)[0];
+      if(need){hostToast(need.d+" needs "+gone.d+". Remove "+need.d+" first.",5000);return}
+      inv.picks.splice(i,1);renderSheet();return}
+    case "lvinvswap":{const i=Number(b.dataset.i);lvlUp.inv.swap=lvlUp.inv.swap===i?null:i;renderSheet();return}
     case "lvtab":lvlUp.tab=b.dataset.t;lvlUp.q="";renderSheet();return;
     case "lvlv":lvlUp.lv=b.dataset.v;renderSheet();return;
     case "lvadd":{
@@ -1993,6 +2095,11 @@ function confirmLevelUp(c){
     const pc=lvPicked("c").length,ps=lvPicked("s").length,mc=Math.max(0,sneed.needC-pc),mp=Math.max(0,sneed.needP-ps);
     if((mc||mp)&&!confirm("You haven’t picked all your new spells ("+(sneed.needC?"cantrips "+pc+" of "+sneed.needC+", ":"")+"spells "+ps+" of "+sneed.needP+").\n\nLevel up anyway? You can add the rest later from Lookup."))return;
   }
+  const iNeed=lvInvNeed(c,c.level+1);
+  if(iNeed){
+    const got=(lvlUp.inv.picks||[]).length;
+    if(got<iNeed.need&&!confirm("You haven’t picked all your Eldritch Invocations ("+got+" of "+iNeed.need+").\n\nLevel up anyway? You can add the rest later by editing your Features."))return;
+  }
   const info=classInfo(c.cls),die=info?info.die:8,nl=c.level+1,old=c.level,ups=resourceUpdates(c,nl),how=(lvlUp.mode||"avg")==="avg"?"average":"rolled "+parseInt(lvlUp.roll,10);
   c.level=nl;c.hpMax+=gain;c.hp+=gain;
   const m=/^(\d+)d(\d+)$/.exec(String(c.hitDice||"").trim());
@@ -2000,12 +2107,24 @@ function confirmLevelUp(c){
   c.resources.forEach(r=>{if(r.reset==="hitdice"){r.max=nl}});
   ups.forEach(u=>{const r=c.resources[u.i];if(r){r.max=u.to;r.used=Math.min(r.used,r.max)}});
   if(updSlots)c.slots=slotsFor(info,nl,c.slots);
+  const invAdded=[];
+  if(iNeed){
+    const inv=lvlUp.inv;
+    if(inv.swap!=null&&c.features[inv.swap])invAdded.push("swapped out "+invKey(c.features[inv.swap].name));
+    const keep=c.features.filter((f,i)=>i!==inv.swap);
+    (inv.picks||[]).forEach(p=>{keep.push({name:"Eldritch Invocation: "+p.label,desc:(invDef(p.d)||{x:""}).x});invAdded.push(p.label)});
+    c.features=keep;
+    const names=invHave(c).map(h=>h.name.replace(/^Eldritch Invocation:\s*/i,""));
+    const sum={name:"Eldritch Invocations ("+iNeed.target+" at level "+nl+")",desc:"Your invocations: "+(names.length?names.join(", "):"none yet")+(names.length<iNeed.target?". You still have "+(iNeed.target-names.length)+" to choose (edit your Features to add them)":"")+". Whenever you gain a Warlock level you can replace one, but not one that another of your invocations needs."};
+    const si=c.features.findIndex(f=>/^Eldritch Invocations\b/i.test(f.name));
+    if(si>=0)c.features[si]=sum;else c.features.unshift(sum);
+  }
   const added=[];(lvlUp.picks||[]).forEach(p=>{if(!c.spells.some(x=>String(x.name).toLowerCase()===p.name.toLowerCase())){c.spells.push({name:p.name,level:p.level,desc:""});added.push(p.name)}});
-  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")+(added.length?"; new spells: "+added.join(", "):"")}].concat(c.history).slice(0,30);
+  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")+(added.length?"; new spells: "+added.join(", "):"")+(invAdded.length?"; invocations: "+invAdded.join(", "):"")}].concat(c.history).slice(0,30);
   lvlUp=null;
-  saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources","spells"]);
+  saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources","spells","features"]);
   renderSheet();window.scrollTo(0,0);
-  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+(added.length?". Added: "+added.join(", "):"")+".",10000);
+  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+(added.length?". Added: "+added.join(", "):"")+(invAdded.length?". Invocations: "+invAdded.join(", "):"")+".",10000);
 }
 
 /* ================= DM tools ================= */

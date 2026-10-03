@@ -428,6 +428,10 @@ textarea{overflow-y:hidden;resize:none}
 .sync-fab{display:none;position:fixed;right:.8rem;bottom:calc(6.1rem + env(safe-area-inset-bottom,0px));z-index:30;width:3.1rem;height:3.1rem;border-radius:50%;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-size:1.45rem;line-height:1;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.28);padding:0}
 body.compact .sync-fab:not([hidden]){display:flex}
 .sync-fab:disabled{opacity:.7}
+
+.lv-grp{font-family:Georgia,serif;font-weight:700;color:var(--brass);margin:.9rem 0 .2rem;padding-bottom:.15rem;border-bottom:1px solid var(--line);font-size:1.05rem}
+.lv-lvs{margin:.2rem 0 .3rem;flex-wrap:wrap;overflow-x:visible}
+#lvResults{max-height:none}
 </style>
 </head>
 <body class="nonav">
@@ -1181,23 +1185,29 @@ function lvSpellNeed(c,nl){
   return {ck:ck,needC:needC,needP:needP,max:max,now:{c:d.c,p:d.p}};
 }
 const lvPicked=t=>(lvlUp.picks||[]).filter(p=>t==="c"?p.level===0:p.level>0);
-function lvEligible(c,nl,tab,q){
+function lvEligible(c,nl,tab,q,ignoreLv){
   const n=lvSpellNeed(c,nl);if(!n||!spellDB)return [];
   const have=new Set(c.spells.map(x=>String(x.name).toLowerCase())),got=new Set((lvlUp.picks||[]).map(p=>p.name.toLowerCase())),ql=String(q||"").toLowerCase().trim();
   return spellDB.filter(sp=>{
     if(tab==="c"?sp.l!==0:(sp.l<1||sp.l>n.max))return false;
+    if(!ignoreLv&&tab==="s"&&lvlUp.lv&&lvlUp.lv!=="all"&&sp.l!==Number(lvlUp.lv))return false;
     if(sp.cl&&sp.cl.length&&sp.cl.indexOf(n.ck)<0)return false;
     const nm=sp.n.toLowerCase();
     if(have.has(nm)||got.has(nm))return false;
     return !ql||nm.indexOf(ql)>=0;
-  }).sort((a,b)=>a.l-b.l||a.n.localeCompare(b.n)).slice(0,30);
+  }).sort((a,b)=>a.l-b.l||a.n.localeCompare(b.n)).slice(0,400);
 }
 function lvResultsHtml(c,nl){
   const tab=lvlUp.tab||"s",n=lvSpellNeed(c,nl);
   if(!spellDB)return '<div class="sub">Loading the spell list…</div>';
   const list=lvEligible(c,nl,tab,lvlUp.q);
   if(!list.length)return '<div class="sub">No matching '+(tab==="c"?"cantrips":"spells")+' on the '+E(n.ck)+' list'+(tab==="s"?" up to level "+n.max:"")+'.</div>';
-  return list.map(sp=>'<div class="lv-sp"><details class="entry"><summary>'+E(sp.n)+' <span class="sub">'+(sp.l===0?"Cantrip":"Level "+sp.l)+' · '+E(sp.s||"")+(sp.k?" · Concentration":"")+(sp.src==="EEPC"?" · Elemental Evil":"")+'</span></summary><div class="body">'+spellDetail(sp)+'</div></details><button type="button" class="btn small primary" data-act="lvadd" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add</button></div>').join("");
+  let h="",cur=-1;
+  list.forEach(sp=>{
+    if(tab==="s"&&sp.l!==cur){cur=sp.l;h+='<div class="lv-grp">Level '+sp.l+'</div>'}
+    h+='<div class="lv-sp"><details class="spell" data-n="'+E(sp.n)+'"><summary>'+E(sp.n)+' <span class="sub">'+(sp.l===0?"Cantrip":"Level "+sp.l)+' · '+E(sp.s||"")+(sp.k?" · Concentration":"")+(sp.src==="EEPC"?" · Elemental Evil":"")+'</span></summary><div class="spell-body"></div></details><button type="button" class="btn small primary" data-act="lvadd" data-n="'+E(sp.n)+'" data-l="'+sp.l+'">Add</button></div>';
+  });
+  return h;
 }
 function lvSpellSection(c,nl){
   const n=lvSpellNeed(c,nl);if(!n)return "";
@@ -1207,6 +1217,12 @@ function lvSpellSection(c,nl){
   let h='<div class="lv-sec" id="lvSpells"><div class="lv-k">Choose your new spells</div><div class="lv-calc">';
   h+=(n.needC?'Cantrips: pick <b>'+n.needC+'</b> new ('+n.now.c+' known at level '+nl+'). ':'')+(n.needP?(n.ck==="Wizard"?'Spellbook: add <b>'+n.needP+'</b> spells. ':'Prepared spells: you can prepare <b>'+n.now.p+'</b> now, <b>'+n.needP+'</b> more than before. ')+'Spells up to level '+n.max+'.':'')+'</div>';
   h+='<div class="seg two" role="group" aria-label="Which list"><button type="button" class="'+(lvlUp.tab==="c"?"on":"")+'" data-act="lvtab" data-t="c">Cantrips '+pc+'/'+n.needC+'</button><button type="button" class="'+(lvlUp.tab==="s"?"on":"")+'" data-act="lvtab" data-t="s">Spells '+ps+'/'+n.needP+'</button></div>';
+  if(lvlUp.tab==="s"){
+    const all=lvEligible(c,nl,"s","",true),cnt={};all.forEach(sp=>{cnt[sp.l]=(cnt[sp.l]||0)+1});
+    h+='<div class="chips lv-lvs" role="group" aria-label="Spell level"><button type="button" class="chip'+((!lvlUp.lv||lvlUp.lv==="all")?" on":"")+'" data-act="lvlv" data-v="all">All ('+all.length+')</button>';
+    for(let l=1;l<=n.max;l++)h+='<button type="button" class="chip'+(String(lvlUp.lv)===String(l)?" on":"")+'" data-act="lvlv" data-v="'+l+'">Level '+l+' ('+(cnt[l]||0)+')</button>';
+    h+='</div>';
+  }
   h+='<input type="search" id="lvQ" placeholder="Search the '+E(n.ck)+' list" value="'+E(lvlUp.q||"")+'" autocomplete="off">';
   h+='<div id="lvResults">'+lvResultsHtml(c,nl)+'</div>';
   const picks=lvlUp.picks||[];
@@ -1920,9 +1936,10 @@ document.addEventListener("click",async e=>{
     case "delentry":{const l=b.dataset.list;c[l].splice(Number(b.dataset.i),1);saveChar(id,[l]);renderSheet();return}
     case "delspell":c.spells.splice(Number(b.dataset.i),1);saveChar(id,["spells"]);renderSheet();return;
     case "addspellman":{const n=$("newSpell").value.trim();if(!n)return;c.spells.push({name:n,level:Number($("newSpellLv").value),desc:""});saveChar(id,["spells"]);renderSheet();return}
-    case "lvlopen":lvlUp={mode:"avg",roll:"",tab:"",q:"",picks:[]};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
+    case "lvlopen":lvlUp={mode:"avg",roll:"",tab:"",q:"",lv:"all",picks:[]};sheetTab="play";renderSheet();renderNav();window.scrollTo(0,0);return;
     case "lvmode":lvlUp.mode=b.dataset.m;renderSheet();return;
     case "lvtab":lvlUp.tab=b.dataset.t;lvlUp.q="";renderSheet();return;
+    case "lvlv":lvlUp.lv=b.dataset.v;renderSheet();return;
     case "lvadd":{
       const lvl=Number(b.dataset.l),t=lvl===0?"c":"s",n=lvSpellNeed(c,c.level+1),cap=n?(t==="c"?n.needC:n.needP):0;
       if(lvPicked(t).length>=cap){hostToast("You can only pick "+cap+" new "+(t==="c"?"cantrip"+(cap===1?"":"s"):"spell"+(cap===1?"":"s"))+" at this level. Remove one first to swap.",5000);return}

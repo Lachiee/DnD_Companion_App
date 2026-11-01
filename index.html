@@ -1527,7 +1527,7 @@ function turnCard(c,id,st,pb){
   /* FREE */
   if(acts.free.length)h+=tsec("free",acts.free.map(e=>fxRow(c,e)).join(""));
   /* OTHER */
-  const oth=acts.other.map(e=>fxRow(c,e)).join("")+spellList(id,bk.long,"");
+  const oth=chefHtml(id)+acts.other.map(e=>fxRow(c,e)).join("")+spellList(id,bk.long,"");
   if(oth)h+=tsec("other",oth);
   /* refresher */
   h+='<details class="entry refresher"><summary>2024 rules refresher: what anyone can do</summary><div class="body">'+
@@ -1614,7 +1614,7 @@ function tabGear(id){
   const c=chars[id],e=ed();
   let h='<div class="split"><div class="pane"><h3>Inventory '+goldHtml(id)+'</h3>';
   if(e)h+=area("inventory","Items (one per line, add “x3” for a quantity)",c.inventory);
-  else h+=chefHtml(id)+invListHtml(id);
+  else h+=invListHtml(id);
   h+='</div><div class="pane"><h3>Languages</h3>'+(e?inp("languages","Languages",c.languages,"text"):prose(c.languages))+'</div></div>';
   h+='<div class="split"><div class="pane"><h3>Goals</h3>'+(e?area("goals","Goals (one per line)",c.goals):(c.goals?'<ul style="margin:0;padding-left:20px">'+c.goals.split("\n").filter(Boolean).map(l=>'<li style="margin-bottom:4px">'+E(l)+'</li>').join("")+'</ul>':'<div class="sub">—</div>'))+'</div>';
   h+='<div class="pane"><h3>Backstory</h3>'+(e?area("backstory","Backstory",c.backstory):prose(c.backstory))+'</div></div>';

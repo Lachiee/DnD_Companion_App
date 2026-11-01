@@ -964,7 +964,6 @@ function combatPayload(){
     if(c.isGroup){ const alive=(c.members||[]).filter(m=>!m.dead).length; e.g=alive; if(!alive) e.d=1; }
     else{
       if(c.type!=='pc'&&c.hp<=0) e.d=1;
-      if(c.type==='pc'&&c.hp<=0) e.dn=1;
       const cs=(c.conditions||[]).filter(x=>typeof x==='string'); if(cs.length) e.cs=cs.slice(0,6);
     }
     if(c===cur) turn=out.length;

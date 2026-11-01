@@ -1514,7 +1514,8 @@ function turnCard(c,id,st,pb){
     '<div class="jump" role="group" aria-label="Jump to"><button class="chip" data-act="jump" data-to="action">Action</button><button class="chip" data-act="jump" data-to="bonus">Bonus'+(nB?' ('+nB+')':'')+'</button><button class="chip" data-act="jump" data-to="reaction">Reaction ('+nR+')</button>'+(acts.free.length?'<button class="chip" data-act="jump" data-to="free">On a hit ('+acts.free.length+')</button>':'')+'</div>';
   /* ACTION */
   const nAtk=attackCount(c);
-  let a='<div class="tsub">Attack <span class="sub">'+(nAtk>1?'<b>Extra Attack: you can attack '+(nAtk===2?"twice":nAtk+" times")+'</b> when you take the Attack action. You choose as you go, and can move between attacks':'make one attack with a weapon or Unarmed Strike')+'</span></div>';
+  let a='<div class="tsub">Attack <span class="sub">make '+(nAtk>1?"attacks":"one attack")+' with a weapon or Unarmed Strike</span></div>';
+  if(nAtk>1)a+='<div class="fx extra-atk"><div class="fx-top"><b>Extra Attack</b><span class="rchip">attack '+(nAtk===2?"twice":nAtk+" times")+'</span></div><div class="fx-desc">When you take the Attack action you can make '+nAtk+' attacks instead of 1. Each one uses the same to-hit and damage as the weapon shown below (Rage damage applies to every hit; Sneak Attack and Frenzy only once per turn). You decide as you go, and can move between attacks.</div></div>';
   a+=c.attacks.length?c.attacks.map(x=>attackCard(c,x)).join(""):'<div class="empty-hint">No weapons listed. Use Edit to add one.</div>';
   a+=unarmedCard(c);
   if(hasMagic){
@@ -1537,7 +1538,7 @@ function turnCard(c,id,st,pb){
   /* FREE */
   if(acts.free.length)h+=tsec("free",acts.free.map(e=>fxRow(c,e)).join(""));
   /* OTHER */
-  const oth=chefHtml(id)+acts.other.map(e=>fxRow(c,e)).join("")+spellList(id,bk.long,"");
+  const oth=chefHtml(id)+treatsHtml(id)+acts.other.map(e=>fxRow(c,e)).join("")+spellList(id,bk.long,"");
   if(oth)h+=tsec("other",oth);
   /* refresher */
   h+='<details class="entry refresher"><summary>2024 rules refresher: what anyone can do</summary><div class="body">'+
@@ -2930,6 +2931,13 @@ function invSerial(list){return list.map(x=>x.q===1?x.n:x.n+" x"+x.q).join("\n")
 function invSave(id,list){chars[id].inventory=invSerial(list);saveChar(id,["inventory"])}
 let roster={},rosterSent="";
 function rosterName(k){return String(((roster[k]||{}).name)||(chars[k]&&chars[k].name)||k).split(" ")[0]}
+function eatAmt(c,x){if(!/treat/i.test(x.n))return 0;const m=/(\d+)\s*temp/i.exec(x.n);if(m)return Number(m[1]);return /bolstering treat/i.test(x.n)?prof(c.level):0}
+function treatsHtml(id){
+  const c=chars[id];if(!canEditChar(id))return "";
+  const l=invParse(c.inventory),eat=l.map((x,i)=>({x:x,i:i,a:eatAmt(c,x)})).filter(o=>o.a>0&&o.x.q>0);
+  if(!eat.length)return "";
+  return '<div class="inv-chef"><b>Treats you are carrying</b>'+eat.map(o=>'<div class="rest-row"><span style="flex:1;min-width:8rem">'+E(o.x.n.replace(/\s*\(.*\)\s*$/,""))+' <span class="sub">×'+o.x.q+' · '+o.a+' temporary HP</span></span><button type="button" class="btn small primary" data-act="invuse" data-i="'+o.i+'">🍪 Eat one</button></div>').join("")+'<div class="sub">Eating takes a Bonus Action. Temporary HP don’t stack, so you keep the higher number. The effect lasts 8 hours.</div></div>';
+}
 function giftTargets(id){const ks=isDM()?Object.keys(chars).filter(k=>!chars[k].npc):Object.keys(roster);return ks.filter(k=>k!==id)}
 async function rosterPublish(){
   try{
@@ -2948,7 +2956,7 @@ function invListHtml(id){
     const treat=/treat/i.test(x.n);
     h+='<div class="inv-row'+(x.q===0?" zero":"")+'"><span class="inv-n">'+E(x.n)+'</span>'+(can?
       '<span class="inv-q"><button type="button" class="btn small" data-act="invd" data-i="'+i+'" data-d="-1" aria-label="One less '+E(x.n)+'">−</button><input type="number" min="0" inputmode="numeric" class="inv-in" data-inv="'+i+'" value="'+x.q+'" aria-label="Number of '+E(x.n)+'"><button type="button" class="btn small" data-act="invd" data-i="'+i+'" data-d="1" aria-label="One more '+E(x.n)+'">+</button></span>'+
-      '<button type="button" class="btn small" data-act="invgive" data-i="'+i+'" aria-label="Give '+E(x.n)+' to someone">🎁</button>'+
+      (eatAmt(c,x)>0&&x.q>0?'<button type="button" class="btn small primary" data-act="invuse" data-i="'+i+'" aria-label="Eat one '+E(x.n)+'">🍪</button>':'')+'<button type="button" class="btn small" data-act="invgive" data-i="'+i+'" aria-label="Give '+E(x.n)+' to someone">🎁</button>'+
       '<button type="button" class="btn small danger" data-act="invdel" data-i="'+i+'" aria-label="Remove '+E(x.n)+'">✕</button>':'<span class="inv-q">×'+x.q+'</span>')+'</div>';
     if(ckGive&&ckGive.id===id&&ckGive.i===i){
       const t=giftTargets(id);
@@ -2992,12 +3000,19 @@ function invAdd(id,name,q){
 document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const act=b.getAttribute("data-act");
-  if(!/^(invd|invdel|invadd|invgive|gvcancel|gvsend|gvtake|gold|mktreat|chefgive)$/.test(act))return;
+  if(!/^(invd|invdel|invadd|invgive|gvcancel|gvsend|gvtake|gold|mktreat|chefgive|invuse)$/.test(act))return;
   const id=openId,c=id?chars[id]:null;if(!c||!canEditChar(id))return;
   if(act==="gold"){c.gold=Math.max(0,(Number(c.gold)||0)+Number(b.dataset.d));saveChar(id,["gold"]);renderSheet();return}
   if(act==="invd"){const l=invParse(c.inventory),x=l[Number(b.dataset.i)];if(!x)return;x.q=Math.max(0,x.q+Number(b.dataset.d));invSave(id,l);renderSheet();return}
   if(act==="invdel"){const l=invParse(c.inventory);l.splice(Number(b.dataset.i),1);invSave(id,l);renderSheet();return}
   if(act==="invadd"){const n=($("invName").value||"").trim(),q=Math.max(1,parseInt($("invQty").value,10)||1);if(!n)return;invAdd(id,n,q);renderSheet();return}
+  if(act==="invuse"){
+    const l=invParse(c.inventory),x=l[Number(b.dataset.i)];if(!x||x.q<1)return;
+    const a=eatAmt(c,x);if(!a)return;
+    x.q-=1;const had=c.hpTemp||0;c.hpTemp=Math.max(had,a);
+    c.inventory=invSerial(l);saveChar(id,["inventory","hpTemp"]);
+    hostToast("Ate "+x.n.replace(/\s*\(.*\)\s*$/,"")+". "+(a>had?"You now have "+a+" temporary HP.":"You already had "+had+" temporary HP, so nothing changed.")+" It lasts 8 hours.",7000);
+    renderSheet();return}
   if(act==="invgive"){ckGive={id:id,i:Number(b.dataset.i)};renderSheet();return}
   if(act==="gvcancel"){ckGive=null;renderSheet();return}
   if(act==="gvsend"){

@@ -437,6 +437,25 @@ body.compact .sync-fab:not([hidden]){display:flex}
 .inv-ask{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;background:var(--chip);border-radius:.7rem;padding:.6rem;margin:.1rem 0 .5rem}
 .inv-ask label{flex:1 1 100%}
 .inv-ask .btn{min-height:2.8rem}
+
+.ck-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.ck-row:first-of-type{border-top:0}.ck-t{min-width:0;flex:1}.ck-note{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.inv-row{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.inv-row:first-child{border-top:0}
+.inv-row.zero .inv-n{opacity:.45;text-decoration:line-through}.inv-n{flex:1 1 100%;min-width:0;overflow-wrap:break-word}
+.inv-q{display:inline-flex;align-items:center;gap:4px}.inv .inv-in{width:3.2rem;flex:none;text-align:center;padding:.35rem .1rem}.inv-q{flex:none}
+.inv .btn.small{min-width:2.4rem;min-height:2.4rem;padding:.2rem .4rem}
+.inv-add{display:flex;gap:6px;margin-top:10px}.inv-add input[type=text]{flex:1;min-width:0}.inv-add input[type=number]{width:4rem}
+.inv-give{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:8px;border:1px dashed var(--line);border-radius:.6rem;margin:4px 0}
+.inv-chef{background:var(--bg2,rgba(127,127,127,.1));border-radius:.7rem;padding:.6rem .8rem;margin-bottom:.7rem}
+.gold{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap}.gold input{width:4.6rem;text-align:center}
+.note.gift{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cal-h{text-align:center;font-size:.75rem;opacity:.7}
+.cal-d{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:3.4rem;padding:2px;border:1px solid var(--line);border-radius:.6rem;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.cal-d.past{opacity:.35}.cal-n{font-weight:700}.cal-c{font-size:.68rem}
+.cal-d.yes,.cal-d.all{background:rgba(60,170,90,.28);border-color:rgba(60,170,90,.8)}.cal-d.maybe,.cal-d.most{background:rgba(220,170,40,.28);border-color:rgba(220,170,40,.8)}
+.cal-d.no{background:rgba(200,70,70,.25);border-color:rgba(200,70,70,.8)}.cal-d.set{outline:3px solid var(--accent,#7a5cff)}.cal-d.pick{box-shadow:0 0 0 2px currentColor inset}
+.plan-next{font-size:1.1rem}.plan-det{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.plan-p{padding:2px 0}.plan-p.yes::before{content:"✓ "}.plan-p.maybe::before{content:"? "}.plan-p.no::before{content:"✗ "}
 </style>
 </head>
 <body class="nonav">
@@ -480,6 +499,7 @@ body.compact .sync-fab:not([hidden]){display:flex}
     <section id="viewLookup" hidden></section>
     <section id="viewTome" hidden><div id="tome"></div></section>
     <section id="viewSheet" hidden aria-live="polite"></section>
+    <section id="viewPlan" hidden></section>
   </main>
 </div>
 <nav class="bnav" id="bnav" aria-label="Sections" hidden>
@@ -1048,6 +1068,7 @@ function pcard(id){
   activeStd(c).forEach(n=>{flags+='<span class="flag bad" title="'+E(condDef(n).s)+'">'+condDef(n).i+' '+n+'</span>'});
   customConds(c).forEach(n=>{flags+='<span class="flag bad">'+E(n)+'</span>'});
   if(c.exhaustion)flags+='<span class="flag bad">😴 Exhaustion '+c.exhaustion+'</span>';
+  {const nck=checkCount(id);if(nck)flags+='<span class="flag conc" title="Open Features to review">🔎 '+nck+' to check</span>'}
   if(c.concentrating)flags+='<span class="flag conc">◉ '+E(c.concentrating)+'</span>';
   if(c.inspiration)flags+='<span class="flag good">★ Inspiration'+(c.inspiration>1?" ×"+c.inspiration:"")+'</span>';
   const slots=slotLines(c);
@@ -1156,6 +1177,7 @@ function resourceUpdates(c,nl){
     else if(ck==="Paladin"&&/lay on hands/i.test(nm))to=5*nl;
     else if(ck==="Sorcerer"&&/sorcery point/i.test(nm)&&d.sorcery_points)to=d.sorcery_points;
     else if(ck==="Monk"&&/(focus|ki) point/i.test(nm)&&d.focus_points)to=d.focus_points;
+    else if(/bolstering treats|stone throw/i.test(nm))to=prof(nl);
     if(to!=null&&to!==r.max)out.push({i:i,name:shortRes(nm),from:r.max,to:to});
   });
   return out;
@@ -1181,7 +1203,7 @@ function lvlInfo(c,nl){
 }
 const INV24=[{"n":"Agonizing Blast","l":2,"k":"dmg","rep":true,"x":"Pick a damaging Warlock cantrip you know. Add your Charisma modifier to its damage rolls. Pick a different cantrip each time you take this invocation."},{"n":"Armor of Shadows","l":0,"x":"Cast Mage Armor on yourself without spending a spell slot."},{"n":"Ascendant Step","l":5,"x":"Cast Levitate on yourself without spending a spell slot."},{"n":"Devil's Sight","l":2,"x":"You see normally in Dim Light and Darkness, magical or not, out to 120 feet."},{"n":"Devouring Blade","l":12,"r":["Thirsting Blade"],"x":"The Extra Attack from Thirsting Blade gives two extra attacks instead of one."},{"n":"Eldritch Mind","l":0,"x":"Advantage on Constitution saving throws to maintain Concentration."},{"n":"Eldritch Smite","l":5,"r":["Pact of the Blade"],"x":"Once per turn when you hit with your pact weapon, spend a Pact Magic slot to deal an extra 1d8 Force damage plus 1d8 per slot level. A Huge or smaller target can also be knocked Prone."},{"n":"Eldritch Spear","l":2,"k":"rng","rep":true,"x":"Pick a damaging Warlock cantrip with a range of 10+ feet. Its range increases by 30 feet times your Warlock level. Pick a different cantrip each time."},{"n":"Fiendish Vigor","l":2,"x":"Cast False Life on yourself without a slot. The temporary Hit Points die always counts as its highest result."},{"n":"Gaze of Two Minds","l":5,"x":"Bonus Action: touch a willing creature and perceive through its senses until the end of your next turn. Spend a Bonus Action each turn to keep it going. You can cast spells from its space if you are within 60 feet."},{"n":"Gift of the Depths","l":5,"x":"Breathe underwater and gain a Swim Speed equal to your Speed. Cast Water Breathing once per Long Rest without a slot."},{"n":"Gift of the Protectors","l":9,"r":["Pact of the Tome"],"x":"A page in your Book of Shadows can hold a number of names equal to your Charisma modifier (minimum 1). When a named creature drops to 0 HP without dying, it drops to 1 HP instead, once until your next Long Rest."},{"n":"Investment of the Chain Master","l":5,"r":["Pact of the Chain"],"x":"Your familiar gains a 40 ft Fly or Swim Speed, can attack as your Bonus Action, can deal Necrotic or Radiant damage, uses your spell save DC, and you can give it Resistance with your Reaction."},{"n":"Lessons of the First Ones","l":2,"rep":true,"f":true,"x":"Gain one Origin feat of your choice. Pick a different feat each time you take this invocation."},{"n":"Lifedrinker","l":9,"r":["Pact of the Blade"],"x":"Once per turn when you hit with your pact weapon, deal an extra 1d6 Necrotic, Psychic or Radiant damage, and you can spend a Hit Die to heal the roll plus your Constitution modifier (minimum 1)."},{"n":"Mask of Many Faces","l":2,"x":"Cast Disguise Self without spending a spell slot."},{"n":"Master of Myriad Forms","l":5,"x":"Cast Alter Self without spending a spell slot."},{"n":"Misty Visions","l":2,"x":"Cast Silent Image without spending a spell slot."},{"n":"One with Shadows","l":5,"x":"In an area of Dim Light or Darkness, cast Invisibility on yourself without spending a spell slot."},{"n":"Otherworldly Leap","l":2,"x":"Cast Jump on yourself without spending a spell slot."},{"n":"Pact of the Blade","l":0,"x":"Bonus Action: conjure or bond a Simple or Martial melee weapon as your pact weapon. You are proficient with it, it works as a Spellcasting Focus, you can use Charisma for its attacks and damage, and it can deal Necrotic, Psychic or Radiant damage."},{"n":"Pact of the Chain","l":0,"x":"You learn Find Familiar and can cast it as a Magic action without a slot, with special forms (Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, Venomous Snake). You can give up one of your attacks so your familiar attacks with its Reaction."},{"n":"Pact of the Tome","l":0,"x":"At the end of a Short or Long Rest you conjure a Book of Shadows. Choose three cantrips and two level 1 spells with the Ritual tag from any class. While you hold the book they are prepared Warlock spells. The book is a Spellcasting Focus."},{"n":"Repelling Blast","l":2,"k":"atk","rep":true,"x":"Pick a Warlock cantrip that needs an attack roll. When it hits a Large or smaller creature you can push it up to 10 feet straight away. Pick a different cantrip each time."},{"n":"Thirsting Blade","l":5,"r":["Pact of the Blade"],"x":"You gain Extra Attack for your pact weapon only: attack twice with it when you take the Attack action."},{"n":"Visions of Distant Realms","l":9,"x":"Cast Arcane Eye without spending a spell slot."},{"n":"Whispers of the Grave","l":7,"x":"Cast Speak with Dead without spending a spell slot."},{"n":"Witch Sight","l":15,"x":"You have Truesight out to 30 feet."}];
 const invKey=n=>String(n||"").replace(/^Eldritch Invocations?:\s*/i,"").replace(/\s*\(.*\)\s*$/,"").replace(/[’]/g,"'").trim().toLowerCase();
-const invDef=n=>INV24.filter(v=>v.n.toLowerCase()===invKey(n))[0]||null;
+const invDef=n=>INV24.filter(v=>v.n.toLowerCase()===invKey(n))[0]||(typeof ckLegDef==="function"?ckLegDef(n):null);
 function invHave(c){
   return c.features.map((f,i)=>({i:i,name:f.name})).filter(x=>!/^Eldritch Invocations\b/i.test(x.name)).map(x=>{const d=invDef(x.name);return d?{i:x.i,name:x.name,d:d}:null}).filter(Boolean);
 }
@@ -1585,13 +1607,13 @@ function tabSpells(id){
 }
 function tabFeatures(id){
   const c=chars[id];
-  return '<div class="split"><div class="pane"><h3>Class features</h3>'+entryList("features",c.features,"Add feature")+'</div><div class="pane"><h3>Traits &amp; background</h3>'+entryList("traits",c.traits,"Add trait")+'</div></div>';
+  return checkPanel(id)+'<div class="split"><div class="pane"><h3>Class features</h3>'+entryList("features",c.features,"Add feature")+'</div><div class="pane"><h3>Traits &amp; background</h3>'+entryList("traits",c.traits,"Add trait")+'</div></div>';
 }
 function tabGear(id){
   const c=chars[id],e=ed();
-  let h='<div class="split"><div class="pane"><h3>Inventory <span class="sub">'+c.gold+' gp</span></h3>';
-  if(e)h+='<div class="row cols4" style="margin-bottom:8px">'+inp("gold","Gold (gp)",c.gold,"number")+'</div>'+area("inventory","Items (one per line)",c.inventory);
-  else h+=c.inventory?'<ul style="margin:0;padding-left:20px">'+c.inventory.split("\n").filter(Boolean).map(l=>'<li style="margin-bottom:4px">'+E(l)+'</li>').join("")+'</ul>':'<div class="sub">Nothing carried.</div>';
+  let h='<div class="split"><div class="pane"><h3>Inventory '+goldHtml(id)+'</h3>';
+  if(e)h+=area("inventory","Items (one per line, add “x3” for a quantity)",c.inventory);
+  else h+=chefHtml(id)+invListHtml(id);
   h+='</div><div class="pane"><h3>Languages</h3>'+(e?inp("languages","Languages",c.languages,"text"):prose(c.languages))+'</div></div>';
   h+='<div class="split"><div class="pane"><h3>Goals</h3>'+(e?area("goals","Goals (one per line)",c.goals):(c.goals?'<ul style="margin:0;padding-left:20px">'+c.goals.split("\n").filter(Boolean).map(l=>'<li style="margin-bottom:4px">'+E(l)+'</li>').join("")+'</ul>':'<div class="sub">—</div>'))+'</div>';
   h+='<div class="pane"><h3>Backstory</h3>'+(e?area("backstory","Backstory",c.backstory):prose(c.backstory))+'</div></div>';
@@ -1742,7 +1764,10 @@ function renderSheet(){
   else if(tab==="pets")body=tabPets(openId);
   else if(tab==="msgs")body=msgPanel(openId);
   else if(tab==="lookup")body='<div id="lkHost"></div>';
+  else if(tab==="plan"&&!isDM())body=planHtml();
   else if(tab==="dm"&&isDM())body=tabDM(openId);
+  if(tab==="play"||tab==="gear"||tab==="stats"||tab==="features")body=giftBanner(openId)+body;
+  if(tab==="play"&&can&&!editMode){const n=checkCount(openId);if(n)body='<div class="note ck-note">🔎 Sheet check found <b>'+n+'</b> thing'+(n===1?"":"s")+' that may be missing. <button type="button" class="btn small" data-act="nav" data-tab="features">Review</button></div>'+body}
   const h='<div class="sheet"><div class="sbar">'+(isDM()?'<button class="btn small" data-act="close" aria-label="Back to party">‹ Party</button>':'')+
     '<div class="sbar-title"><strong>'+E((c.name||"Unnamed").split(" ")[0])+'</strong><span class="sub" id="sbarStat">'+E(sbarStat(c))+'</span></div>'+
     (can&&["play","stats","spells","features","gear"].indexOf(tab)>=0?'<button class="btn small'+(editMode?" on":"")+'" data-act="edit" aria-pressed="'+editMode+'">'+(editMode?"✓ Done":"✎ Edit")+'</button>':'')+
@@ -1768,7 +1793,7 @@ const CAMP_CHIPS=[["camp","Overview"],["web","Web"],["post","After session"],["h
 const segOf=p=>p==="run"?"run":/^s\d$/.test(p)?"prep":"campaign";
 const segLast={run:"run",prep:"s1",campaign:"camp"};
 const MONS_CHIPS=[["prep","Prepared"],["lib","Library"]];
-const MORE_CHIPS=[["msgs","✉️ Messages"],["spells","Spells"],["cond","Conditions"],["gen","Generators"]];
+const MORE_CHIPS=[["msgs","✉️ Messages"],["plan","📅 Dates"],["spells","Spells"],["cond","Conditions"],["gen","Generators"]];
 let subSession="run", subMons="prep", subMore="msgs";
 function navItems(){
   const inSheet=!!(openId&&chars[openId]);
@@ -1777,6 +1802,7 @@ function navItems(){
     if(hasSpells(c)||editMode)items.push(["spells","✨","Spells"]);
     items.push(["features","📖","Features"],["gear","🎒","Gear"]);
     if(compsFor(openId).length||isDM())items.push(["pets","🐾","Pets"]);
+    if(!isDM())items.push(["plan","📅","Dates"]);
     items.push(["msgs","✉️","Messages"],["lookup","🔎","Lookup"]);
     if(isDM())items.push(["dm","🔒","DM"]);
     return {items:items,active:sheetTab,badge:{msgs:unreadFrom(openId,isDM()?"player":"dm")}};
@@ -1845,17 +1871,19 @@ function renderApp(){
   if(!role)return;
   const inSheet=!!(openId&&chars[openId]),dm=isDM(),top=dm&&!inSheet;
   const tomeTab=top&&(dmTab==="combat"||dmTab==="session"||dmTab==="monsters"||(dmTab==="more"&&(subMore==="cond"||subMore==="gen")));
-  const show={party:top&&dmTab==="party",msgs:top&&dmTab==="more"&&subMore==="msgs",lookup:top&&dmTab==="more"&&subMore==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
-  $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewTome").hidden=!show.tome;$("viewSheet").hidden=!show.sheet;
+  const show={plan:top&&dmTab==="more"&&subMore==="plan",party:top&&dmTab==="party",msgs:top&&dmTab==="more"&&subMore==="msgs",lookup:top&&dmTab==="more"&&subMore==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
+  $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewTome").hidden=!show.tome;$("viewSheet").hidden=!show.sheet;$("viewPlan").hidden=!show.plan;
   document.body.classList.toggle("compact",show.sheet||show.tome);
   if(!show.party)$("viewParty").innerHTML="";
   if(!show.msgs)$("viewMsgs").innerHTML="";
   if(!show.lookup)$("viewLookup").innerHTML="";
   if(!show.sheet)$("viewSheet").innerHTML="";
+  if(!show.plan)$("viewPlan").innerHTML="";
   const focused=sheetFocused();
   if(show.party&&(!focused||!$("viewParty").firstChild))renderParty();
   if(show.msgs){if(dmMsgChar&&$("thread"))updateThread();else if(!focused||!$("viewMsgs").firstChild)renderDMMsgs()}
   if(show.lookup&&!$("viewLookup").firstChild)renderLookup($("viewLookup"));
+  if(show.plan&&!sheetFocused())$("viewPlan").innerHTML='<div class="sheet">'+planHtml()+'</div>';
   if(show.tome)ensureTome();
   if(show.sheet){
     if(!focused||!$("viewSheet").firstChild)renderSheet();
@@ -1863,6 +1891,7 @@ function renderApp(){
   }
   renderSubnav();
   renderNav();
+  rosterPublish();
   if(dm)tomeSheetsSoon();
 }
 
@@ -2426,7 +2455,7 @@ function renderCombatBar(){
     if(document.activeElement!==inp){const want=cbDraft!==""?cbDraft:(sent?String(mc.initRoll.v):"");if(inp.value!==want)inp.value=want}
   }
   /* the list only changes when the order does */
-  const list=o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+(e.dn?" · down":"")+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("");
+  const list=o.map((e,i)=>'<div class="cb-row'+(i===t?" cur":"")+(e.k===charId?" you":"")+(e.d?" dead":"")+'"><span class="cb-i">'+(e.i||"–")+'</span><span class="cb-nm">'+(cbIcon[e.t]||"")+" "+E(e.n)+(e.g!=null?" ×"+e.g:"")+(e.k===charId?" (you)":"")+""+(e.d?" · defeated":"")+'</span>'+(e.cs||[]).map(c=>'<span class="cb-c1">'+E(c)+'</span>').join("")+'</div>').join("");
   const lb=q(".cb-list");if(lb.dataset.h!==list){lb.innerHTML=list;lb.dataset.h=list}
   const ft="You can see the order, names and conditions. Your DM keeps the rest private."+(stale?" This may be out of date. Last update "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+".":"");
   if(q(".cb-foot").textContent!==ft)q(".cb-foot").textContent=ft;
@@ -2608,6 +2637,8 @@ function startApp(){
   chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";cbWasLive=false;{const b=document.getElementById("combatBar");if(b){b.innerHTML="";b.hidden=true}}
   $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
   $("outBtn").hidden=false;$("syncBtn").hidden=false;$("syncFab").hidden=false;
+  planOn=false;gifts=[];avail={};roster={};rosterSent="";nextSession=null;ckPick=null;ckGive=null;planSel=null;
+  planSubscribe();
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
     openId=null;dmTab="party";subSession="run";subMons="prep";subMore="msgs";sheetTab="play";
@@ -2651,6 +2682,399 @@ function startApp(){
   }
   renderApp();
 }
+
+/* ================= sheet check, item list, gifts, session dates ================= */
+const FEAT24={
+"Rage":"Bonus Action (not in Heavy armor): Resistance to Bludgeoning, Piercing and Slashing damage, extra damage on Strength attacks, Advantage on Strength checks and saves. You can’t cast spells while raging.",
+"Unarmored Defense":"With no armor your AC is 10 + Dexterity + the second ability your class names (Constitution for Barbarians, Wisdom for Monks). You can still use a shield.",
+"Weapon Mastery":"You can use the mastery property of the number of weapon kinds your class table lists. After a Long Rest you can change one choice.",
+"Danger Sense":"Advantage on Dexterity saving throws unless you are Incapacitated.",
+"Reckless Attack":"On your first attack roll each turn you can attack recklessly: Advantage on Strength attack rolls until your next turn, but attacks against you have Advantage too.",
+"Primal Knowledge":"Gain one more Barbarian skill proficiency. While Raging you can use Strength for Acrobatics, Intimidation, Perception, Stealth and Survival checks.",
+"Extra Attack":"When you take the Attack action on your turn, you can attack twice instead of once.",
+"Fast Movement":"Your Speed goes up by 10 feet while you aren’t wearing Heavy armor.",
+"Feral Instinct":"You have Advantage on Initiative rolls.",
+"Instinctive Pounce":"As part of the Bonus Action you take to enter your Rage, you can move up to half your Speed.",
+"Bardic Inspiration":"Bonus Action: give a creature within 60 feet a Bardic Inspiration die. Within 1 hour it can add the die to a failed D20 Test. Uses equal your Charisma modifier per Long Rest.",
+"Spellcasting":"You cast spells with your class’s spellcasting ability, using the spell slots and prepared spells on your class table.",
+"Expertise":"Pick skills you are proficient in. Your proficiency bonus is doubled for them.",
+"Jack of All Trades":"Add half your proficiency bonus (rounded down) to any ability check you make that doesn’t already use your proficiency bonus, including Initiative.",
+"Font of Inspiration":"You regain all your Bardic Inspiration uses on a Short or Long Rest, and you can spend a spell slot to regain one use.",
+"Countercharm":"Reaction: when you or a creature within 30 feet fails a save against being Charmed or Frightened, it can reroll with Advantage.",
+"Divine Order":"Choose Protector (Heavy armor and Martial weapon training) or Thaumaturge (one extra cantrip and a bonus to Arcana and Religion checks).",
+"Channel Divinity":"Spend a use to channel divine power, such as Divine Spark or Turn Undead. You regain one use on a Short Rest and all on a Long Rest.",
+"Sear Undead":"When you use Turn Undead, roll your Wisdom modifier (minimum 1) in d8s. Each undead that fails the save takes that much Radiant damage.",
+"Blessed Strikes":"Choose Divine Strike (extra 1d8 Necrotic or Radiant once per turn on a weapon hit) or Potent Spellcasting (add your Wisdom modifier to Cleric cantrip damage).",
+"Druidic":"You know the secret language Druidic, and Speak with Animals is always prepared.",
+"Primal Order":"Choose Magician (one extra cantrip and a bonus to Arcana and Nature) or Warden (Medium armor and Martial weapon training).",
+"Wild Shape":"Bonus Action: turn into a Beast form you know. You gain temporary Hit Points and lose spellcasting while in the form. You regain one use on a Short Rest and all on a Long Rest.",
+"Wild Companion":"Magic action: spend a spell slot or a Wild Shape use to cast Find Familiar without Material components.",
+"Wild Resurgence":"Once per turn with no Wild Shape uses left you can spend a spell slot to regain one use. You can also spend a Wild Shape use to regain a level 1 spell slot, once per Long Rest.",
+"Elemental Fury":"Choose Potent Spellcasting (add your Wisdom modifier to Druid cantrip damage) or Primal Strike (extra 1d8 Cold, Fire, Lightning or Thunder damage once per turn on a hit).",
+"Fighting Style":"Choose a Fighting Style feat, such as Archery or Defense.",
+"Second Wind":"Bonus Action: regain 1d10 + your Fighter level Hit Points. You regain one use on a Short Rest and all on a Long Rest.",
+"Action Surge":"On your turn you can take one extra action (not the Magic action). Once per Short or Long Rest.",
+"Tactical Mind":"When you fail an ability check you can spend a Second Wind use to add 1d10. If it still fails, the use isn’t spent.",
+"Tactical Shift":"When you use Second Wind, you can move up to half your Speed without provoking Opportunity Attacks.",
+"Martial Arts":"Use Dexterity for Unarmed Strikes and Monk weapons, roll your Martial Arts die for their damage, and make an Unarmed Strike as a Bonus Action after the Attack action.",
+"Monk's Focus":"You have Focus Points equal to your Monk level. Spend them on Flurry of Blows, Patient Defense and Step of the Wind. Save DC is 8 + Wisdom + proficiency bonus. They return on a Short or Long Rest.",
+"Unarmored Movement":"Your Speed goes up by 10 feet while you wear no armor and no shield.",
+"Uncanny Metabolism":"When you roll Initiative you regain all Focus Points and heal your Martial Arts die + Monk level. Once per Long Rest.",
+"Deflect Attacks":"Reaction: reduce damage from an attack by 1d10 + Dexterity modifier + Monk level. If it drops to 0 you can spend a Focus Point to redirect it.",
+"Slow Fall":"Reaction: reduce falling damage by 5 times your Monk level.",
+"Stunning Strike":"Once per turn when you hit with a Monk weapon or Unarmed Strike you can spend a Focus Point. The target makes a Constitution save or is Stunned until the start of your next turn.",
+"Empowered Strikes":"Your Unarmed Strikes can deal Force damage.",
+"Evasion":"When you make a Dexterity save for half damage, you take none on a success and half on a failure.",
+"Lay On Hands":"A pool of healing equal to 5 times your Paladin level. Bonus Action: touch a creature and spend points to heal, or 5 points to remove Poisoned. Refills on a Long Rest.",
+"Paladin's Smite":"You always have Divine Smite prepared, and you can cast it once per Long Rest without a spell slot.",
+"Faithful Steed":"You can cast Find Steed once per Long Rest without a spell slot.",
+"Aura of Protection":"You and allies within 10 feet add your Charisma modifier (minimum +1) to saving throws.",
+"Favored Enemy":"You always have Hunter’s Mark prepared and can cast it without a slot a set number of times per Long Rest.",
+"Deft Explorer":"Gain Expertise in one skill and learn two languages.",
+"Roving":"Your Speed goes up by 10 feet without Heavy armor, and you gain Climb and Swim Speeds equal to your Speed.",
+"Sneak Attack":"Once per turn, extra damage when you hit with a Finesse or ranged weapon and have Advantage, or an ally is within 5 feet of the target. The dice grow with level.",
+"Thieves' Cant":"You know the secret code language of rogues and can hide messages in ordinary conversation.",
+"Cunning Action":"Bonus Action: Dash, Disengage or Hide.",
+"Steady Aim":"Bonus Action: if you haven’t moved this turn, gain Advantage on your next attack roll this turn. Your Speed becomes 0 until the end of the turn.",
+"Cunning Strike":"When you deal Sneak Attack damage you can give up some of the dice for an effect such as Poison, Trip or Withdraw.",
+"Uncanny Dodge":"Reaction: halve the damage of an attack you can see that hits you.",
+"Reliable Talent":"When you make an ability check with a skill or tool you’re proficient in, a d20 roll of 9 or lower counts as 10.",
+"Innate Sorcery":"Bonus Action: for 1 minute your Sorcerer spell save DC goes up by 1 and you have Advantage on attack rolls of Sorcerer spells. Two uses per Long Rest.",
+"Font of Magic":"You have Sorcery Points equal to your Sorcerer level and can trade them for spell slots and back.",
+"Metamagic":"Choose Metamagic options and spend Sorcery Points to change how your spells work.",
+"Sorcerous Restoration":"After a Short Rest you regain Sorcery Points up to half your Sorcerer level (rounded down). Once per Long Rest.",
+"Sorcery Incarnate":"While Innate Sorcery is active you can apply two Metamagic options to a spell. You can also spend 2 Sorcery Points to start Innate Sorcery without a use.",
+"Magical Cunning":"1-minute rite: regain expended Pact Magic slots up to half your maximum (rounded up). Once per Long Rest.",
+"Arcane Recovery":"After a Short Rest, regain spell slots with a combined level up to half your Wizard level (rounded up), none above level 5. Once per Long Rest.",
+"Ritual Adept":"You can cast Ritual spells from your spellbook without preparing them.",
+"Scholar":"Gain Expertise in one of Arcana, History, Investigation, Medicine, Nature or Religion.",
+"Memorize Spell":"After a Short Rest you can swap one prepared spell for another from your spellbook."
+};
+const CHK_SKIP=/^(Spellcasting|Pact Magic|Ability Score Improvement|Epic Boon|Eldritch Invocations)$|subclass/i;
+const cknorm=s=>String(s||"").toLowerCase().replace(/[’`]/g,"'").replace(/\(.*?\)/g,"").replace(/[^a-z0-9' ]/g," ").replace(/\s+/g," ").trim();
+const INVLEG=[
+ {n:"Beast Speech",l:2,leg:"Player’s Handbook (2014)",x:"You can cast Speak with Animals at will, without expending a spell slot."},
+ {n:"Fiendish Vigor",l:2,leg:"Player’s Handbook (2014)",x:"You can cast False Life on yourself at will as a 1st-level spell, without expending a spell slot or material components."},
+ {n:"Undying Servitude",l:5,leg:"Tasha’s Cauldron of Everything",x:"You can cast Animate Dead without using a spell slot. Once you do so, you can’t cast it this way again until you finish a Long Rest."},
+ {n:"Whispers of the Grave",l:9,leg:"Player’s Handbook (2014)",x:"You can cast Speak with Dead at will, without expending a spell slot."}
+];
+const RIT1=["Alarm","Comprehend Languages","Detect Magic","Find Familiar","Identify","Illusory Script","Purify Food and Drink","Speak with Animals","Unseen Servitude","Floating Disk","Detect Poison and Disease","Ceremony"];
+function ckHave(c){return [].concat(c.features,c.actions,c.traits,c.spellInfo||[]).map(e=>cknorm(e.name))}
+function ckHas(c,name){const n=cknorm(name),h=ckHave(c);return h.some(m=>m===n||(m.length>4&&(m.indexOf(n)>=0||n.indexOf(m)>=0)))}
+function ckMaxSpell(c,info){let max=0;const sl=slotsFor(info,c.level,null);Object.keys(sl).forEach(k=>{if(sl[k].max>0)max=Math.max(max,Number(k))});return max}
+function ckInvCount(c){return c.features.filter(f=>!/^Eldritch Invocations\b/i.test(f.name)&&(/^Eldritch Invocation\b/i.test(f.name)||invDef(f.name))).length}
+function ckLegDef(n){const k=invKey(n);return INVLEG.filter(v=>v.n.toLowerCase()===k)[0]||null}
+function sheetCheck(c){
+  const out=[],ck=clsKey(c),info=classInfo(c.cls),lv=Number(c.level)||1;
+  if(!ck)return out;
+  const T=(LV24.c[ck]||{})[lv]||{};
+  /* class features by level */
+  for(let n=1;n<=lv;n++){
+    (((LV24.c[ck]||{})[n]||{}).f||[]).forEach(f=>{
+      if(CHK_SKIP.test(f))return;
+      if(!ckHas(c,f))out.push({k:"feat",a:f,lv:n,t:"Missing class feature: "+f,d:"Gained at level "+n+".",fix:"Add to Features"});
+    });
+  }
+  /* proficiency bonus resources and hit dice */
+  const pb=prof(lv);
+  c.resources.forEach((r,i)=>{
+    const nm=String(r.name||"");
+    if(/^hit dice/i.test(nm)){if(r.max!==lv)out.push({k:"res",a:String(i),to:lv,t:"Hit Dice should be "+lv,d:"The sheet has "+r.max+".",fix:"Set to "+lv});}
+    else if(/bolstering treats|stone throw/i.test(nm)&&r.max!==pb)out.push({k:"res",a:String(i),to:pb,t:nm.replace(/\s*\(.*\)/,"")+" uses should be "+pb,d:"They equal your proficiency bonus (+"+pb+" at level "+lv+"). The sheet has "+r.max+".",fix:"Set to "+pb});
+  });
+  /* old proficiency bonus written in text */
+  const oldTxt=[];
+  [].concat(c.features,c.actions,c.traits).forEach(e=>{const t=String(e.desc||"");const m=t.match(/proficiency bonus[^.]{0,30}?\+(\d)\b|\+(\d) (?:now|for you)\b/i);const v=m&&Number(m[1]||m[2]);if(v&&v!==pb)oldTxt.push(e.name)});
+  if(oldTxt.length)out.push({k:"info",t:"Text mentions an old proficiency bonus",d:"Proficiency bonus is +"+pb+" at level "+lv+". Check: "+oldTxt.slice(0,4).join(", ")+". Use Edit to correct the numbers."});
+  /* spell slots */
+  if(info&&info.caster){
+    const want=slotsFor(info,lv,c.slots),keys=new Set(Object.keys(want).concat(Object.keys(c.slots||{}).filter(k=>(c.slots[k]||{}).max>0)));
+    let bad=false;keys.forEach(k=>{const a=(want[k]||{}).max||0,b=((c.slots||{})[k]||{}).max||0;if(a!==b)bad=true});
+    if(bad)out.push({k:"slots",t:"Spell slots don’t match level "+lv,d:"Your class table gives "+Object.keys(want).map(k=>want[k].max+"× level "+k).join(", ")+".",fix:"Fix slots"});
+  }
+  /* cantrips and prepared spells */
+  const tome=ck==="Warlock"&&ckHas(c,"Pact of the Tome");
+  const own=s=>!/lineage|species|racial|\bfeat\b|initiate|background|via |at will|invocation|always prepared|domain|circle|oath|free cast/i.test(s.desc||"");
+  if(info&&info.caster&&T.c!=null){
+    const want=T.c+(tome?3:0),have=c.spells.filter(s=>s.level===0&&own(s)).length;
+    if(have<want)out.push({k:"pick",a:"c",t:"Cantrips: "+have+" of "+want+(tome?" (incl. 3 from Pact of the Tome)":""),d:"A level "+lv+" "+ck+" knows "+T.c+" cantrips"+(tome?", plus 3 from the Book of Shadows":"")+".",fix:"Choose cantrips",n:want-have});
+  }
+  if(info&&info.caster&&T.p!=null&&T.p>0){
+    const want=T.p,have=c.spells.filter(s=>s.level>0&&own(s)).length;
+    if(have<want)out.push({k:"pick",a:"s",t:(ck==="Wizard"?"Spellbook":"Prepared spells")+": "+have+" of "+want,d:"A level "+lv+" "+ck+" "+(ck==="Wizard"?"has":"can prepare")+" "+want+" spells (up to level "+ckMaxSpell(c,info)+").",fix:"Choose spells",n:want-have});
+  }
+  if(tome){
+    const names=new Set(c.spells.filter(s=>!/via |at will|invocation|lineage/i.test(s.desc||"")).map(s=>s.name.toLowerCase())),got=RIT1.filter(n=>names.has(n.toLowerCase())).length;
+    if(got<2)out.push({k:"pick",a:"r",t:"Pact of the Tome: "+got+" of 2 Ritual spells",d:"Your Book of Shadows holds 2 level 1 spells with the Ritual tag, from any class.",fix:"Choose rituals",n:2-got});
+  }
+  /* invocations */
+  if(ck==="Warlock"&&T.x&&T.x.eldritch_invocations){
+    const want=T.x.eldritch_invocations,have=ckInvCount(c);
+    if(have<want)out.push({k:"pick",a:"i",t:"Eldritch Invocations: "+have+" of "+want,d:"A level "+lv+" Warlock has "+want+" invocations.",fix:"Choose invocations",n:want-have});
+    else if(have>want)out.push({k:"info",t:"Eldritch Invocations: "+have+", the 2024 rules allow "+want,d:"That is fine if your DM allows older invocations."});
+  }
+  return out;
+}
+let ckPick=null;
+function ckEligible(c,kind,q){
+  const ck=clsKey(c),info=classInfo(c.cls),lv=c.level,ql=String(q||"").toLowerCase().trim();
+  if(kind==="i"){
+    const have=new Set(c.features.map(f=>invKey(f.name)));
+    const names=c.features.map(f=>invKey(f.name));
+    const list=INV24.concat(INVLEG).filter(v=>v.l<=lv&&!have.has(v.n.toLowerCase().replace(/[’]/g,"'"))).filter(v=>!(v.r||[]).some(r=>!names.includes(r.toLowerCase())));
+    return list.filter(v=>!ql||v.n.toLowerCase().indexOf(ql)>=0).sort((a,b)=>(a.leg?1:0)-(b.leg?1:0)||a.n.localeCompare(b.n));
+  }
+  if(!spellDB)return [];
+  const have=new Set(c.spells.map(s=>s.name.toLowerCase())),max=ckMaxSpell(c,info);
+  const tomeAny=ck==="Warlock"&&ckHas(c,"Pact of the Tome")&&(kind==="r"||kind==="c");
+  return spellDB.filter(sp=>{
+    const nm=sp.n.toLowerCase();if(have.has(nm))return false;
+    if(kind==="r"){if(!RIT1.some(r=>r.toLowerCase()===nm))return false}
+    else if(kind==="c"){if(sp.l!==0)return false}
+    else{if(sp.l<1||sp.l>max)return false;if(ckPick&&ckPick.lv&&ckPick.lv!=="all"&&sp.l!==Number(ckPick.lv))return false}
+    if(kind!=="r"&&!tomeAny&&sp.cl&&sp.cl.length&&sp.cl.indexOf(ck)<0)return false;
+    return !ql||nm.indexOf(ql)>=0;
+  }).sort((a,b)=>a.l-b.l||a.n.localeCompare(b.n)).slice(0,300);
+}
+function ckResults(c){
+  const kind=ckPick.kind,list=ckEligible(c,kind,ckPick.q);
+  if(kind!=="i"&&!spellDB)return '<div class="sub">Loading the spell list…</div>';
+  if(!list.length)return '<div class="sub">Nothing matches.</div>';
+  let h="",cur=null;
+  list.forEach((v,i)=>{
+    const grp=kind==="i"?(v.leg?"Older books (only if your DM allows)":"2024 Player’s Handbook"):(kind==="s"?"Level "+v.l:"");
+    if(grp&&grp!==cur){cur=grp;h+='<div class="lv-grp">'+E(grp)+'</div>'}
+    const sub=kind==="i"?(v.l?"Warlock level "+v.l+"+":"")+(v.leg?" · "+v.leg:""):(v.l===0?"Cantrip":"Level "+v.l)+" · "+(v.s||"");
+    const body=kind==="i"?v.x:(v.x||"");
+    h+='<div class="lv-sp"><details class="spell"><summary>'+E(v.n)+' <span class="sub">'+E(sub)+'</span></summary><div class="spell-body">'+E(String(body).slice(0,700))+'</div></details><button type="button" class="btn small" data-act="ckadd" data-n="'+E(v.n)+'">Add</button></div>';
+  });
+  return h;
+}
+function ckPickerHtml(c){
+  if(!ckPick)return "";
+  const kind=ckPick.kind,info=classInfo(c.cls),max=ckMaxSpell(c,info);
+  const title={c:"Choose cantrips",s:"Choose spells",r:"Choose Ritual spells",i:"Choose invocations"}[kind];
+  let h='<div class="lv-sec" id="ckPicker"><div class="lv-k">'+title+'</div>';
+  if(kind==="s"){h+='<div class="chips" role="group" aria-label="Spell level"><button type="button" class="chip'+((!ckPick.lv||ckPick.lv==="all")?" on":"")+'" data-act="cklv" data-v="all">All</button>';for(let l=1;l<=max;l++)h+='<button type="button" class="chip'+(String(ckPick.lv)===String(l)?" on":"")+'" data-act="cklv" data-v="'+l+'">Level '+l+'</button>';h+='</div>'}
+  if(kind!=="r")h+='<input type="search" id="ckQ" placeholder="Search" value="'+E(ckPick.q||"")+'" autocomplete="off">';
+  h+='<div id="ckResults">'+ckResults(c)+'</div><button type="button" class="btn small" data-act="ckclose" style="margin-top:8px">Done</button></div>';
+  return h;
+}
+function checkPanel(id){
+  const c=chars[id];if(!c)return "";
+  const iss=sheetCheck(c),can=canEditChar(id);
+  let h='<div class="pane" id="ckPane"><h3>Sheet check <span class="sub">level '+c.level+' '+E(c.cls||"")+'</span></h3>';
+  if(!iss.length)return h+'<div class="sub">✓ Nothing looks missing for your level.</div></div>';
+  h+='<div class="sub" style="margin-bottom:8px">Compared with the 2024 tables. Tap a button to fix it from the rules list.</div>';
+  iss.forEach((x,i)=>{
+    h+='<div class="ck-row"><div class="ck-t"><b>'+E(x.t)+'</b><div class="sub">'+E(x.d||"")+'</div></div>'+
+      (x.fix&&can?'<button type="button" class="btn small primary" data-act="ckfix" data-k="'+x.k+'" data-a="'+E(x.a||"")+'" data-to="'+(x.to!=null?x.to:"")+'">'+E(x.fix)+'</button>':"")+'</div>';
+  });
+  return h+ckPickerHtml(c)+'</div>';
+}
+function checkCount(id){const c=chars[id];if(!c||c.npc)return 0;try{return sheetCheck(c).filter(x=>x.k!=="info").length}catch(e){return 0}}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.getAttribute("data-act"),c=openId?chars[openId]:null;
+  if(act==="ckfix"&&c&&canEditChar(openId)){
+    const k=b.dataset.k,a=b.dataset.a;
+    if(k==="feat"){c.features.push({name:a,desc:FEAT24[a]||"Look up the full text of "+a+" in your 2024 Player’s Handbook."});
+      if(a==="Extra Attack")hostToast("Added Extra Attack. Attack twice when you take the Attack action.");
+      saveChar(openId,["features"]);renderSheet();return}
+    if(k==="res"){const r=c.resources[Number(a)];if(r){r.max=Number(b.dataset.to);r.used=Math.min(r.used||0,r.max);saveChar(openId,["resources"]);renderSheet()}return}
+    if(k==="slots"){c.slots=slotsFor(classInfo(c.cls),c.level,c.slots);saveChar(openId,["slots"]);renderSheet();return}
+    if(k==="pick"){ckPick={kind:a,q:"",lv:"all"};if(a!=="i"&&!spellDB)loadSpells().then(()=>{if(ckPick&&openId)renderSheet()}).catch(()=>{});renderSheet();setTimeout(()=>{const p=$("ckPicker");if(p)p.scrollIntoView({block:"nearest"})},50);return}
+  }
+  if(act==="ckclose"){ckPick=null;renderSheet();return}
+  if(act==="cklv"&&ckPick){ckPick.lv=b.dataset.v;renderSheet();return}
+  if(act==="ckadd"&&c&&ckPick&&canEditChar(openId)){
+    const n=b.dataset.n;
+    if(ckPick.kind==="i"){const d=INV24.concat(INVLEG).filter(v=>v.n===n)[0];if(!d)return;
+      c.features.push({name:"Eldritch Invocation: "+d.n,desc:d.x});saveChar(openId,["features"]);
+      if(d.n==="Pact of the Tome")hostToast("Pact of the Tome: now choose 3 cantrips and 2 Ritual spells.",7000)}
+    else{const sp=spellDB.filter(s=>s.n===n)[0];if(!sp)return;
+      c.spells.push({name:sp.n,level:sp.l,desc:ckPick.kind==="r"?"Pact of the Tome ritual.":""});
+      saveChar(openId,["spells"])}
+    const left=sheetCheck(c).filter(x=>x.k==="pick"&&x.a===ckPick.kind);
+    if(!left.length){ckPick=null;hostToast("Done. That part of your sheet is complete.")}
+    renderSheet();return}
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="ckQ"&&ckPick&&openId){ckPick.q=e.target.value;const r=$("ckResults");if(r)r.innerHTML=ckResults(chars[openId])}
+});
+
+/* ---- item list with + and − ---- */
+function invParse(s){
+  return String(s||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{
+    let m=l.match(/^(.*?)\s+x\s?(\d{1,4})$/i);
+    if(!m){const m2=l.match(/^(.*?)\s+x\s?(\d{1,3})(\s+\(.*\))$/i);if(m2)m=[l,(m2[1]+m2[3]).trim(),m2[2]]}
+    if(!m)m=l.match(/^(.*[A-Za-z\)])\s+(\d{1,3})$/);
+    return m&&m[1].trim()?{n:m[1].trim(),q:Number(m[2])}:{n:l,q:1};
+  });
+}
+function invSerial(list){return list.map(x=>x.q===1?x.n:x.n+" x"+x.q).join("\n")}
+function invSave(id,list){chars[id].inventory=invSerial(list);saveChar(id,["inventory"])}
+let roster={},rosterSent="";
+function rosterName(k){return String(((roster[k]||{}).name)||(chars[k]&&chars[k].name)||k).split(" ")[0]}
+function giftTargets(id){const ks=isDM()?Object.keys(chars).filter(k=>!chars[k].npc):Object.keys(roster);return ks.filter(k=>k!==id)}
+async function rosterPublish(){
+  try{
+    const ids=isDM()?Object.keys(chars).filter(k=>!chars[k].npc):(chars[charId]?[charId]:[]);
+    for(const k of ids){const nm=String(chars[k].name||"").split(" ")[0];if(!nm)continue;
+      const key=k+"|"+nm;if(roster[k]&&roster[k].name===nm)continue;
+      if(rosterSent.indexOf("#"+key+"#")>=0)continue;rosterSent+="#"+key+"#";
+      await setDoc(doc(db,"roster",k),{id:k,name:nm,updated:Date.now()})}
+  }catch(e){}
+}
+function invListHtml(id){
+  const c=chars[id],can=canEditChar(id),list=invParse(c.inventory);
+  let h='<div class="inv">';
+  if(!list.length)h+='<div class="sub">Nothing carried.</div>';
+  list.forEach((x,i)=>{
+    const treat=/treat/i.test(x.n);
+    h+='<div class="inv-row'+(x.q===0?" zero":"")+'"><span class="inv-n">'+E(x.n)+'</span>'+(can?
+      '<span class="inv-q"><button type="button" class="btn small" data-act="invd" data-i="'+i+'" data-d="-1" aria-label="One less '+E(x.n)+'">−</button><input type="number" min="0" inputmode="numeric" class="inv-in" data-inv="'+i+'" value="'+x.q+'" aria-label="Number of '+E(x.n)+'"><button type="button" class="btn small" data-act="invd" data-i="'+i+'" data-d="1" aria-label="One more '+E(x.n)+'">+</button></span>'+
+      '<button type="button" class="btn small" data-act="invgive" data-i="'+i+'" aria-label="Give '+E(x.n)+' to someone">🎁</button>'+
+      '<button type="button" class="btn small danger" data-act="invdel" data-i="'+i+'" aria-label="Remove '+E(x.n)+'">✕</button>':'<span class="inv-q">×'+x.q+'</span>')+'</div>';
+    if(ckGive&&ckGive.id===id&&ckGive.i===i){
+      const t=giftTargets(id);
+      h+='<div class="inv-give"><label class="f">Give to<select id="gvTo">'+t.map(k=>'<option value="'+E(k)+'">'+E(rosterName(k))+'</option>').join("")+'</select></label><label class="f">How many<input type="number" id="gvQty" min="1" max="'+x.q+'" value="1" inputmode="numeric"></label><button type="button" class="btn primary small" data-act="gvsend">Send</button><button type="button" class="btn small" data-act="gvcancel">Cancel</button></div>';
+    }
+  });
+  if(can)h+='<div class="inv-add"><input type="text" id="invName" placeholder="Add an item" autocomplete="off" aria-label="New item name"><input type="number" id="invQty" min="1" value="1" inputmode="numeric" aria-label="How many"><button type="button" class="btn small primary" data-act="invadd">Add</button></div>';
+  return h+'</div>';
+}
+let ckGive=null;
+function goldHtml(id){
+  const c=chars[id],can=canEditChar(id);
+  if(!can)return '<span class="sub">'+c.gold+' gp</span>';
+  return '<span class="gold"><button type="button" class="btn small" data-act="gold" data-d="-10" aria-label="Spend 10 gold">−10</button><button type="button" class="btn small" data-act="gold" data-d="-1" aria-label="Spend 1 gold">−1</button><input type="number" id="goldIn" inputmode="numeric" value="'+c.gold+'" aria-label="Gold pieces"> gp<button type="button" class="btn small" data-act="gold" data-d="1" aria-label="Add 1 gold">+1</button><button type="button" class="btn small" data-act="gold" data-d="10" aria-label="Add 10 gold">+10</button></span>';
+}
+function chefHtml(id){
+  const c=chars[id],ri=resIndex(c,"Bolstering Treats");
+  if(ri<0||!canEditChar(id))return "";
+  const r=c.resources[ri],left=Math.max(0,r.max-r.used);
+  return '<div class="inv-chef"><b>Bolstering Treats</b> <span class="sub">'+left+' of '+r.max+' left to make this Long Rest. Each gives '+prof(c.level)+' temporary HP for 8 hours.</span><div style="margin-top:6px"><button type="button" class="btn small primary" data-act="mktreat"'+(left?"":" disabled")+'>🍪 Make a treat</button></div></div>';
+}
+function giftBanner(id){
+  const g=(gifts||[]).filter(x=>x.to===id&&x.state==="sent");
+  if(!g.length||!canEditChar(id))return "";
+  return g.map(x=>'<div class="note gift">🎁 <b>'+E(x.fromName)+'</b> sent you <b>'+E(x.qty)+' × '+E(x.item)+'</b> <button type="button" class="btn small primary" data-act="gvtake" data-gid="'+E(x.id)+'">Take</button></div>').join("");
+}
+let gifts=[];
+function invAdd(id,name,q){
+  const list=invParse(chars[id].inventory),k=name.toLowerCase(),f=list.filter(x=>x.n.toLowerCase()===k)[0];
+  if(f)f.q+=q;else list.push({n:name,q:q});
+  invSave(id,list);
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.getAttribute("data-act");
+  if(!/^(invd|invdel|invadd|invgive|gvcancel|gvsend|gvtake|gold|mktreat)$/.test(act))return;
+  const id=openId,c=id?chars[id]:null;if(!c||!canEditChar(id))return;
+  if(act==="gold"){c.gold=Math.max(0,(Number(c.gold)||0)+Number(b.dataset.d));saveChar(id,["gold"]);renderSheet();return}
+  if(act==="invd"){const l=invParse(c.inventory),x=l[Number(b.dataset.i)];if(!x)return;x.q=Math.max(0,x.q+Number(b.dataset.d));invSave(id,l);renderSheet();return}
+  if(act==="invdel"){const l=invParse(c.inventory);l.splice(Number(b.dataset.i),1);invSave(id,l);renderSheet();return}
+  if(act==="invadd"){const n=($("invName").value||"").trim(),q=Math.max(1,parseInt($("invQty").value,10)||1);if(!n)return;invAdd(id,n,q);renderSheet();return}
+  if(act==="invgive"){ckGive={id:id,i:Number(b.dataset.i)};renderSheet();return}
+  if(act==="gvcancel"){ckGive=null;renderSheet();return}
+  if(act==="gvsend"){
+    const l=invParse(c.inventory),x=l[ckGive&&ckGive.i];if(!x)return;
+    const to=$("gvTo").value,q=Math.max(1,Math.min(x.q,parseInt($("gvQty").value,10)||1));if(!to||!x.q)return;
+    x.q-=q;invSave(id,l);ckGive=null;
+    try{await setDoc(doc(collection(db,"gifts")),{from:id,fromName:(c.name||"").split(" ")[0],to:to,item:x.n,qty:q,state:"sent",t:Date.now()});hostToast("Sent "+q+" × "+x.n+" to "+rosterName(to)+". They tap Take to receive it.",6000)}
+    catch(err){x.q+=q;invSave(id,l);hostToast("Could not send ("+(err&&err.code||"error")+"). Nothing was taken from you. Publish the new firestore.rules in Firebase.",9000)}
+    renderSheet();return}
+  if(act==="gvtake"){
+    const g=gifts.filter(y=>y.id===b.dataset.gid)[0];if(!g)return;
+    try{await setDoc(doc(db,"gifts",g.id),Object.assign({},g.raw,{state:"taken",takenAt:Date.now()}));invAdd(id,g.item,g.qty);hostToast("Added "+g.qty+" × "+g.item+" to your inventory.")}
+    catch(err){hostToast("Could not take it ("+(err&&err.code||"error")+").",8000)}
+    renderSheet();return}
+  if(act==="mktreat"){
+    const ri=resIndex(c,"Bolstering Treats");if(ri<0)return;const r=c.resources[ri];if(r.used>=r.max)return;
+    r.used++;saveChar(id,["resources"]);invAdd(id,"Bolstering Treat",1);hostToast("Made a Bolstering Treat. Eating one gives "+prof(c.level)+" temporary HP.");renderSheet();return}
+});
+document.addEventListener("change",e=>{
+  const t=e.target,id=openId,c=id?chars[id]:null;if(!c||!canEditChar(id))return;
+  if(t.id==="goldIn"){c.gold=Math.max(0,parseInt(t.value,10)||0);saveChar(id,["gold"]);renderSheet();return}
+  if(t.dataset&&t.dataset.inv!=null){const l=invParse(c.inventory),x=l[Number(t.dataset.inv)];if(!x)return;x.q=Math.max(0,parseInt(t.value,10)||0);invSave(id,l);renderSheet()}
+});
+
+/* ---- session dates ---- */
+let avail={},nextSession=null,planMonth=null,planOn=false;
+const pad2=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+const AV_NEXT={"":"yes",yes:"maybe",maybe:"no",no:""};
+const AV_LAB={yes:"Free",maybe:"Maybe",no:"Can’t"};
+function planHtml(){
+  const dm=isDM(),me=dm?null:charId;
+  const now=new Date();if(!planMonth)planMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  const y=planMonth.getFullYear(),m=planMonth.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+  const players=Object.keys(chars).filter(k=>!chars[k].npc),total=players.length||1;
+  let h='<div class="pane"><h3>Next session</h3>';
+  if(nextSession&&nextSession.date){
+    const d=new Date(nextSession.date+"T12:00:00");
+    h+='<div class="plan-next">📅 <b>'+E(d.toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"}))+'</b>'+(nextSession.time?' at <b>'+E(nextSession.time)+'</b>':"")+(nextSession.note?'<div class="sub">'+E(nextSession.note)+'</div>':"")+(dm?' <button type="button" class="btn small" data-act="plclear">Clear</button>':"")+'</div>';
+  }else h+='<div class="sub">'+(dm?"Nothing set yet. Tap a day below once most people are free, then press Set session.":"Your DM hasn’t picked a date yet. Mark the days you’re free below.")+'</div>';
+  h+='</div><div class="pane"><h3>'+(dm?"Who is free":"When are you free?")+'</h3><div class="sub" style="margin-bottom:8px">'+(dm?"Green means everyone is free. Tap a day to see names and set the session.":"Tap a day to cycle: Free → Maybe → Can’t → clear. Your answer saves as you tap.")+'</div>';
+  h+='<div class="cal-nav"><button type="button" class="btn small" data-act="plmon" data-d="-1" aria-label="Previous month">‹</button><b>'+E(first.toLocaleDateString([],{month:"long",year:"numeric"}))+'</b><button type="button" class="btn small" data-act="plmon" data-d="1" aria-label="Next month">›</button></div>';
+  h+='<div class="cal">'+["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(x=>'<div class="cal-h">'+x+'</div>').join("");
+  for(let i=0;i<start;i++)h+='<div></div>';
+  const today=ymd(now),mine=me?((avail[me]||{}).days||{}):{};
+  for(let d=1;d<=days;d++){
+    const key=y+"-"+pad2(m+1)+"-"+pad2(d),past=key<today;
+    let yes=0,maybe=0,no=0;players.forEach(p=>{const v=((avail[p]||{}).days||{})[key];if(v==="yes")yes++;else if(v==="maybe")maybe++;else if(v==="no")no++});
+    const sel=nextSession&&nextSession.date===key,pick=planSel===key;
+    let cls="cal-d"+(past?" past":"")+(sel?" set":"")+(pick?" pick":"");
+    let inner='<span class="cal-n">'+d+'</span>';
+    if(dm){if(yes+maybe+no)inner+='<span class="cal-c">'+yes+'/'+total+'</span>';if(yes===total)cls+=" all";else if(yes+maybe===total)cls+=" most"}
+    else{const v=mine[key]||"";if(v){cls+=" "+v;inner+='<span class="cal-c">'+AV_LAB[v]+'</span>'}}
+    h+='<button type="button" class="'+cls+'"'+(past&&!dm?" disabled":"")+' data-act="pldate" data-d="'+key+'" aria-label="'+key+'">'+inner+'</button>';
+  }
+  h+='</div>';
+  if(dm&&planSel){
+    h+='<div class="plan-det"><b>'+E(new Date(planSel+"T12:00:00").toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"}))+'</b>';
+    players.forEach(p=>{const v=((avail[p]||{}).days||{})[planSel]||"";h+='<div class="plan-p '+(v||"none")+'">'+E((chars[p].name||p).split(" ")[0])+': '+(AV_LAB[v]||"No answer yet")+'</div>'});
+    h+='<div class="row cols2" style="margin-top:8px"><label class="f">Time<input type="text" id="plTime" placeholder="e.g. 7pm" value="'+E((nextSession&&nextSession.date===planSel&&nextSession.time)||"")+'"></label><label class="f">Note<input type="text" id="plNote" placeholder="Where / what" value="'+E((nextSession&&nextSession.date===planSel&&nextSession.note)||"")+'"></label></div><button type="button" class="btn primary" data-act="plset" style="margin-top:8px">Set session for this day</button></div>';
+  }
+  if(!dm){h+='<div class="sub" style="margin-top:8px">'+Object.keys(mine).filter(k=>mine[k]&&k>=today).length+' days marked.</div>'}
+  return h+'</div>';
+}
+let planSel=null;
+function planSubscribe(){
+  if(planOn)return;planOn=true;
+  unsubs.push(onSnapshot(collection(db,"roster"),snap=>{roster={};snap.docs.forEach(d=>{roster[d.id]=d.data()||{}})},()=>{}));
+  unsubs.push(onSnapshot(collection(db,"availability"),snap=>{avail={};snap.docs.forEach(d=>{avail[d.id]=d.data()||{}});planRefresh()},()=>{}));
+  unsubs.push(onSnapshot(doc(db,"plans","next"),snap=>{nextSession=snap.exists()?snap.data():null;planRefresh();if(openId)renderNavSafe()},()=>{}));
+  if(isDM())unsubs.push(onSnapshot(collection(db,"gifts"),snap=>{gifts=snap.docs.map(d=>({id:d.id,raw:d.data(),...d.data()}));if(openId&&sheetTab==="gear"&&!sheetFocused())renderSheet()},()=>{}));
+  else unsubs.push(onSnapshot(query(collection(db,"gifts"),where("to","==",charId)),snap=>{gifts=snap.docs.map(d=>({id:d.id,raw:d.data(),...d.data()}));if(!sheetFocused())renderSheet();renderNavSafe()},()=>{}));
+}
+function renderNavSafe(){try{renderNav()}catch(e){}}
+function planRefresh(){
+  if(isDM()){const h=$("viewPlan");if(h&&!h.hidden&&!sheetFocused())h.innerHTML='<div class="sheet">'+planHtml()+'</div>'}
+  else if(sheetTab==="plan"&&!sheetFocused())renderSheet();
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.getAttribute("data-act");
+  if(!/^(plmon|pldate|plset|plclear)$/.test(act))return;
+  const redraw=()=>{if(isDM()){const h=$("viewPlan");if(h)h.innerHTML='<div class="sheet">'+planHtml()+'</div>'}else renderSheet()};
+  if(act==="plmon"){planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()+Number(b.dataset.d),1);redraw();return}
+  if(act==="pldate"){
+    const key=b.dataset.d;
+    if(isDM()){planSel=planSel===key?null:key;redraw();return}
+    const days=Object.assign({},(avail[charId]||{}).days||{}),next=AV_NEXT[days[key]||""];
+    if(next)days[key]=next;else delete days[key];
+    avail[charId]=Object.assign({},avail[charId],{charId:charId,name:(chars[charId]&&chars[charId].name||"").split(" ")[0],days:days,updated:Date.now()});
+    redraw();
+    try{await setDoc(doc(db,"availability",charId),avail[charId]);setStatus("Saved")}catch(err){setStatus("Could not save ("+(err&&err.code||"error")+"). Publish the new firestore.rules.",true)}
+    return}
+  if(act==="plset"&&isDM()&&planSel){
+    nextSession={date:planSel,time:($("plTime").value||"").trim(),note:($("plNote").value||"").trim(),updated:Date.now()};
+    try{await setDoc(doc(db,"plans","next"),nextSession);hostToast("Session set. Players see it on their Dates tab.",5000)}catch(err){hostToast("Could not save ("+(err&&err.code||"error")+"). Publish the new firestore.rules.",9000)}
+    redraw();return}
+  if(act==="plclear"&&isDM()){try{await deleteDoc(doc(db,"plans","next"))}catch(err){}nextSession=null;redraw()}
+});
 
 /* ================= auth flow ================= */
 function showGate(msg){

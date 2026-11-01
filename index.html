@@ -456,6 +456,13 @@ body.compact .sync-fab:not([hidden]){display:flex}
 .cal-d.yes,.cal-d.all{background:rgba(60,170,90,.28);border-color:rgba(60,170,90,.8)}.cal-d.maybe,.cal-d.most{background:rgba(220,170,40,.28);border-color:rgba(220,170,40,.8)}
 .cal-d.no{background:rgba(200,70,70,.25);border-color:rgba(200,70,70,.8)}.cal-d.set{outline:3px solid var(--accent,#7a5cff)}.cal-d.pick{box-shadow:0 0 0 2px currentColor inset}
 .plan-next{font-size:1.1rem}.plan-det{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.plan-p{padding:2px 0}.plan-p.yes::before{content:"✓ "}.plan-p.maybe::before{content:"? "}.plan-p.no::before{content:"✗ "}
+
+.rest-modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+.rest-box{background:var(--panel);color:inherit;border:1px solid var(--line);border-radius:1rem;padding:1rem;width:min(30rem,100%);margin:auto}
+.rest-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.rest-n{min-width:2rem;text-align:center;font-size:1.3rem}
+.rest-calc{margin:6px 0;font-size:1.05rem}.rest-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.rest-list{margin:0;padding-left:20px}.rest-list li{margin-bottom:4px}.rest-slot{display:inline-flex;align-items:center;gap:4px;margin-right:10px}
+.stash-gold{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.stash-gold input{width:6rem}
 </style>
 </head>
 <body class="nonav">
@@ -581,6 +588,7 @@ function normalize(d){
   o.abilities=Object.assign({},b.abilities,d.abilities||{});
   ["saveProf","skillProf","skillExtra","slots"].forEach(k=>{o[k]=(d[k]&&typeof d[k]==="object")?d[k]:{}});
   ["spells","spellInfo","attacks","actions","features","traits","resources","history"].forEach(k=>{o[k]=Array.isArray(d[k])?d[k]:[]});
+  o.resources.forEach(r=>{if(r&&(r.pb||/bolstering treats|stone throw/i.test(r.name||""))){const m=prof(o.level);r.max=m;if((r.used||0)>m)r.used=m}});
   o.inspiration=Number(d.inspiration)||0;
   o.exhaustion=Math.max(0,Math.min(6,Number(d.exhaustion)||0));o.concentrating=String(d.concentrating||"");
   o.initRoll=d.initRoll&&typeof d.initRoll==="object"?{v:Number(d.initRoll.v)||0,fid:String(d.initRoll.fid||""),t:Number(d.initRoll.t)||0}:null;
@@ -678,7 +686,8 @@ let unsubs=[], charSubs={}, enterTok=0;
 const compEdit={}, markedRead=new Set();
 
 const $=id=>document.getElementById(id);
-const E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let tokCtx=null;
+const E=s=>tokX(String(s==null?"":s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const WIDE=()=>matchMedia("(min-width:701px)").matches;
 const isDM=()=>role==="dm";
 function setStatus(t,err){const s=$("status");if(s){if(!navigator.onLine&&!err&&(t==="Live"||t==="Saved"||t==="Saving…"))t="Offline: changes are saved on this device and will sync later";s.textContent=t||"";s.className="status"+(err?" err":"")}}
@@ -1058,7 +1067,8 @@ function applyHpDelta(c,d){
   if(d<0){let rem=-d;const t=Math.min(c.hpTemp||0,rem);c.hpTemp=(c.hpTemp||0)-t;rem-=t;c.hp=Math.max(0,c.hp-rem);return -d}
   else{if(c.hp===0&&d>0){c.deathS=0;c.deathF=0}c.hp=Math.min(c.hpMax,c.hp+d);return 0}
 }
-function pcard(id){
+function pcard(id){tokCtx=chars[id]||null;try{return pcard0(id)}finally{tokCtx=null}}
+function pcard0(id){
   const c=chars[id],pct=c.hpMax>0?Math.max(0,Math.min(100,Math.round(c.hp/c.hpMax*100))):0,st=spellStats(c),un=unreadFrom(id,"player");
   const first=(c.name||"Unnamed").split(" ")[0];
   const who=c.npc?"NPC":(c.player||"");
@@ -1189,7 +1199,7 @@ function lvlInfo(c,nl){
   if(!ck)return line("Check your book","This class isn’t in the free 2024 rules, so the new features aren’t listed here.");
   const d=LV24.c[ck][nl]||{},o=LV24.c[ck][nl-1]||{};
   const feats=(d.f||[]).filter(n=>!/^Ability Score Improvement$|^Epic Boon$/.test(n));
-  if(feats.length)h+=line("New "+ck+" features",feats.map(E).join(", "));
+  if(feats.length)h+=line("New "+ck+" features",feats.map(E).join(", ")+' <span class="sub">(added to your Features for you)</span>');
   const sk=subKey(c);
   if(nl===3&&!c.subclass)h+=line("Subclass","Choose your subclass now (level 3). Type it in the box under Edit.");
   else if(sk){const sf=(LV24.s[sk]||{})[nl];if(sf&&sf.length)h+=line(E(sk)+" features",sf.map(E).join(", "))}
@@ -1451,7 +1461,7 @@ function attackCard(c,a){
   const kind=a.kind||(ref?ref.c+" "+ref.r.toLowerCase()+" weapon":"");
   const wm=ref&&ref.m&&(WM_CLASSES.test(c.cls)||/mastery/i.test((a.notes||"")+" "+(a.props||"")))?ref.m:"";
   const props=a.props||(ref?ref.p.join(", "):"");
-  let h='<div class="atk"><div class="atk-top"><b>'+E(a.name||"Attack")+'</b><span class="hit">'+E(a.bonus)+'<small>to hit</small></span></div>';
+  let h='<div class="atk"><div class="atk-top"><b>'+E(a.name||"Attack")+'</b><span class="hit">'+E(atkAuto(c,a)||a.bonus)+'<small>to hit</small></span></div>';
   h+='<div class="atk-dmg">'+E(a.dmg)+'</div>';
   const meta=[kind,props].filter(Boolean).join(" · ");
   if(meta||wm)h+='<div class="atk-meta"><span>'+E(meta)+'</span>'+(wm?'<span class="wm">Mastery: '+E(wm)+'</span>':'')+'</div>';
@@ -1559,7 +1569,7 @@ function tabPlay(id){
     h+='<div class="split"><div>';
     h+='<div class="pane"><h3>Resources</h3>'+c.resources.map((r,i)=>resEdit(r,i)).join("")+'<button class="btn small" data-act="addres" style="margin-top:.6rem">Add resource</button></div>';
     h+='</div><div>';
-    h+='<div class="pane"><h3>Attacks</h3>'+c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Type and properties, e.g. Martial melee weapon · Finesse, Light" aria-label="Weapon type and properties" data-path="attacks.'+i+'.kind" value="'+E(a.kind||"")+'"><textarea placeholder="Special effects, one per line, like  Moonlit Bloom: +1 radiant in dim light" aria-label="Special effects" data-path="attacks.'+i+'.extra" style="min-height:3.5rem">'+E(a.extra||"")+'</textarea><input type="text" placeholder="Other note (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button></div>';
+    h+='<div class="pane"><h3>Attacks</h3>'+c.attacks.map((a,i)=>'<div class="atkedit"><input type="text" placeholder="Name" aria-label="Attack name" data-path="attacks.'+i+'.name" value="'+E(a.name)+'"><input type="text" placeholder="+5" aria-label="Attack bonus" data-path="attacks.'+i+'.bonus" value="'+E(a.bonus)+'"><select aria-label="Work out the bonus automatically" data-path="attacks.'+i+'.auto">'+ATK_AUTO.map(o=>'<option value="'+o[0]+'"'+((a.auto||"")===o[0]?" selected":"")+'>'+(o[0]?"Auto: ":"")+o[1]+'</option>').join("")+'</select><input type="text" placeholder="1d8+3 slashing" aria-label="Damage" data-path="attacks.'+i+'.dmg" value="'+E(a.dmg)+'"><button class="btn small danger" data-act="delatk" data-i="'+i+'" aria-label="Remove attack">✕</button><input type="text" placeholder="Type and properties, e.g. Martial melee weapon · Finesse, Light" aria-label="Weapon type and properties" data-path="attacks.'+i+'.kind" value="'+E(a.kind||"")+'"><textarea placeholder="Special effects, one per line, like  Moonlit Bloom: +1 radiant in dim light" aria-label="Special effects" data-path="attacks.'+i+'.extra" style="min-height:3.5rem">'+E(a.extra||"")+'</textarea><input type="text" placeholder="Other note (optional)" aria-label="Attack notes" data-path="attacks.'+i+'.notes" value="'+E(a.notes||"")+'"></div>').join("")+'<button class="btn small" data-act="addatk">Add attack</button></div>';
     h+='<div class="pane"><h3>Actions and features in play</h3><div class="sub" style="margin-bottom:.5rem">Pick when each one is used so it shows under the right heading on your turn, and link it to a resource to show its uses there.</div>'+entryList("actions",c.actions,"Add action")+'</div></div></div>';
     return h;
   }
@@ -1598,8 +1608,8 @@ function tabSpells(id){
   order.forEach(lv=>{
     h+='<div class="sub" style="margin:10px 0 6px;font-weight:700">'+(lv===0?"Cantrips":lv>0?"Level "+lv:"Other")+'</div>';
     groups[lv].sort((a,b)=>a.s.name.localeCompare(b.s.name)).forEach(o=>{
-      if(e)h+='<div class="entry-edit"><div class="h"><input type="text" aria-label="Spell name" data-path="spells.'+o.i+'.name" value="'+E(o.s.name)+'"><select aria-label="Spell level" data-path="spells.'+o.i+'.level" style="width:8rem">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'"'+(o.s.level===l?" selected":"")+'>'+(l===0?"Cantrip":"Lvl "+l)+'</option>').join("")+'</select><button class="btn small danger" data-act="delspell" data-i="'+o.i+'" aria-label="Remove spell">✕</button></div><textarea aria-label="Note" placeholder="Your note (optional)" data-path="spells.'+o.i+'.desc" style="min-height:48px">'+E(o.s.desc||"")+'</textarea></div>';
-      else h+='<details class="spell" data-n="'+E(o.s.name)+'" data-ci="'+E(id)+'" data-si="'+o.i+'"><summary>'+E(o.s.name)+'</summary><div class="spell-body"></div></details>';
+      if(e)h+='<div class="entry-edit"><div class="h"><input type="text" aria-label="Spell name" data-path="spells.'+o.i+'.name" value="'+E(o.s.name)+'"><select aria-label="How you have this spell" data-path="spells.'+o.i+'.mode" style="width:9rem">'+SP_MODES.map(m=>'<option value="'+m[0]+'"'+(spMode(o.s)===m[0]?" selected":"")+'>'+m[1]+'</option>').join("")+'</select><select aria-label="Spell level" data-path="spells.'+o.i+'.level" style="width:8rem">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'"'+(o.s.level===l?" selected":"")+'>'+(l===0?"Cantrip":"Lvl "+l)+'</option>').join("")+'</select><button class="btn small danger" data-act="delspell" data-i="'+o.i+'" aria-label="Remove spell">✕</button></div><textarea aria-label="Note" placeholder="Your note (optional)" data-path="spells.'+o.i+'.desc" style="min-height:48px">'+E(o.s.desc||"")+'</textarea></div>';
+      else h+='<details class="spell" data-n="'+E(o.s.name)+'" data-ci="'+E(id)+'" data-si="'+o.i+'"><summary>'+E(o.s.name)+(spMode(o.s)?' <span class="sub">'+E((SP_MODES.filter(m=>m[0]===spMode(o.s))[0]||[0,""])[1].replace(/ \(.*\)/,""))+'</span>':'')+'</summary><div class="spell-body"></div></details>';
     });
   });
   if(e)h+='<div class="row cols2" style="margin-top:10px"><label class="f">Add a spell by name<input type="text" id="newSpell" placeholder="e.g. Shield"></label><label class="f">Level<select id="newSpellLv">'+[0,1,2,3,4,5,6,7,8,9].map(l=>'<option value="'+l+'">'+(l===0?"Cantrip":l)+'</option>').join("")+'</select></label></div><button class="btn small" data-act="addspellman" style="margin-top:8px">Add spell</button>';
@@ -1749,7 +1759,8 @@ function renderDMMsgs(){
 }
 
 /* ================= sheet render ================= */
-function renderSheet(){
+function renderSheet(){tokCtx=openId&&chars[openId]||null;try{renderSheet0()}finally{tokCtx=null}}
+function renderSheet0(){
   const host=$("viewSheet");
   if(!openId||!chars[openId]){host.innerHTML='<div class="empty">Loading your sheet…</div>';return}
   const c=chars[openId],can=canEditChar(openId);
@@ -1765,7 +1776,7 @@ function renderSheet(){
   else if(tab==="pets")body=tabPets(openId);
   else if(tab==="msgs")body=msgPanel(openId);
   else if(tab==="lookup")body='<div id="lkHost"></div>';
-  else if(tab==="plan"&&!isDM())body=planHtml();
+  else if(tab==="plan"&&!isDM())body=partyBody();
   else if(tab==="dm"&&isDM())body=tabDM(openId);
   if(tab==="play"||tab==="gear"||tab==="stats"||tab==="features")body=giftBanner(openId)+body;
   if(tab==="play"&&can&&!editMode){const n=checkCount(openId);if(n)body='<div class="note ck-note">🔎 Sheet check found <b>'+n+'</b> thing'+(n===1?"":"s")+' that may be missing. <button type="button" class="btn small" data-act="nav" data-tab="features">Review</button></div>'+body}
@@ -1794,7 +1805,7 @@ const CAMP_CHIPS=[["camp","Overview"],["web","Web"],["post","After session"],["h
 const segOf=p=>p==="run"?"run":/^s\d$/.test(p)?"prep":"campaign";
 const segLast={run:"run",prep:"s1",campaign:"camp"};
 const MONS_CHIPS=[["prep","Prepared"],["lib","Library"]];
-const MORE_CHIPS=[["msgs","✉️ Messages"],["plan","📅 Dates"],["spells","Spells"],["cond","Conditions"],["gen","Generators"]];
+const MORE_CHIPS=[["msgs","✉️ Messages"],["plan","📅 Dates"],["recap","📜 Recap"],["stash","💰 Stash"],["spells","Spells"],["cond","Conditions"],["gen","Generators"]];
 let subSession="run", subMons="prep", subMore="msgs";
 function navItems(){
   const inSheet=!!(openId&&chars[openId]);
@@ -1803,7 +1814,7 @@ function navItems(){
     if(hasSpells(c)||editMode)items.push(["spells","✨","Spells"]);
     items.push(["features","📖","Features"],["gear","🎒","Gear"]);
     if(compsFor(openId).length||isDM())items.push(["pets","🐾","Pets"]);
-    if(!isDM())items.push(["plan","📅","Dates"]);
+    if(!isDM())items.push(["plan","📅","Party"]);
     items.push(["msgs","✉️","Messages"],["lookup","🔎","Lookup"]);
     if(isDM())items.push(["dm","🔒","DM"]);
     return {items:items,active:sheetTab,badge:{msgs:unreadFrom(openId,isDM()?"player":"dm")}};
@@ -1872,7 +1883,7 @@ function renderApp(){
   if(!role)return;
   const inSheet=!!(openId&&chars[openId]),dm=isDM(),top=dm&&!inSheet;
   const tomeTab=top&&(dmTab==="combat"||dmTab==="session"||dmTab==="monsters"||(dmTab==="more"&&(subMore==="cond"||subMore==="gen")));
-  const show={plan:top&&dmTab==="more"&&subMore==="plan",party:top&&dmTab==="party",msgs:top&&dmTab==="more"&&subMore==="msgs",lookup:top&&dmTab==="more"&&subMore==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
+  const show={plan:top&&dmTab==="more"&&["plan","recap","stash"].indexOf(subMore)>=0,party:top&&dmTab==="party",msgs:top&&dmTab==="more"&&subMore==="msgs",lookup:top&&dmTab==="more"&&subMore==="spells",tome:tomeTab,sheet:inSheet||(!dm)};
   $("viewParty").hidden=!show.party;$("viewMsgs").hidden=!show.msgs;$("viewLookup").hidden=!show.lookup;$("viewTome").hidden=!show.tome;$("viewSheet").hidden=!show.sheet;$("viewPlan").hidden=!show.plan;
   document.body.classList.toggle("compact",show.sheet||show.tome);
   if(!show.party)$("viewParty").innerHTML="";
@@ -1884,7 +1895,7 @@ function renderApp(){
   if(show.party&&(!focused||!$("viewParty").firstChild))renderParty();
   if(show.msgs){if(dmMsgChar&&$("thread"))updateThread();else if(!focused||!$("viewMsgs").firstChild)renderDMMsgs()}
   if(show.lookup&&!$("viewLookup").firstChild)renderLookup($("viewLookup"));
-  if(show.plan&&!sheetFocused())$("viewPlan").innerHTML='<div class="sheet">'+planHtml()+'</div>';
+  if(show.plan&&!sheetFocused())$("viewPlan").innerHTML='<div class="sheet">'+partyBody()+'</div>';
   if(show.tome)ensureTome();
   if(show.sheet){
     if(!focused||!$("viewSheet").firstChild)renderSheet();
@@ -2041,7 +2052,7 @@ document.addEventListener("click",async e=>{
     case "spip":{const l=b.dataset.l,s=c.slots[l],i=Number(b.dataset.i);s.used=(i<s.used)?i:i+1;saveChar(id,["slots"]);renderSheet();return}
     case "addres":c.resources.push({name:"New resource",max:1,used:0,reset:"long"});saveChar(id,["resources"]);renderSheet();return;
     case "delres":c.resources.splice(Number(b.dataset.r),1);saveChar(id,["resources"]);renderSheet();return;
-    case "rest":return doRest(b.dataset.k);
+    case "rest":return openRest(b.dataset.k);
     case "skill":{const s=b.dataset.skill;c.skillProf[s]=((Number(c.skillProf[s])||0)+1)%3;saveChar(id,["skillProf"]);renderSheet();return}
     case "jump":{const t=document.getElementById("tsec-"+b.dataset.to);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
     case "addatk":c.attacks.push({name:"",bonus:"",dmg:"",notes:"",kind:"",extra:""});saveChar(id,["attacks"]);renderSheet();return;
@@ -2137,6 +2148,7 @@ function confirmLevelUp(c){
   c.resources.forEach(r=>{if(r.reset==="hitdice"){r.max=nl}});
   ups.forEach(u=>{const r=c.resources[u.i];if(r){r.max=u.to;r.used=Math.min(r.used,r.max)}});
   if(updSlots)c.slots=slotsFor(info,nl,c.slots);
+  const newF=levelFeatures(c,nl);
   const invAdded=[];
   if(iNeed){
     const inv=lvlUp.inv;
@@ -2150,11 +2162,11 @@ function confirmLevelUp(c){
     if(si>=0)c.features[si]=sum;else c.features.unshift(sum);
   }
   const added=[];(lvlUp.picks||[]).forEach(p=>{if(!c.spells.some(x=>String(x.name).toLowerCase()===p.name.toLowerCase())){c.spells.push({name:p.name,level:p.level,desc:""});added.push(p.name)}});
-  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")+(added.length?"; new spells: "+added.join(", "):"")+(invAdded.length?"; invocations: "+invAdded.join(", "):"")}].concat(c.history).slice(0,30);
+  c.history=[{t:Date.now(),text:"Level "+old+" → "+nl+": +"+gain+" max HP ("+how+")"+(ups.length?"; "+ups.map(u=>u.name+" "+u.from+"→"+u.to).join(", "):"")+(added.length?"; new spells: "+added.join(", "):"")+(invAdded.length?"; invocations: "+invAdded.join(", "):"")+(newF.length?"; new features: "+newF.join(", "):"")}].concat(c.history).slice(0,30);
   lvlUp=null;
   saveChar(openId,["level","hpMax","hp","hitDice","slots","history","resources","spells","features"]);
   renderSheet();window.scrollTo(0,0);
-  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+(added.length?". Added: "+added.join(", "):"")+(invAdded.length?". Invocations: "+invAdded.join(", "):"")+".",10000);
+  hostToast("Level "+nl+"! +"+gain+" max HP"+(ups.length?". Updated: "+ups.map(u=>u.name+" "+u.from+" → "+u.to).join(", "):"")+(added.length?". Added: "+added.join(", "):"")+(invAdded.length?". Invocations: "+invAdded.join(", "):"")+(newF.length?". New features added: "+newF.join(", "):"")+".",10000);
 }
 
 /* ================= DM tools ================= */
@@ -2638,7 +2650,7 @@ function startApp(){
   chars={};dmNotes={};claimByChar={};companions={};messages={};customSpells=[];lvlUp=null;editMode=false;combat=null;cbFirst=true;cbOpen=false;lastCbKey="";cbWasLive=false;{const b=document.getElementById("combatBar");if(b){b.innerHTML="";b.hidden=true}}
   $("who").innerHTML=isDM()?'<span class="badge dm">Dungeon Master</span>':'<span class="badge">Player</span>';
   $("outBtn").hidden=false;$("syncBtn").hidden=false;$("syncFab").hidden=false;
-  planOn=false;gifts=[];avail={};roster={};rosterSent="";nextSession=null;ckPick=null;ckGive=null;planSel=null;
+  planOn=false;recaps=[];stash={gold:0,items:[]};partySub="plan";gifts=[];avail={};roster={};rosterSent="";nextSession=null;ckPick=null;ckGive=null;planSel=null;
   planSubscribe();
   unsubs.push(onSnapshot(collection(db,"customSpells"),snap=>{customSpells=snap.docs.map(d=>d.data());if($("lkQ"))renderLookupResults()},()=>{}));
   if(isDM()){
@@ -2796,7 +2808,7 @@ function sheetCheck(c){
   }
   /* cantrips and prepared spells */
   const tome=ck==="Warlock"&&ckHas(c,"Pact of the Tome");
-  const own=s=>!/lineage|species|racial|\bfeat\b|initiate|background|via |at will|invocation|always prepared|domain|circle|oath|free cast/i.test(s.desc||"");
+  const own=s=>spMode(s)==="";
   if(info&&info.caster&&T.c!=null){
     const want=T.c+(tome?3:0),have=c.spells.filter(s=>s.level===0&&own(s)).length;
     if(have<want)out.push({k:"pick",a:"c",t:"Cantrips: "+have+" of "+want+(tome?" (incl. 3 from Pact of the Tome)":""),d:"A level "+lv+" "+ck+" knows "+T.c+" cantrips"+(tome?", plus 3 from the Book of Shadows":"")+".",fix:"Choose cantrips",n:want-have});
@@ -2955,8 +2967,10 @@ function goldHtml(id){
 function chefHtml(id){
   const c=chars[id],ri=resIndex(c,"Bolstering Treats");
   if(ri<0||!canEditChar(id))return "";
-  const r=c.resources[ri],left=Math.max(0,r.max-r.used);
-  return '<div class="inv-chef"><b>Bolstering Treats</b> <span class="sub">'+left+' of '+r.max+' left to make this Long Rest. Each gives '+prof(c.level)+' temporary HP for 8 hours.</span><div style="margin-top:6px"><button type="button" class="btn small primary" data-act="mktreat"'+(left?"":" disabled")+'>🍪 Make a treat</button></div></div>';
+  const r=c.resources[ri],left=Math.max(0,r.max-r.used),held=invParse(c.inventory).filter(x=>/bolstering treat/i.test(x.n)).reduce((a,x)=>a+x.q,0);
+  return '<div class="inv-chef"><b>Bolstering Treats</b> <span class="sub">'+left+' of '+r.max+' left to make this Long Rest. Each gives '+prof(c.level)+' temporary HP for 8 hours.</span><div style="margin-top:6px"><button type="button" class="btn small primary" data-act="mktreat"'+(left?"":" disabled")+'>🍪 Make a treat</button></div>'+
+    '<div class="inv-give" style="margin-top:8px"><label class="f">Give to<select id="chefTo">'+giftTargets(id).map(k=>'<option value="'+E(k)+'">'+E(rosterName(k))+'</option>').join("")+'</select></label><label class="f">How many<input type="number" id="chefQty" min="1" value="1" inputmode="numeric"></label><button type="button" class="btn small primary" data-act="chefgive">🎁 Give</button></div>'+
+    '<div class="sub">You hold <b>'+held+'</b> to give. The other player taps Take on their sheet.</div></div>';
 }
 function giftBanner(id){
   const g=(gifts||[]).filter(x=>x.to===id&&x.state==="sent");
@@ -2964,6 +2978,12 @@ function giftBanner(id){
   return g.map(x=>'<div class="note gift">🎁 <b>'+E(x.fromName)+'</b> sent you <b>'+E(x.qty)+' × '+E(x.item)+'</b> <button type="button" class="btn small primary" data-act="gvtake" data-gid="'+E(x.id)+'">Take</button></div>').join("");
 }
 let gifts=[];
+async function giftSend(id,idx,to,q){
+  const c=chars[id],l=invParse(c.inventory),x=l[idx];if(!x||!to||x.q<1)return false;
+  q=Math.max(1,Math.min(x.q,q||1));x.q-=q;invSave(id,l);
+  try{await setDoc(doc(collection(db,"gifts")),{from:id,fromName:(c.name||"").split(" ")[0],to:to,item:x.n,qty:q,state:"sent",t:Date.now()});hostToast("Sent "+q+" × "+x.n+" to "+rosterName(to)+". They tap Take to receive it.",6000);return true}
+  catch(err){x.q+=q;invSave(id,l);hostToast("Could not send ("+(err&&err.code||"error")+"). Nothing was taken from you. Publish the new firestore.rules in Firebase.",9000);return false}
+}
 function invAdd(id,name,q){
   const list=invParse(chars[id].inventory),k=name.toLowerCase(),f=list.filter(x=>x.n.toLowerCase()===k)[0];
   if(f)f.q+=q;else list.push({n:name,q:q});
@@ -2972,7 +2992,7 @@ function invAdd(id,name,q){
 document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const act=b.getAttribute("data-act");
-  if(!/^(invd|invdel|invadd|invgive|gvcancel|gvsend|gvtake|gold|mktreat)$/.test(act))return;
+  if(!/^(invd|invdel|invadd|invgive|gvcancel|gvsend|gvtake|gold|mktreat|chefgive)$/.test(act))return;
   const id=openId,c=id?chars[id]:null;if(!c||!canEditChar(id))return;
   if(act==="gold"){c.gold=Math.max(0,(Number(c.gold)||0)+Number(b.dataset.d));saveChar(id,["gold"]);renderSheet();return}
   if(act==="invd"){const l=invParse(c.inventory),x=l[Number(b.dataset.i)];if(!x)return;x.q=Math.max(0,x.q+Number(b.dataset.d));invSave(id,l);renderSheet();return}
@@ -2981,12 +3001,13 @@ document.addEventListener("click",async e=>{
   if(act==="invgive"){ckGive={id:id,i:Number(b.dataset.i)};renderSheet();return}
   if(act==="gvcancel"){ckGive=null;renderSheet();return}
   if(act==="gvsend"){
-    const l=invParse(c.inventory),x=l[ckGive&&ckGive.i];if(!x)return;
-    const to=$("gvTo").value,q=Math.max(1,Math.min(x.q,parseInt($("gvQty").value,10)||1));if(!to||!x.q)return;
-    x.q-=q;invSave(id,l);ckGive=null;
-    try{await setDoc(doc(collection(db,"gifts")),{from:id,fromName:(c.name||"").split(" ")[0],to:to,item:x.n,qty:q,state:"sent",t:Date.now()});hostToast("Sent "+q+" × "+x.n+" to "+rosterName(to)+". They tap Take to receive it.",6000)}
-    catch(err){x.q+=q;invSave(id,l);hostToast("Could not send ("+(err&&err.code||"error")+"). Nothing was taken from you. Publish the new firestore.rules in Firebase.",9000)}
-    renderSheet();return}
+    const idx=ckGive&&ckGive.i;ckGive=null;
+    await giftSend(id,idx,$("gvTo").value,parseInt($("gvQty").value,10)||1);renderSheet();return}
+  if(act==="chefgive"){
+    const l=invParse(c.inventory),idx=l.findIndex(x=>/bolstering treat/i.test(x.n)&&x.q>0);
+    if(idx<0){hostToast("You have no Bolstering Treats yet. Tap Make a treat first.",6000);return}
+    const to=$("chefTo")&&$("chefTo").value;if(!to){hostToast("Nobody to send it to yet. The others need to open the app once.",7000);return}
+    await giftSend(id,idx,to,parseInt($("chefQty").value,10)||1);renderSheet();return}
   if(act==="gvtake"){
     const g=gifts.filter(y=>y.id===b.dataset.gid)[0];if(!g)return;
     try{await setDoc(doc(db,"gifts",g.id),Object.assign({},g.raw,{state:"taken",takenAt:Date.now()}));invAdd(id,g.item,g.qty);hostToast("Added "+g.qty+" × "+g.item+" to your inventory.")}
@@ -3045,6 +3066,8 @@ function planHtml(){
 let planSel=null;
 function planSubscribe(){
   if(planOn)return;planOn=true;
+  unsubs.push(onSnapshot(collection(db,"recaps"),snap=>{recaps=snap.docs.map(d=>Object.assign({id:d.id},d.data()));planRefresh()},()=>{}));
+  unsubs.push(onSnapshot(doc(db,"stash","main"),snap=>{stash=snap.exists()?Object.assign({gold:0,items:[]},snap.data()):{gold:0,items:[]};planRefresh()},()=>{}));
   unsubs.push(onSnapshot(collection(db,"roster"),snap=>{roster={};snap.docs.forEach(d=>{roster[d.id]=d.data()||{}})},()=>{}));
   unsubs.push(onSnapshot(collection(db,"availability"),snap=>{avail={};snap.docs.forEach(d=>{avail[d.id]=d.data()||{}});planRefresh()},()=>{}));
   unsubs.push(onSnapshot(doc(db,"plans","next"),snap=>{nextSession=snap.exists()?snap.data():null;planRefresh();if(openId)renderNavSafe()},()=>{}));
@@ -3053,14 +3076,14 @@ function planSubscribe(){
 }
 function renderNavSafe(){try{renderNav()}catch(e){}}
 function planRefresh(){
-  if(isDM()){const h=$("viewPlan");if(h&&!h.hidden&&!sheetFocused())h.innerHTML='<div class="sheet">'+planHtml()+'</div>'}
+  if(isDM()){const h=$("viewPlan");if(h&&!h.hidden&&!sheetFocused())h.innerHTML='<div class="sheet">'+partyBody()+'</div>'}
   else if(sheetTab==="plan"&&!sheetFocused())renderSheet();
 }
 document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const act=b.getAttribute("data-act");
   if(!/^(plmon|pldate|plset|plclear)$/.test(act))return;
-  const redraw=()=>{if(isDM()){const h=$("viewPlan");if(h)h.innerHTML='<div class="sheet">'+planHtml()+'</div>'}else renderSheet()};
+  const redraw=()=>{if(isDM()){const h=$("viewPlan");if(h)h.innerHTML='<div class="sheet">'+partyBody()+'</div>'}else renderSheet()};
   if(act==="plmon"){planMonth=new Date(planMonth.getFullYear(),planMonth.getMonth()+Number(b.dataset.d),1);redraw();return}
   if(act==="pldate"){
     const key=b.dataset.d;
@@ -3078,6 +3101,183 @@ document.addEventListener("click",async e=>{
   if(act==="plclear"&&isDM()){try{await deleteDoc(doc(db,"plans","next"))}catch(err){}nextSession=null;redraw()}
 });
 
+/* ================= guided rests ================= */
+let restUi=null;
+const rndDie=n=>1+Math.floor(Math.random()*n);
+function restClassOpts(c){
+  const ck=clsKey(c),lv=c.level,o={};
+  if(ck==="Wizard")o.arcane=Math.ceil(lv/2);
+  if(ck==="Sorcerer"&&lv>=5){const i=c.resources.findIndex(r=>/sorcery point/i.test(r.name));if(i>=0)o.sorc={i:i,max:Math.floor(lv/2)}}
+  return o;
+}
+function restHtml(){
+  const u=restUi,c=chars[u.id];if(!c)return "";
+  const info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con),hi=c.resources.findIndex(r=>r.reset==="hitdice");
+  let h='<div class="rest-box" role="dialog" aria-modal="true" aria-label="'+(u.kind==="long"?"Long rest":"Short rest")+'"><h3>'+(u.kind==="long"?"🌙 Long rest":"☕ Short rest")+' <span class="sub">'+E((c.name||"").split(" ")[0])+'</span></h3>';
+  if(u.kind==="short"){
+    const left=hi>=0?Math.max(0,c.resources[hi].max-c.resources[hi].used):0;
+    h+='<div class="lv-sec"><div class="lv-k">Spend Hit Dice to heal</div><div class="sub">You have <b>'+left+'</b> d'+die+' left. Each heals the die + your Constitution modifier ('+sgn(cm)+').</div>';
+    h+='<div class="rest-row"><button type="button" class="btn small" data-act="rsn" data-d="-1" aria-label="One fewer die">−</button><b class="rest-n">'+u.n+'</b><button type="button" class="btn small" data-act="rsn" data-d="1" aria-label="One more die">+</button> <span class="sub">dice</span><button type="button" class="btn small" data-act="rsroll"'+(u.n?"":" disabled")+'>🎲 Roll for me</button></div>';
+    if(u.n){h+='<div class="rest-row"><label class="f">Total healing<input type="number" id="restHeal" min="0" inputmode="numeric" value="'+E(u.heal==null?"":u.heal)+'" placeholder="roll, or type it"></label></div>'+(u.rolls.length?'<div class="sub">Rolled '+u.rolls.join(", ")+' '+sgn(cm)+' each.</div>':'');
+      const hh=Math.max(0,parseInt(u.heal,10)||0);h+='<div class="rest-calc">HP '+c.hp+' / '+c.hpMax+' → <b>'+Math.min(c.hpMax,c.hp+hh)+'</b></div>'}
+    h+='</div>';
+    const o=restClassOpts(c);
+    if(o.arcane){
+      const used=Object.keys(u.arc).reduce((a,k)=>a+Number(k)*u.arc[k],0);
+      h+='<div class="lv-sec"><div class="lv-k">Arcane Recovery <span class="sub">once per Long Rest</span></div><div class="sub">Regain spell slots worth up to <b>'+o.arcane+'</b> levels combined (none above level 5). Chosen: '+used+' of '+o.arcane+'.</div><div class="rest-row">';
+      Object.keys(c.slots).filter(k=>Number(k)<=5&&c.slots[k].used>0).forEach(k=>{
+        const n=u.arc[k]||0,can=Math.min(c.slots[k].used,Math.floor((o.arcane-used+n*Number(k))/Number(k)));
+        h+='<span class="rest-slot">L'+k+' <button type="button" class="btn small" data-act="rsarc" data-k="'+k+'" data-d="-1">−</button><b>'+n+'</b><button type="button" class="btn small" data-act="rsarc" data-k="'+k+'" data-d="1"'+((used+Number(k)>o.arcane||n>=c.slots[k].used)?" disabled":"")+'>+</button></span>'});
+      h+='</div></div>';
+    }
+    if(o.sorc){const r=c.resources[o.sorc.i];h+='<div class="lv-sec"><label class="prof"><input type="checkbox" id="restSorc" style="width:22px;height:22px"'+(u.sorc?" checked":"")+'> <span><b>Sorcerous Restoration</b> regain up to '+o.sorc.max+' Sorcery Points (once per Long Rest)</span></label></div>'}
+    if(classInfo(c.cls)&&classInfo(c.cls).caster==="pact")h+='<div class="lv-line"><b>Pact Magic</b> Your Pact slots all come back on a Short Rest.</div>';
+    h+='<div class="sub">Short-rest features also refresh (for example Second Wind or Channel Divinity uses).</div>';
+  }else{
+    const hd=hi>=0?Math.ceil(c.resources[hi].max/2):0;
+    h+='<div class="lv-sec"><ul class="rest-list"><li>HP back to <b>'+c.hpMax+'</b> and temporary HP gone</li><li>All spell slots and per-rest features refresh</li>'+(hi>=0?'<li>Regain <b>'+hd+'</b> Hit Dice (half your total, rounded up)</li>':'')+(c.exhaustion?'<li>Exhaustion goes down by 1 (level '+c.exhaustion+' → '+(c.exhaustion-1)+')</li>':'')+'<li>Concentration ends</li></ul></div><div class="sub">Prepared spells can be changed after a Long Rest. Spell lists are on the Spells tab.</div>';
+  }
+  h+='<div class="rest-actions"><button type="button" class="btn" data-act="rscancel">Cancel</button><button type="button" class="btn primary" data-act="rsfin">Finish '+(u.kind==="long"?"long":"short")+' rest</button></div></div>';
+  return h;
+}
+function renderRest(){
+  let m=document.getElementById("restModal");
+  if(!restUi){if(m)m.remove();return}
+  if(!m){m=document.createElement("div");m.id="restModal";m.className="rest-modal";document.body.appendChild(m)}
+  const keep=m.firstChild?m.scrollTop:0;m.innerHTML=restHtml();m.scrollTop=keep;
+}
+function openRest(kind){if(!openId||!chars[openId])return;restUi={kind:kind,id:openId,n:0,rolls:[],heal:null,arc:{},sorc:false};renderRest()}
+function finishRest(){
+  const u=restUi,c=chars[u.id];if(!c){restUi=null;renderRest();return}
+  const keys=["hp","slots","resources","hpTemp"];
+  if(u.kind==="short"){
+    const hi=c.resources.findIndex(r=>r.reset==="hitdice"),heal=Math.max(0,parseInt(u.heal,10)||0);
+    if(hi>=0&&u.n)c.resources[hi].used=Math.min(c.resources[hi].max,c.resources[hi].used+u.n);
+    applyRest(u.id,"short");
+    if(u.n)c.hp=Math.min(c.hpMax,c.hp+heal);
+    Object.keys(u.arc).forEach(k=>{if(c.slots[k])c.slots[k].used=Math.max(0,c.slots[k].used-u.arc[k])});
+    const cb=document.getElementById("restSorc");
+    if(cb&&cb.checked){const o=restClassOpts(c);if(o.sorc){const r=c.resources[o.sorc.i];r.used=Math.max(0,r.used-o.sorc.max)}}
+    saveChar(u.id,keys);
+    hostToast("Short rest taken"+(u.n?". Healed "+heal+" HP using "+u.n+" Hit Di"+(u.n===1?"e":"ce"):"")+".",5000);
+  }else{applyRest(u.id,"long");hostToast("Long rest taken. You’re fully rested.",5000)}
+  restUi=null;renderRest();if(openId)renderSheet();else renderParty();
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.getAttribute("data-act");
+  if(!/^(rsn|rsroll|rsarc|rscancel|rsfin)$/.test(act)||!restUi)return;
+  const c=chars[restUi.id];if(!c)return;
+  if(act==="rscancel"){restUi=null;renderRest();return}
+  if(act==="rsfin"){finishRest();return}
+  const info=classInfo(c.cls),die=info?info.die:8,cm=mod(c.abilities.con),hi=c.resources.findIndex(r=>r.reset==="hitdice"),left=hi>=0?Math.max(0,c.resources[hi].max-c.resources[hi].used):0;
+  if(act==="rsn"){restUi.n=Math.max(0,Math.min(left,restUi.n+Number(b.dataset.d)));restUi.rolls=[];restUi.heal=null;renderRest();return}
+  if(act==="rsroll"){restUi.rolls=[];let sum=0;for(let i=0;i<restUi.n;i++){const r=rndDie(die);restUi.rolls.push(r);sum+=Math.max(0,r+cm)}restUi.heal=sum;renderRest();return}
+  if(act==="rsarc"){const k=b.dataset.k;restUi.arc[k]=Math.max(0,(restUi.arc[k]||0)+Number(b.dataset.d));if(!restUi.arc[k])delete restUi.arc[k];renderRest();return}
+});
+document.addEventListener("input",e=>{if(e.target.id==="restHeal"&&restUi){restUi.heal=e.target.value;const c=chars[restUi.id];const x=document.querySelector(".rest-calc");if(x&&c)x.innerHTML="HP "+c.hp+" / "+c.hpMax+" → <b>"+Math.min(c.hpMax,c.hp+Math.max(0,parseInt(e.target.value,10)||0))+"</b>"}});
+
+/* ================= recap and party stash, shared party tab ================= */
+let recaps=[],stash={gold:0,items:[]},partySub="plan";
+const curSub=()=>isDM()?subMore:partySub;
+function partyChips(){
+  if(isDM())return "";
+  return '<div class="chips-row" style="margin-bottom:.7rem">'+[["plan","📅 Dates"],["recap","📜 Recap"],["stash","💰 Stash"]].map(x=>'<button type="button" class="chip'+(partySub===x[0]?" on":"")+'" data-act="psub" data-s="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>';
+}
+function partyBody(){
+  const s=curSub();
+  return partyChips()+(s==="recap"?recapHtml():s==="stash"?stashHtml():planHtml());
+}
+function recapHtml(){
+  const dm=isDM();let h='';
+  if(dm)h+='<div class="pane"><h3>Post a recap</h3><label class="f">Title<input type="text" id="rcTitle" placeholder="Session 12: The sunken vault" autocomplete="off"></label><label class="f" style="margin-top:8px">What happened<textarea id="rcText" rows="5" placeholder="Quests, people met, loot, cliffhanger…"></textarea></label><button type="button" class="btn primary" data-act="rcpost" style="margin-top:8px">Post to players</button></div>';
+  h+='<div class="pane"><h3>Session recaps</h3>';
+  if(!recaps.length)h+='<div class="sub">'+(dm?"Nothing posted yet.":"Your DM hasn’t posted a recap yet.")+'</div>';
+  recaps.slice().sort((a,b)=>b.t-a.t).forEach((r,i)=>{
+    h+='<details class="entry"'+(i===0?" open":"")+'><summary>'+E(r.date||"")+' · '+E(r.title||"Recap")+'</summary><div class="body">'+prose(r.text)+(dm?'<button type="button" class="btn small danger" data-act="rcdel" data-id="'+E(r.id)+'" style="margin-top:8px">Delete</button>':'')+'</div></details>';
+  });
+  return h+'</div>';
+}
+function stashHtml(){
+  const dm=isDM(),me=dm?null:charId;
+  let h='<div class="pane"><h3>Party stash <span class="sub">shared by the whole party</span></h3>';
+  h+='<div class="stash-gold"><b>'+(Number(stash.gold)||0)+' gp</b> <input type="number" id="stAmt" min="1" inputmode="numeric" placeholder="amount" aria-label="Gold amount"><button type="button" class="btn small" data-act="stgold" data-d="1">Put in</button>'+(dm?'<button type="button" class="btn small primary" data-act="stsplit">Split evenly</button>':'<button type="button" class="btn small primary" data-act="stgold" data-d="-1">Take</button>')+'</div>';
+  const items=stash.items||[];
+  if(!items.length)h+='<div class="sub" style="margin-top:8px">No items in the stash.</div>';
+  items.forEach((x,i)=>{
+    h+='<div class="inv-row"><span class="inv-n">'+E(x.n)+' <span class="sub">×'+x.q+'</span></span><span class="inv-q">'+(dm?'':'<input type="number" min="1" max="'+x.q+'" value="1" class="inv-in" id="stq'+i+'" inputmode="numeric" aria-label="How many to take"><button type="button" class="btn small primary" data-act="sttake" data-i="'+i+'">Take</button>')+'<button type="button" class="btn small danger" data-act="stdel" data-i="'+i+'" aria-label="Remove '+E(x.n)+'">✕</button></span></div>';
+  });
+  h+='<div class="inv-add"><input type="text" id="stName" placeholder="Add an item" autocomplete="off"><input type="number" id="stQty" min="1" value="1" inputmode="numeric"><button type="button" class="btn small primary" data-act="stadd">Add</button></div>';
+  return h+'<div class="sub" style="margin-top:8px">'+(dm?"Split gold shares it between all player sheets. Players take items into their own inventory.":"Take moves gold or items onto your sheet.")+'</div></div>';
+}
+async function stashSave(next){
+  const prev=stash;stash=next;
+  try{await setDoc(doc(db,"stash","main"),Object.assign({},next,{updated:Date.now()}));return true}
+  catch(err){stash=prev;hostToast("Could not update the stash ("+(err&&err.code||"error")+"). Publish the new firestore.rules.",8000);return false}
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.getAttribute("data-act");
+  if(!/^(psub|rcpost|rcdel|stgold|stsplit|sttake|stdel|stadd)$/.test(act))return;
+  const redraw=()=>{if(isDM()){const h=$("viewPlan");if(h)h.innerHTML='<div class="sheet">'+partyBody()+'</div>'}else renderSheet()};
+  if(act==="psub"){partySub=b.dataset.s;renderSheet();return}
+  const cp=()=>JSON.parse(JSON.stringify({gold:Number(stash.gold)||0,items:stash.items||[]}));
+  if(act==="rcpost"&&isDM()){
+    const t=($("rcTitle").value||"").trim(),x=($("rcText").value||"").trim();if(!t&&!x)return;
+    try{await setDoc(doc(collection(db,"recaps")),{title:t||"Recap",text:x,date:ymd(new Date()),t:Date.now()});hostToast("Recap posted. Players see it on their Party tab.",5000)}catch(err){hostToast("Could not post ("+(err&&err.code||"error")+"). Publish the new firestore.rules.",8000)}
+    return}
+  if(act==="rcdel"&&isDM()){if(!confirm("Delete this recap?"))return;try{await deleteDoc(doc(db,"recaps",b.dataset.id))}catch(err){}return}
+  if(act==="stadd"){const n=($("stName").value||"").trim(),q=Math.max(1,parseInt($("stQty").value,10)||1);if(!n)return;const s=cp(),f=s.items.filter(x=>x.n.toLowerCase()===n.toLowerCase())[0];if(f)f.q+=q;else s.items.push({n:n,q:q});await stashSave(s);redraw();return}
+  if(act==="stdel"){const s=cp();s.items.splice(Number(b.dataset.i),1);await stashSave(s);redraw();return}
+  if(act==="stgold"){
+    const amt=Math.max(0,parseInt($("stAmt").value,10)||0);if(!amt)return;const s=cp(),d=Number(b.dataset.d);
+    if(isDM()){s.gold+=amt;await stashSave(s);redraw();return}
+    const c=chars[charId];if(!c)return;
+    if(d>0){if((Number(c.gold)||0)<amt){hostToast("You only have "+c.gold+" gp.");return}
+      s.gold+=amt;if(await stashSave(s)){c.gold-=amt;saveChar(charId,["gold"])}}
+    else{if(s.gold<amt){hostToast("The stash only has "+s.gold+" gp.");return}
+      s.gold-=amt;if(await stashSave(s)){c.gold=(Number(c.gold)||0)+amt;saveChar(charId,["gold"])}}
+    redraw();return}
+  if(act==="stsplit"&&isDM()){
+    const ids=Object.keys(chars).filter(k=>!chars[k].npc),s=cp();if(!ids.length||s.gold<ids.length){hostToast("Not enough gold to split.");return}
+    const share=Math.floor(s.gold/ids.length);
+    if(!confirm("Give each of the "+ids.length+" players "+share+" gp"+(s.gold-share*ids.length?" ("+(s.gold-share*ids.length)+" gp stays in the stash)":"")+"?"))return;
+    s.gold-=share*ids.length;
+    if(await stashSave(s))ids.forEach(k=>{chars[k].gold=(Number(chars[k].gold)||0)+share;saveChar(k,["gold"])});
+    redraw();return}
+  if(act==="sttake"&&!isDM()){
+    const i=Number(b.dataset.i),s=cp(),x=s.items[i];if(!x)return;
+    const q=Math.max(1,Math.min(x.q,parseInt(($("stq"+i)||{}).value,10)||1));
+    x.q-=q;if(x.q<=0)s.items.splice(i,1);
+    if(await stashSave(s)){invAdd(charId,x.n,q);hostToast("Took "+q+" × "+x.n+". It’s in your inventory.")}
+    redraw();return}
+});
+
+/* ---- numbers that follow your level ---- */
+function tokX(x){
+  if(!tokCtx||x.indexOf("{")<0)return x;
+  const c=tokCtx,pb=prof(c.level);
+  return x.replace(/\{(pb|dc|atk|mod)(?::(str|dex|con|int|wis|cha))?\}/g,(m,k,ab)=>{
+    if(k==="pb")return String(pb);
+    const v=mod((c.abilities||{})[ab]);
+    return k==="dc"?String(8+pb+v):k==="atk"?sgn(pb+v):sgn(v);
+  });
+}
+function atkAuto(c,a){
+  const m=/^(str|dex|fin|con|int|wis|cha)(\+p)?$/.exec(String(a&&a.auto||""));if(!m)return null;
+  const ab=m[1]==="fin"?(mod(c.abilities.str)>=mod(c.abilities.dex)?"str":"dex"):m[1];
+  return sgn(mod(c.abilities[ab])+(m[2]?prof(c.level):0));
+}
+const ATK_AUTO=[["","Typed in"],["str+p","Strength + proficiency"],["dex+p","Dexterity + proficiency"],["fin+p","Finesse (best of Str/Dex) + proficiency"],["str","Strength only"],["dex","Dexterity only"],["cha+p","Charisma + proficiency"],["wis+p","Wisdom + proficiency"],["int+p","Intelligence + proficiency"]];
+function spMode(s){if(typeof s.mode==="string")return s.mode;const d=String(s.desc||"");if(/lineage|species|racial|\bfeat\b|initiate|background|via |at will|invocation|free cast/i.test(d))return "extra";if(/always prepared|domain|circle|oath/i.test(d))return "always";return ""}
+const SP_MODES=[["","Prepared"],["always","Always prepared"],["ritual","Ritual only"],["extra","Granted (species, feat, item)"]];
+function levelFeatures(c,nl){
+  const ck=clsKey(c),out=[];if(!ck)return out;
+  (((LV24.c[ck]||{})[nl]||{}).f||[]).forEach(n=>{if(CHK_SKIP.test(n)||ckHas(c,n))return;c.features.push({name:n,desc:FEAT24[n]||"Look up the full text of "+n+" in your 2024 Player’s Handbook."});out.push(n)});
+  const sk=subKey(c);
+  if(sk)((LV24.s[sk]||{})[nl]||[]).forEach(n=>{if(ckHas(c,n))return;c.features.push({name:sk+": "+n,desc:"Subclass feature. Read the full text of "+n+" in your 2024 Player’s Handbook, or ask your DM."});out.push(n)});
+  return out;
+}
 /* ================= auth flow ================= */
 function showGate(msg){
   unsubs.forEach(u=>u());unsubs=[];Object.keys(charSubs).forEach(k=>charSubs[k].forEach(u=>u()));charSubs={};

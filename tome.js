@@ -194,7 +194,7 @@ function addNPC(){mkCard('npc-list',[
 function addMon(){
   const card = mkCard('mon-list',[
     {cols:5,items:[{key:'mn-name',label:'Name',placeholder:'Vampire Spawn'},{key:'mn-cr',label:'CR',placeholder:'5'},{key:'mn-hp',label:'HP',placeholder:'82'},{key:'mn-ac',label:'AC',placeholder:'15'},{key:'mn-n',label:'Count',placeholder:'2'}]},
-    {cols:2,items:[{key:'mn-mot',label:'Motivation',placeholder:'Feed and obey Strahd'},{key:'mn-tac',label:'Tactics',placeholder:'Bite first, charm if outnumbered'}]},
+    {cols:3,items:[{key:'mn-mot',label:'Motivation',placeholder:'Feed and obey Strahd'},{key:'mn-tac',label:'Tactics / attacks',type:'textarea',rows:3,placeholder:'Bite first, charm if outnumbered'},{key:'mn-base',label:'Stat block from',placeholder:'e.g. Stone Giant'}]},
     {cols:1,items:[{key:'mn-notes',label:'What Makes This Monster Interesting?',type:'textarea',rows:1,placeholder:'Beyond the stat block…',span:true}]}
   ]);
   if(card) addInitBtnToMonCard(card);
@@ -1454,13 +1454,14 @@ function addMonsterToInit(m,count,roll){
 function addMonsterToStep7(m,count){
   const card = mkCard('mon-list',[
     {cols:5,items:[{key:'mn-name',label:'Name',placeholder:'Monster'},{key:'mn-cr',label:'CR',placeholder:'CR'},{key:'mn-hp',label:'HP',placeholder:'HP'},{key:'mn-ac',label:'AC',placeholder:'AC'},{key:'mn-n',label:'Count',placeholder:'1'}]},
-    {cols:2,items:[{key:'mn-mot',label:'Motivation',placeholder:''},{key:'mn-tac',label:'Tactics',placeholder:''}]},
+    {cols:3,items:[{key:'mn-mot',label:'Motivation',placeholder:''},{key:'mn-tac',label:'Tactics / attacks',type:'textarea',rows:3,placeholder:''},{key:'mn-base',label:'Stat block from',placeholder:'e.g. Stone Giant'}]},
     {cols:1,items:[{key:'mn-notes',label:'What Makes It Interesting?',type:'textarea',rows:1,placeholder:'',span:true}]}
   ]);
   if(card){
     const setK = (k,v) => { const el=card.querySelector('[data-key="'+k+'"]'); if(el)el.value=v; };
     setK('mn-name',m.name); setK('mn-cr',m.cr); setK('mn-hp',m.hp); setK('mn-ac',m.ac); setK('mn-n',String(Math.max(1,parseInt(count)||1)));
-    setK('mn-tac', m.actions ? m.actions.split(',')[0] : '');
+    setK('mn-tac', (m._act&&m._act.length) ? m._act.map(a=>a[0]+'. '+a[1]).join('\n') : plainTac(m.actions));
+    setK('mn-base', m.name);
   }
   if(card) addInitBtnToMonCard(card);
   if(typeof renderEncTester==='function') setTimeout(renderEncTester,50);
@@ -4022,7 +4023,7 @@ function renderRunMode(){
       const div=document.createElement('div'); div.className='run-item';
       div.innerHTML=`<div class="run-item-top"><span class="run-item-name">${escH(m['mn-name'])}${(parseInt(m['mn-n'])||1)>1?' ×'+escH(m['mn-n']):''}</span>
         <span class="run-tag${cr>b.singleMax?' is-hot':''}">CR ${escH(m['mn-cr']||'?')}</span></div>
-        <div class="run-small">HP ${escH(m['mn-hp']||'?')}, AC ${escH(m['mn-ac']||'?')}${m['mn-tac']?'. '+escH(m['mn-tac']):''}</div>
+        <div class="run-small">HP ${escH(m['mn-hp']||'?')}, AC ${escH(m['mn-ac']||'?')}${m['mn-tac']?'. '+escH(tacShort(m['mn-tac'])):''}</div>
         ${m['mn-notes']?`<div class="run-small run-secretish">${escH(m['mn-notes'])}</div>`:''}`;
       const btns=document.createElement('div'); btns.className='run-mon-btns';
       [['add-init','Add to initiative'],['roll-init','Roll and add'],['roll-indiv','Roll each']].forEach(([role,label])=>{
@@ -4449,8 +4450,13 @@ nextTurn=(function(orig){ return function(){
 //  COMBAT DETAIL PANEL
 // ══════════════════════════════════════════════════════
 let panelTarget=null;
+function plainTac(s){ return String(s||'').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim(); }
+function tacShort(s){ const t=plainTac(s).replace(/\s*\n\s*/g,' '); return t.length>150?t.slice(0,147)+'…':t; }
 function findMonsterData(name){
   const base=String(name||'').replace(/\s*\(\d+\)\s*$/,'').replace(/\s+\d+\s*$/,'').trim().toLowerCase();
+  const pn=(typeof prepNotesFor==='function')?prepNotesFor(name):null;
+  const pb=pn&&String(pn['mn-base']||'').trim().toLowerCase();
+  if(pb){ const hit=MONSTERS.find(m=>m.name.toLowerCase()===pb)||MONSTERS.find(m=>m.name.toLowerCase().startsWith(pb)); if(hit) return hit; }
   return MONSTERS.find(m=>m.name.toLowerCase()===base) || MONSTERS.find(m=>base.startsWith(m.name.toLowerCase())) || null;
 }
 function prepNotesFor(name){
@@ -4512,7 +4518,7 @@ function monsterPanelHTML(c){
   const hp=c.isGroup?`${(c.members||[]).filter(x=>!x.dead).length} of ${(c.members||[]).length} standing`:`HP ${c.hp}/${c.hpMax}`;
   let html=`<h3 class="cp-name">${escH(c.name)}</h3><div class="cp-quick">AC ${escH(c.ac)}, ${hp}</div>`;
   if(notes && (notes['mn-mot']||notes['mn-tac']||notes['mn-notes'])){
-    html+=`<div class="cp-notes">${notes['mn-mot']?`<div><em>Wants:</em> ${escH(notes['mn-mot'])}</div>`:''}${notes['mn-tac']?`<div><em>Tactics:</em> ${escH(notes['mn-tac'])}</div>`:''}${notes['mn-notes']?`<div>${escH(notes['mn-notes'])}</div>`:''}</div>`;
+    html+=`<div class="cp-notes">${notes['mn-mot']?`<div><em>Wants:</em> ${escH(notes['mn-mot'])}</div>`:''}${notes['mn-tac']?`<div><em>Tactics:</em> ${escH(plainTac(notes['mn-tac'])).replace(/\n/g,'<br>')}</div>`:''}${notes['mn-notes']?`<div>${escH(notes['mn-notes'])}</div>`:''}</div>`;
   }
   html+= m?statBlockHTML(m):c.custom?customBlockHTML(c.custom):`<p class="run-empty">No stat block found for "${escH(c.name)}". Monsters added from the Monster DB, or named exactly as they appear there, show their full stats here.</p>`;
   if(!c.isGroup) html+=concBlockHTML(c,[]);
@@ -4869,7 +4875,7 @@ function buildPrintSheet(){
   const scenes=readList('scenes-list').filter(s=>s['sc-name']||s['sc-notes']).map(s=>`<li><b>${escH(s['sc-name']||'Scene')}</b>${s['sc-trig']?` <i>(${escH(s['sc-trig'])})</i>`:''}${s['sc-notes']?'. '+escH(s['sc-notes']):''}</li>`);
   const forks=readList('forks-list').filter(f=>f['fork-title']).map(f=>`<li>${escH(f['fork-title'])}${f['fork-a']?`<br><b>A:</b> ${escH(f['fork-a'])}`:''}${f['fork-b']?` <b>B:</b> ${escH(f['fork-b'])}`:''}</li>`);
   const npcs=readList('npc-list').filter(n=>n['np-name']).map(n=>`<li><b>${escH(n['np-name'])}</b>${n['np-role']?`, ${escH(n['np-role'])}`:''}${n['np-trait']?`. ${escH(n['np-trait'])}`:''}${n['np-want']?` <i>Wants:</i> ${escH(n['np-want'])}`:''}</li>`);
-  const mons=readList('mon-list').filter(m=>m['mn-name']).map(m=>`<li><b>${escH(m['mn-name'])}${(parseInt(m['mn-n'])||1)>1?' ×'+escH(m['mn-n']):''}</b> CR ${escH(m['mn-cr']||'?')}, AC ${escH(m['mn-ac']||'?')}, HP ${escH(m['mn-hp']||'?')}${m['mn-tac']?'. '+escH(m['mn-tac']):''}</li>`);
+  const mons=readList('mon-list').filter(m=>m['mn-name']).map(m=>`<li><b>${escH(m['mn-name'])}${(parseInt(m['mn-n'])||1)>1?' ×'+escH(m['mn-n']):''}</b> CR ${escH(m['mn-cr']||'?')}, AC ${escH(m['mn-ac']||'?')}, HP ${escH(m['mn-hp']||'?')}${m['mn-tac']?'. '+escH(tacShort(m['mn-tac'])):''}</li>`);
   const locs=readList('loc-list').filter(l=>l['lo-name']).map(l=>`<li><b>${escH(l['lo-name'])}</b>${l['lo-desc']?'. '+escH(l['lo-desc']):''}${l['lo-asp']?` <i>${escH(l['lo-asp']).replace(/\n/g,'; ')}</i>`:''}</li>`);
   const treas=readList('treas-list').filter(t=>t['tr-name']).map(t=>`<li class="ps-box">${escH(t['tr-name'])}</li>`);
   if(!improvKit) improvKit=newImprovKit();

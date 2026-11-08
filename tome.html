@@ -592,6 +592,23 @@
 
     <div class="gen-grid">
 
+      <!-- D100 ROLL TABLES -->
+      <div class="gen-card gen-full">
+        <div class="gen-card-title">d100 Roll Tables</div>
+        <div class="gen-card-hint">Tables made for this campaign. Roll for one result, or twice for two different ones. Click a result to copy it.</div>
+        <div class="gen-controls" style="margin-bottom:calc(.6*var(--tr))">
+          <select class="gen-select" id="d100-table">
+            <option value="derrick">Derrick's finds (forage)</option>
+            <option value="wilds">Wilds travel events</option>
+          </select>
+          <button class="gen-btn" data-ac="fn-d100Roll">🎲 Roll d100</button>
+          <button class="gen-btn" data-ac="fn-d100Roll2">🎲 Roll twice</button>
+        </div>
+        <div class="gen-result" id="d100-result" title="Click to copy">Roll to see a result…</div>
+        <div class="gen-history" id="d100-history"></div>
+        <details class="d100-details"><summary>Show the full table</summary><div id="d100-full"></div></details>
+      </div>
+
       <!-- NPC GENERATOR -->
       <div class="gen-card gen-full">
         <div class="gen-card-title">Quick NPC</div>

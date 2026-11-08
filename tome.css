@@ -1170,3 +1170,10 @@ body.printing-sheet #print-sheet{display:block;color:#111;font-family:'Crimson T
 #print-sheet li.ps-box{list-style:none;margin-left:-3.5mm;padding-left:4.5mm;position:relative}
 #print-sheet li.ps-box::before{content:'';position:absolute;left:0;top:.6mm;width:2.4mm;height:2.4mm;border:.25mm solid #111}
 #print-sheet .ps-notes{margin-top:2mm;border-top:.3mm solid #999;padding-top:1mm;font-family:'Cinzel',Georgia,serif;font-size:7.5pt;color:#555;min-height:18mm}}
+
+#tome .d100-details{margin-top:.5rem}
+#tome .d100-details summary{cursor:pointer;font-weight:600}
+#tome .d100-band{margin:.6rem 0 .2rem;font-weight:700;opacity:.75;font-size:.85em;text-transform:uppercase;letter-spacing:.04em}
+#tome .d100-row{padding:.15rem .3rem;border-radius:4px;line-height:1.35}
+#tome .d100-row b{display:inline-block;min-width:1.9em;opacity:.7}
+#tome .d100-row.hit{background:rgba(180,140,40,.28)}
